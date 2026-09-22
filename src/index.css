@@ -1,0 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Fredoka:wght@500;600;700&display=swap');
+
+@import "tailwindcss";
+
+@theme {
+  --font-display: "Fredoka", sans-serif;
+  --font-body: "Figtree", sans-serif;
+
+  --color-ink: #0A0A0A;
+  --color-paper: #FFFFFF;
+  --color-mist: #F2F4F6;
+  --color-line: #DBE0E5;
+  --color-slate: #565B62;
+
+  --color-blue: #0B84D1;
+  --color-pink: #E31C79;
+  --color-violet: #4B2E93;
+  --color-orange: #F2891C;
+  --color-yellow: #F5C443;
+  --color-teal: #0FA3B1;
+}
+
+body {
+  margin: 0;
+  font-family: "Figtree", sans-serif;
+  color: #0A0A0A;
+  background: #FFFFFF;
+}
+
+* {
+  box-sizing: border-box;
+}
