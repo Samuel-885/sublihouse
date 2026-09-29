@@ -1,11 +1,10 @@
+import { Route, Routes } from "react-router"
+
 import Header from "./components/layout/Header"
-import Hero from "./components/home/Hero"
-import Categories from "./components/home/Categories"
-import FeaturedProducts from "./components/home/FeaturedProducts"
-import PersonalizationSection from "./components/home/PersonalizationSection"
-import Benefits from "./components/home/Benefits"
-import FinalCTA from "./components/home/FinalCTA"
 import Footer from "./components/layout/Footer"
+
+import Home from "./pages/Home"
+import Products from "./pages/Products"
 
 function App() {
   return (
@@ -13,12 +12,10 @@ function App() {
       <Header />
 
       <main>
-        <Hero />
-        <Categories />
-        <FeaturedProducts />
-        <PersonalizationSection />
-        <Benefits />
-        <FinalCTA />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/products" element={<Products />} />
+        </Routes>
       </main>
 
       <Footer />

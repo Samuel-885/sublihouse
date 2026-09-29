@@ -1,35 +1,10 @@
 import ProductCard from "../product/ProductCard"
+import { products } from "../../data/products"
 
-const featuredProducts = [
-  {
-    id: 1,
-    name: "Caneca Personalizada",
-    price: 14.9,
-    color: "#E31C79",
-    badge: "Personalizável",
-  },
-  {
-    id: 2,
-    name: "Caneca Mágica",
-    price: 8.5,
-    color: "#0B84D1",
-    badge: "Novo",
-  },
-  {
-    id: 3,
-    name: "Fotopresente",
-    price: 15.9,
-    color: "#F2891C",
-  },
-  {
-    id: 4,
-    name: "Porta-chaves Personalizado",
-    price: 6.9,
-    color: "#4B2E93",
-  },
-]
+
 
 function FeaturedProducts() {
+const featuredProducts = products.slice(0, 4)
   return (
     <section
       id="produtos"

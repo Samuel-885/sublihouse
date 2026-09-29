@@ -1,3 +1,5 @@
+import { Link } from "react-router"
+
 function Hero() {
   return (
     <section className="bg-[#FCFBF8]">
@@ -24,12 +26,12 @@ function Hero() {
               Criar a tua prenda
             </a>
 
-            <a
-              href="#produtos"
-              className="rounded-[10px] border border-ink px-5 py-3 text-center text-sm font-semibold transition-colors hover:bg-ink hover:text-paper"
+            <Link
+              to="/products"
+              className="rounded-xl border border-ink px-5 py-3 text-center text-sm font-semibold transition-colors hover:bg-ink hover:text-paper"
             >
               Ver produtos
-            </a>
+            </Link>
           </div>
         </div>
 

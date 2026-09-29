@@ -1,14 +1,36 @@
 import { useState } from "react"
 import { Menu, Search, ShoppingCart, X } from "lucide-react"
+import { Link, NavLink } from "react-router"
 
 const navigationItems = [
-  "Início",
-  "Criar a tua prenda",
-  "Papelaria Personalizada",
-  "Canecas Temáticas",
-  "Canecas Mágicas",
-  "Promoções",
-  "Contacto",
+  {
+    label: "Início",
+    to: "/",
+  },
+  {
+    label: "Criar a tua prenda",
+    to: "/#personalizar",
+  },
+  {
+    label: "Papelaria Personalizada",
+    to: "/products",
+  },
+  {
+    label: "Canecas Temáticas",
+    to: "/products",
+  },
+  {
+    label: "Canecas Mágicas",
+    to: "/products",
+  },
+  {
+    label: "Promoções",
+    to: "/products",
+  },
+  {
+    label: "Contacto",
+    to: "/#contacto",
+  },
 ]
 
 function Header() {
@@ -55,12 +77,12 @@ function Header() {
         </button>
 
           {/* Logo temporária */}
-          <a
-            href="/"
+          <Link
+            to="/"
             className="font-display whitespace-nowrap text-xl font-semibold sm:text-2xl"
           >
             Sublime House
-          </a>
+          </Link>
 
           {/* Busca desktop */}
           <div className="hidden flex-1 lg:block">
@@ -126,13 +148,13 @@ function Header() {
         <nav className="border-b border-line bg-paper lg:hidden">
             <ul className="mx-auto flex max-w-360 flex-col px-4 py-4 sm:px-6">
             {navigationItems.map((item) => (
-                <li key={item}>
-                <a
-                    href="#"
-                    className="block border-b border-line py-3 text-sm font-semibold last:border-0"
+                <li key={item.label}>
+                <NavLink
+                  to={item.to}
+                  className="text-sm font-semibold transition-colors hover:text-pink"
                 >
-                    {item}
-                </a>
+                  {item.label}
+                </NavLink>
                 </li>
             ))}
             </ul>
@@ -144,13 +166,13 @@ function Header() {
       <nav className="hidden border-b border-line bg-paper lg:block">
         <ul className="mx-auto flex max-w-360 items-center gap-7 px-18 py-3">
           {navigationItems.map((item) => (
-            <li key={item}>
-              <a
-                href="#"
+              <li key={item.label}>
+              <NavLink
+                to={item.to}
                 className="text-sm font-semibold transition-colors hover:text-pink"
               >
-                {item}
-              </a>
+                {item.label}
+              </NavLink>
             </li>
           ))}
         </ul>
