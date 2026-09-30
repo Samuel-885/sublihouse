@@ -90,24 +90,35 @@ function Products() {
           Início / Produtos
         </p>
 
-        <h1 className="mt-2 font-display text-3xl font-semibold sm:text-4xl">
-          Produtos
-        </h1>
+        <div className="mt-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-xs font-bold uppercase tracking-wider text-pink">
+              Encontra a tua prenda
+            </p>
 
-        <p className="mt-2 text-sm text-slate">
-          {filteredProducts.length} produtos
-        </p>
+            <h1 className="mt-2 font-display text-4xl font-semibold sm:text-5xl">
+              Produtos
+            </h1>
+
+            <p className="mt-3 max-w-lg leading-6 text-slate">
+              Presentes personalizados para pessoas, momentos e ideias diferentes.
+            </p>
+          </div>
+
+          <p className="text-sm font-medium text-slate">
+            {filteredProducts.length} produtos
+          </p>
+        </div>
       </div>
 
       {/* Busca */}
-      <div className="mt-6">
+      <div className="mt-8">
         <input
           type="search"
           placeholder="Procurar produtos..."
           value={searchTerm}
           onChange={(event) => setSearchTerm(event.target.value)}
-          className="w-full rounded-xl border border-line bg-mist px-4 py-3 text-sm outline-none placeholder:text-slate focus:border-ink"
-        />
+          className="w-full border border-line bg-paper px-4 py-3.5 text-sm outline-none transition placeholder:text-slate focus:border-ink"        />
       </div>
 
       <div className="mt-6 flex items-center justify-between gap-3">
@@ -125,8 +136,7 @@ function Products() {
         <select
           value={sortOption}
           onChange={(event) => setSortOption(event.target.value)}
-          className="ml-auto rounded-lg border border-line bg-paper px-3 py-2 text-sm outline-none focus:border-ink"
-        >
+          className="ml-auto border border-line bg-paper px-4 py-2.5 text-sm outline-none focus:border-ink"        >
           <option value="relevant">
             Mais relevantes
           </option>
@@ -150,7 +160,7 @@ function Products() {
             <button
               type="button"
               onClick={() => setSelectedCategory("Todos")}
-              className="rounded-full bg-mist px-3 py-1.5 text-xs font-medium"
+              className="border border-line bg-paper px-3 py-1.5 text-xs font-medium transition hover:border-ink"
             >
               {selectedCategory} ×
             </button>
@@ -160,7 +170,7 @@ function Products() {
             <button
               type="button"
               onClick={() => setSelectedCustomization("Todos")}
-              className="rounded-full bg-mist px-3 py-1.5 text-xs font-medium"
+              className="border border-line bg-paper px-3 py-1.5 text-xs font-medium transition hover:border-ink"
             >
               {selectedCustomization} ×
             </button>
@@ -170,7 +180,7 @@ function Products() {
             <button
               type="button"
               onClick={() => setOnlySale(false)}
-              className="rounded-full bg-mist px-3 py-1.5 text-xs font-medium"
+              className="border border-line bg-paper px-3 py-1.5 text-xs font-medium transition hover:border-ink"
             >
               Em promoção ×
             </button>
@@ -180,7 +190,7 @@ function Products() {
             <button
               type="button"
               onClick={() => setSelectedPrice("Todos")}
-              className="rounded-full bg-mist px-3 py-1.5 text-xs font-medium"
+              className="border border-line bg-paper px-3 py-1.5 text-xs font-medium transition hover:border-ink"
             >
               {selectedPrice} ×
             </button>
@@ -199,9 +209,13 @@ function Products() {
       <div className="mt-8 grid gap-8 lg:grid-cols-[220px_1fr]">
         {/* Filtros desktop */}
         <aside className="hidden lg:block">
-          <h2 className="font-semibold">
+        <div>
+          <div className="h-1 w-9 rounded-full bg-blue" />
+
+          <h2 className="mt-3 font-semibold">
             Categoria
           </h2>
+        </div>
 
           <div className="mt-4 space-y-3">
             {categories.map((category) => (
@@ -222,7 +236,9 @@ function Products() {
             ))}
           </div>
           <div className="mt-8">
-            <h2 className="font-semibold">
+            <div className="h-1 w-9 rounded-full bg-pink" />
+
+            <h2 className="mt-3 font-semibold">
               Personalização
             </h2>
 
@@ -245,7 +261,9 @@ function Products() {
               ))}
             </div>
             <div className="mt-8">
-              <h2 className="font-semibold">
+              <div className="h-1 w-9 rounded-full bg-orange" />
+
+              <h2 className="mt-3 font-semibold">
                 Promoções
               </h2>
 
@@ -260,7 +278,9 @@ function Products() {
               </label>
             </div>
             <div className="mt-8">
-              <h2 className="font-semibold">
+              <div className="h-1 w-9 rounded-full bg-violet" />
+
+              <h2 className="mt-3 font-semibold">
                 Preço
               </h2>
 
@@ -305,10 +325,11 @@ function Products() {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 gap-x-4 gap-y-8 md:grid-cols-3">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-10 md:grid-cols-3 lg:gap-x-6 lg:gap-y-12">
               {sortedProducts.map((product) => (
                 <ProductCard
                   key={product.id}
+                  id={product.id}
                   name={product.name}
                   price={product.price}
                   color={product.color}
