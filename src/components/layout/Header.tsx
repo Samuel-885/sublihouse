@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { Menu, Search, ShoppingCart, X } from "lucide-react"
 import { Link, NavLink } from "react-router"
+import { useCart } from "../../context/useCart"
 
 const navigationItems = [
   {
@@ -36,6 +37,7 @@ const navigationItems = [
 function Header() {
   const [isSearchOpen, setIsSearchOpen] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const { totalItems } = useCart()
 
   const handleMenuClick = () => {
     setIsMenuOpen((previousValue) => !previousValue)
@@ -115,20 +117,22 @@ function Header() {
             </button>
 
             {/* Carrinho */}
-            <button
-            type="button"
-            className="flex items-center gap-2 text-sm font-semibold"
+            <Link
+              to="/cart"
+              className="flex items-center gap-2 text-sm font-semibold"
             >
-            <ShoppingCart size={20} />
+              <ShoppingCart size={20} />
 
-            <span className="hidden sm:inline">
+              <span className="hidden sm:inline">
                 Carrinho
-            </span>
+              </span>
 
-            <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-pink px-1 text-xs text-paper">
-                2
-            </span>
-            </button>
+              {totalItems > 0 && (
+                <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-pink px-1 text-xs text-paper">
+                  {totalItems}
+                </span>
+              )}
+            </Link>
           </div>
         </div>
 

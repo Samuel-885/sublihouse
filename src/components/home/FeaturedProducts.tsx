@@ -34,6 +34,7 @@ const featuredProducts = products.slice(0, 4)
           {featuredProducts.map((product) => (
             <ProductCard
               key={product.id}
+              id={product.id}
               name={product.name}
               price={product.price}
               color={product.color}
