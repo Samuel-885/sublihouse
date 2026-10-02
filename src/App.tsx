@@ -7,6 +7,7 @@ import Home from "./pages/Home"
 import Products from "./pages/Products"
 import ProductDetails from "./pages/ProductDetails"
 import Cart from "./pages/Cart"
+import Personalizer from "./pages/Personalizer"
 
 function App() {
   return (
@@ -22,6 +23,10 @@ function App() {
             element={<ProductDetails />}
           />
           <Route path="/cart" element={<Cart />} />
+          <Route
+            path="/personalize/:id"
+            element={<Personalizer />}
+          />
         </Routes>
       </main>
 

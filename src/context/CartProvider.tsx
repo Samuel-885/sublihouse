@@ -3,6 +3,7 @@ import type { Product } from "../types/product"
 import {
   CartContext,
   type CartItem,
+  type ProductCustomization,
 } from "./CartContext"
 
 type CartProviderProps = {
@@ -31,15 +32,34 @@ function CartProvider({ children }: CartProviderProps) {
     )
   }, [cartItems])
 
-  function addToCart(product: Product, quantity: number) {
+  function addToCart(
+    product: Product,
+    quantity: number,
+    customization?: ProductCustomization
+  ) {
     setCartItems((currentItems) => {
+      // Produto personalizado sempre cria uma linha nova
+      if (customization) {
+        const customizedItem: CartItem = {
+          ...product,
+          cartItemId: crypto.randomUUID(),
+          quantity,
+          customization,
+        }
+
+        return [...currentItems, customizedItem]
+      }
+
+      // Produto pronto pode ser agrupado
       const existingItem = currentItems.find(
-        (item) => item.id === product.id
+        (item) =>
+          item.id === product.id &&
+          !item.customization
       )
 
       if (existingItem) {
         return currentItems.map((item) =>
-          item.id === product.id
+          item.cartItemId === existingItem.cartItemId
             ? {
                 ...item,
                 quantity: item.quantity + quantity,
@@ -48,24 +68,27 @@ function CartProvider({ children }: CartProviderProps) {
         )
       }
 
-      return [
-        ...currentItems,
-        {
-          ...product,
-          quantity,
-        },
-      ]
+      const newItem: CartItem = {
+        ...product,
+        cartItemId: `product-${product.id}`,
+        quantity,
+      }
+
+      return [...currentItems, newItem]
     })
   }
 
-  function updateQuantity(productId: number, quantity: number) {
+  function updateQuantity(
+    cartItemId: string,
+    quantity: number
+  ) {
     if (quantity < 1) {
       return
     }
 
     setCartItems((currentItems) =>
       currentItems.map((item) =>
-        item.id === productId
+        item.cartItemId === cartItemId
           ? {
               ...item,
               quantity,
@@ -75,9 +98,11 @@ function CartProvider({ children }: CartProviderProps) {
     )
   }
 
-  function removeFromCart(productId: number) {
+  function removeFromCart(cartItemId: string) {
     setCartItems((currentItems) =>
-      currentItems.filter((item) => item.id !== productId)
+      currentItems.filter(
+        (item) => item.cartItemId !== cartItemId
+      )
     )
   }
 

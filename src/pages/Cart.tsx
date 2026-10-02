@@ -57,7 +57,7 @@ function Cart() {
         <div className="border-t border-line">
           {cartItems.map((item) => (
             <article
-              key={item.id}
+              key={item.cartItemId}
               className="grid gap-5 border-b border-line py-6 sm:grid-cols-[140px_1fr]"
             >
               {/* Imagem temporária */}
@@ -81,6 +81,46 @@ function Cart() {
                     <p className="mt-1 text-sm text-slate">
                       {item.category}
                     </p>
+
+                    {item.customization && (
+                      <div className="mt-3 space-y-1 text-sm text-slate">
+                        {item.customization.name && (
+                          <p>
+                            Nome:{" "}
+                            <span className="text-ink">
+                              {item.customization.name}
+                            </span>
+                          </p>
+                        )}
+
+                        <div className="flex items-center gap-2">
+                          <span>Cor:</span>
+
+                          <span
+                            className="h-4 w-4 rounded-full border border-line"
+                            style={{
+                              backgroundColor: item.customization.color,
+                            }}
+                          />
+                        </div>
+
+                        <p>
+                          Fonte:{" "}
+                          <span className="text-ink">
+                            {item.customization.font}
+                          </span>
+                        </p>
+
+                        {item.customization.imageName && (
+                          <p>
+                            Foto:{" "}
+                            <span className="text-ink">
+                              {item.customization.imageName}
+                            </span>
+                          </p>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   <p className="font-semibold">
@@ -98,7 +138,10 @@ function Cart() {
                       type="button"
                       aria-label="Diminuir quantidade"
                       onClick={() =>
-                        updateQuantity(item.id, item.quantity - 1)
+                        updateQuantity(
+                          item.cartItemId,
+                          item.quantity - 1
+                        )
                       }
                       disabled={item.quantity === 1}
                       className="flex h-10 w-10 items-center justify-center disabled:cursor-not-allowed disabled:opacity-30"
@@ -114,7 +157,10 @@ function Cart() {
                       type="button"
                       aria-label="Aumentar quantidade"
                       onClick={() =>
-                        updateQuantity(item.id, item.quantity + 1)
+                        updateQuantity(
+                          item.cartItemId,
+                          item.quantity + 1
+                        )
                       }
                       className="flex h-10 w-10 items-center justify-center"
                     >
@@ -125,7 +171,7 @@ function Cart() {
                   {/* Remover */}
                   <button
                     type="button"
-                    onClick={() => removeFromCart(item.id)}
+                    onClick={() => removeFromCart(item.cartItemId)}
                     className="flex items-center gap-2 text-sm text-slate transition hover:text-pink"
                   >
                     <Trash2 size={16} />

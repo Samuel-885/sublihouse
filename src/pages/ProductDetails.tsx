@@ -155,54 +155,58 @@ function ProductDetails() {
           )}
 
           {/* Quantidade */}
-          <div className="mt-8">
-            <p className="text-sm font-semibold">
-              Quantidade
-            </p>
+          {!product.customizable && (
+            <div className="mt-8">
+              <p className="text-sm font-semibold">
+                Quantidade
+              </p>
 
-            <div className="mt-3 inline-flex items-center border border-line">
-              <button
-                type="button"
-                onClick={decreaseQuantity}
-                aria-label="Diminuir quantidade"
-                className="flex h-11 w-11 items-center justify-center transition hover:bg-mist"
-              >
-                <Minus size={16} />
-              </button>
+              <div className="mt-3 inline-flex items-center border border-line">
+                <button
+                  type="button"
+                  onClick={decreaseQuantity}
+                  aria-label="Diminuir quantidade"
+                  className="flex h-11 w-11 items-center justify-center transition hover:bg-mist"
+                >
+                  <Minus size={16} />
+                </button>
 
-              <span className="flex h-11 min-w-12 items-center justify-center border-x border-line text-sm font-semibold">
-                {quantity}
-              </span>
+                <span className="flex h-11 min-w-12 items-center justify-center border-x border-line text-sm font-semibold">
+                  {quantity}
+                </span>
 
-              <button
-                type="button"
-                onClick={increaseQuantity}
-                aria-label="Aumentar quantidade"
-                className="flex h-11 w-11 items-center justify-center transition hover:bg-mist"
-              >
-                <Plus size={16} />
-              </button>
+                <button
+                  type="button"
+                  onClick={increaseQuantity}
+                  aria-label="Aumentar quantidade"
+                  className="flex h-11 w-11 items-center justify-center transition hover:bg-mist"
+                >
+                  <Plus size={16} />
+                </button>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Ações */}
           <div className="mt-8 space-y-3">
-            <button
-              type="button"
-              onClick={() => addToCart(product, quantity)}
-              className="flex w-full items-center justify-center gap-2 bg-ink px-5 py-4 text-sm font-bold text-paper transition hover:opacity-85"
-            >
-              <ShoppingCart size={18} />
-              Adicionar ao carrinho
-            </button>
-
-            {product.customizable && (
+            {!product.customizable && (
               <button
                 type="button"
-                className="w-full border border-ink bg-paper px-5 py-4 text-sm font-bold transition hover:bg-mist"
+                onClick={() => addToCart(product, quantity)}
+                className="flex w-full items-center justify-center gap-2 bg-ink px-5 py-4 text-sm font-bold text-paper transition hover:opacity-85"
+              >
+                <ShoppingCart size={18} />
+                Adicionar ao carrinho
+              </button>
+            )}
+
+            {product.customizable && (
+              <Link
+                to={`/personalize/${product.id}`}
+                className="block w-full bg-ink px-5 py-4 text-center text-sm font-bold text-paper transition hover:opacity-85"
               >
                 Personalizar este produto
-              </button>
+              </Link>
             )}
           </div>
 
