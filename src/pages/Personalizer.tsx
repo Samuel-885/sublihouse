@@ -32,6 +32,8 @@ function Personalizer() {
   const [selectedImage, setSelectedImage] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [quantity, setQuantity] = useState(1)
+  const [errorMessage, setErrorMessage] = useState("")
+  const [successMessage, setSuccessMessage] = useState("")
 
   const { addToCart } = useCart()
 
@@ -93,12 +95,30 @@ function Personalizer() {
         return
       }
 
+      setErrorMessage("")
+      setSuccessMessage("")
+
+      const hasName = customName.trim().length > 0
+      const hasImage = selectedImage !== null
+
+      if (!hasName && !hasImage) {
+        setErrorMessage(
+          "Adiciona pelo menos um nome ou uma fotografia para personalizar o produto."
+        )
+
+        return
+      }
+
       addToCart(product, quantity, {
         name: customName.trim(),
         color: selectedColor,
         font: selectedFont,
         imageName: selectedImage?.name,
       })
+
+      setSuccessMessage(
+        `${product.name} foi adicionado ao carrinho.`
+      )
     }
 
   return (
@@ -315,6 +335,11 @@ function Personalizer() {
 
 
             <div className="mt-10 border-t border-line pt-6">
+              {errorMessage && (
+                <div className="mb-4 border border-pink bg-pink/5 px-4 py-3 text-sm text-pink">
+                  {errorMessage}
+                </div>
+              )}              
               <button
                 type="button"
                 onClick={handleAddCustomizedProduct}
@@ -322,6 +347,20 @@ function Personalizer() {
               >
                 Adicionar personalizado ao carrinho
               </button>
+              {successMessage && (
+                <div className="mt-4 border border-teal bg-teal/5 px-4 py-3">
+                  <p className="text-sm text-ink">
+                    {successMessage}
+                  </p>
+
+                  <Link
+                    to="/cart"
+                    className="mt-2 inline-block text-sm font-bold underline underline-offset-4"
+                  >
+                    Ver carrinho
+                  </Link>
+                </div>
+              )}
             </div>
 
             <div className="mt-8 border-t border-line pt-6">
