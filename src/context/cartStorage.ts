@@ -35,6 +35,8 @@ function isStoredItem(value: unknown): value is StoredItem {
     typeof value.customizable === "boolean" &&
     typeof value.onSale === "boolean" &&
     (value.badge === undefined || typeof value.badge === "string") &&
+    (value.image === undefined || typeof value.image === "string") &&
+    (value.imageAlt === undefined || typeof value.imageAlt === "string") &&
     isValidQuantity(value.quantity) &&
     Number.isFinite(value.price * value.quantity) &&
     (value.cartItemId === undefined || typeof value.cartItemId === "string") &&

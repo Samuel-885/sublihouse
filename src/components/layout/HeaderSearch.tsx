@@ -2,6 +2,7 @@ import { useId, useRef, useState, type KeyboardEvent, type SubmitEvent } from "r
 import { Search, ArrowUpRight } from "lucide-react"
 import { useNavigate } from "react-router"
 import { products } from "../../data/products"
+import ProductImage from "../product/ProductImage"
 
 type HeaderSearchProps = {
   onNavigate: () => void
@@ -103,7 +104,9 @@ function HeaderSearch({ onNavigate, autoFocus = false }: HeaderSearchProps) {
                 onClick={() => chooseProduct(product.id)}
                 className={`flex cursor-pointer items-center gap-3 rounded-lg px-3 py-3 transition-colors hover:bg-mist ${index === activeIndex ? "bg-mist" : ""}`}
               >
-                <span aria-hidden="true" className="h-9 w-1 shrink-0 rounded-full" style={{ backgroundColor: product.color }} />
+                <span className="h-10 w-10 shrink-0 overflow-hidden rounded-md bg-mist">
+                  <ProductImage product={product} loading="eager" />
+                </span>
                 <span className="min-w-0 flex-1">
                   <span className="block text-sm font-semibold">{product.name}</span>
                   <span className="mt-0.5 block text-xs text-slate">{product.category} · {product.price.toLocaleString("pt-PT", { style: "currency", currency: "EUR" })}</span>

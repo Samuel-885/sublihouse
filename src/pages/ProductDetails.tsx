@@ -3,7 +3,7 @@ import { Link, useParams } from "react-router"
 import { Minus, Plus, ShoppingCart } from "lucide-react"
 import { products } from "../data/products"
 import { useCart } from "../context/useCart"
-import ProductArtwork from "../components/product/ProductArtwork"
+import ProductImage from "../components/product/ProductImage"
 
 function ProductDetails() {
   const { id } = useParams()
@@ -65,7 +65,7 @@ function ProductDetails() {
 
       {/* Produto */}
       <div className="mt-8 grid gap-8 md:grid-cols-[1fr_1fr] lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
-        {/* Galeria */}
+        {/* Imagem principal; a galeria será adicionada quando houver fotografias. */}
         <div className="min-w-0">
           {/* Imagem principal */}
           <div className="relative aspect-square overflow-hidden rounded-xl bg-mist">
@@ -81,24 +81,10 @@ function ProductDetails() {
             />
 
             <div className="absolute inset-4 flex items-center justify-center">
-              <ProductArtwork productId={product.id} color={product.color} className="h-full w-full" />
+              <ProductImage product={product} loading="eager" />
             </div>
           </div>
 
-          {/* Miniaturas */}
-          <div className="mt-4 grid grid-cols-3 gap-3">
-            {[1, 2, 3].map((image) => (
-              <button
-                key={image}
-                type="button"
-                className="aspect-square border border-line bg-mist transition hover:border-ink"
-              >
-                <span className="text-xs text-slate">
-                  Imagem {image}
-                </span>
-              </button>
-            ))}
-          </div>
         </div>
 
         {/* Informações */}

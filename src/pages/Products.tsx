@@ -370,6 +370,8 @@ function Products() {
                   price={product.price}
                   color={product.color}
                   badge={product.badge}
+                  image={product.image}
+                  imageAlt={product.imageAlt}
                 />
               ))}
             </div>

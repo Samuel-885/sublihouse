@@ -40,6 +40,8 @@ const featuredProducts = products.slice(0, 4)
               price={product.price}
               color={product.color}
               badge={product.badge}
+              image={product.image}
+              imageAlt={product.imageAlt}
             />
           ))}
         </div>

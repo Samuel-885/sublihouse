@@ -1,22 +1,11 @@
 import { Link } from "react-router"
-import ProductArtwork from "./ProductArtwork"
+import type { Product } from "../../types/product"
+import ProductImage from "./ProductImage"
 
-type ProductCardProps = {
-  id: number
-  name: string
-  price: number
-  color: string
-  badge?: string
-  
-}
+type ProductCardProps = Pick<Product, "id" | "name" | "price" | "color" | "badge" | "image" | "imageAlt">
 
-function ProductCard({
-  id,
-  name,
-  price,
-  color,
-  badge,
-}: ProductCardProps) {
+function ProductCard(product: ProductCardProps) {
+  const { id, name, price, color, badge } = product
   return (
     <article className="product-card group min-w-0">
       <Link
@@ -38,9 +27,9 @@ function ProductCard({
             style={{ backgroundColor: color }}
           />
 
-          {/* Placeholder do produto */}
+          {/* Imagem principal com fallback local */}
           <div className="absolute inset-2 flex items-center justify-center transition-transform duration-300 group-hover:-translate-y-1 group-hover:rotate-2">
-            <ProductArtwork productId={id} color={color} className="h-full w-full" />
+            <ProductImage product={product} />
           </div>
         </div>
 

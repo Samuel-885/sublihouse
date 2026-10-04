@@ -3,6 +3,7 @@ import { Link } from "react-router"
 import { Minus, Plus, Trash2 } from "lucide-react"
 import { useCart } from "../context/useCart"
 import { getPersonalizationColorName } from "../data/personalizationColors"
+import ProductImage from "../components/product/ProductImage"
 
 function Cart() {
   const [showCheckoutDemo, setShowCheckoutDemo] = useState(false)
@@ -63,17 +64,15 @@ function Cart() {
               key={item.cartItemId}
               className="grid grid-cols-[96px_minmax(0,1fr)] gap-4 border-b border-line py-6 sm:grid-cols-[140px_minmax(0,1fr)] sm:gap-5"
             >
-              {/* Imagem temporária */}
+              {/* Imagem do produto, mantendo a miniatura compacta no mobile. */}
               <div className="aspect-square bg-mist">
-                <div className="flex h-full items-center justify-center text-xs text-slate">
-                  Produto
-                </div>
+                <ProductImage product={item} />
               </div>
 
               {/* Informações */}
-              <div className="min-w-0 flex flex-col">
-                <div className="flex items-start justify-between gap-4">
-                  <div>
+              <div className="min-w-0 flex flex-col wrap-anywhere">
+                <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+                  <div className="min-w-0">
                     <Link
                       to={`/products/${item.id}`}
                       className="font-display text-xl font-semibold hover:text-pink"
@@ -126,7 +125,7 @@ function Cart() {
                     )}
                   </div>
 
-                  <p className="font-semibold">
+                  <p className="shrink-0 font-semibold whitespace-nowrap">
                     {(item.price * item.quantity).toLocaleString("pt-PT", {
                       style: "currency",
                       currency: "EUR",
