@@ -134,34 +134,60 @@ function Personalizer() {
               Prévia em tempo real
             </p>
 
-            <div className="sticky top-6 mt-4 flex min-h-100 min-w-0 items-center justify-center rounded-xl border border-line bg-paper p-4 lg:min-h-125 lg:p-8">
-              <div className="relative flex h-80 w-full max-w-64 min-w-0 items-center justify-center border-2 border-ink bg-paper">
-                <div className="absolute h-44 w-44 rounded-full bg-orange/10" />
+            <div className="sticky top-24 mt-4 flex min-h-125 items-center justify-center border border-line bg-paper p-3 sm:p-6 lg:p-8">
+              <div className="relative aspect-square w-full max-w-150 overflow-hidden rounded-lg">
+                {/* Caneca base */}
+                <img
+                  src="/images/personalization/caneca-base.png"
+                  alt={`Prévia de ${product.name}`}
+                  className="absolute inset-0 h-full w-full object-cover"
+                />
 
-                <div className="relative z-10 w-full min-w-0 px-3 text-center">
-                    <div className="mx-auto h-32 w-32 overflow-hidden rounded-lg bg-mist">
-                    {imagePreview ? (
-                        <img
-                        src={imagePreview}
-                        alt="Prévia da fotografia personalizada"
-                        className="h-full w-full object-cover"
-                        />
-                    ) : (
-                        <div className="flex h-full items-center justify-center px-4 text-center text-sm text-slate">
-                        A tua foto
-                        </div>
-                    )}
-                    </div>
+                {/* Fotografia do cliente */}
+                {imagePreview && (
+                  <img
+                    src={imagePreview}
+                    alt="Fotografia escolhida para personalização"
+                    className="
+                      pointer-events-none
+                      absolute
+                      left-[33.4%]
+                      top-[31%]
+                      z-10
+                      h-[33%]
+                      w-[28.4%]
+                      rounded-[6%]
+                      object-cover
+                    "
+                  />
+                )}
 
-                  <p
-                    className="mt-6 text-3xl font-semibold wrap-anywhere"
+                {/* Nome */}
+                <div
+                  className="
+                    pointer-events-none
+                    absolute
+                    left-[34%]
+                    top-[67.2%]
+                    z-20
+                    flex
+                    w-[27.5%]
+                    items-center
+                    justify-center
+                    overflow-hidden
+                    text-center
+                  "
+                >
+                  <span
+                    className="block max-w-full overflow-hidden text-ellipsis whitespace-nowrap font-semibold leading-none"
                     style={{
                       color: selectedColor,
                       fontFamily: selectedFont,
+                      fontSize: "clamp(0.72rem, 2.2vw, 1.65rem)",
                     }}
                   >
                     {customName || "O teu nome"}
-                  </p>
+                  </span>
                 </div>
               </div>
             </div>
@@ -199,8 +225,8 @@ function Personalizer() {
             />
 
             <p className="mt-2 text-xs text-slate">
-                JPG, PNG ou outra imagem suportada pelo navegador. Nesta demonstração,
-                a fotografia fica apenas na prévia; o carrinho guarda o nome do ficheiro.
+                JPG, PNG ou outra imagem suportada pelo navegador. A fotografia
+                fica apenas na prévia; o carrinho guarda o nome do ficheiro.
             </p>
 
             {selectedImage && (

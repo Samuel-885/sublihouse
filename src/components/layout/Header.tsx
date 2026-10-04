@@ -42,8 +42,12 @@ function Header() {
             <button type="button" aria-label="Abrir menu" aria-haspopup="dialog" aria-expanded={isMenuOpen} className="icon-button shrink-0 lg:hidden" onClick={() => { setIsMenuOpen(true); setIsSearchOpen(false) }}>
               <Menu size={22} />
             </button>
-            <Link to="/" onClick={closeNavigation} className="shrink-0 font-display text-xl font-semibold whitespace-nowrap sm:text-2xl">
-              Sublime House
+            <Link to="/" aria-label="Sublime House - página inicial">
+              <img
+                src="/images/brand/sublihouse-logo.png"
+                alt="Sublime House"
+                className="h-12 w-auto object-contain sm:h-14"
+              />
             </Link>
             <div className="hidden min-w-0 flex-1 lg:block"><HeaderSearch onNavigate={closeNavigation} /></div>
             <div className="ml-auto flex shrink-0 items-center gap-0 sm:gap-3">

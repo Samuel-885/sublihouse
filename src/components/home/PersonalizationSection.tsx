@@ -2,27 +2,60 @@ import { Link } from "react-router"
 
 function PersonalizationSection() {
   return (
-    <section id="personalizar" className="border-y border-violet/10 bg-violet/5">
+    <section
+      id="personalizar"
+      className="border-y border-violet/10 bg-violet/5"
+    >
       <div className="mx-auto grid max-w-360 gap-10 px-4 py-16 sm:px-6 md:grid-cols-2 md:items-center lg:px-18 lg:py-20">
         {/* Prévia */}
-        <div className="rounded-xl border border-line bg-paper p-6 sm:p-8">
+        <div className="rounded-xl border border-line bg-paper p-4 sm:p-6">
           <p className="text-xs font-semibold uppercase tracking-wider text-slate">
             Prévia em tempo real
           </p>
 
-          <div className="relative mt-8 flex min-h-72 items-center justify-center sm:min-h-80">
-            {/* Accent */}
-            <div className="absolute h-52 w-52 rounded-full bg-orange/10" />
+          <div className="mx-auto mt-5 w-full max-w-145">
+            <div className="relative aspect-square overflow-hidden rounded-lg">
+              {/* Caneca base */}
+              <img
+                src="/images/personalization/caneca-base.png"
+                alt="Exemplo de caneca personalizada"
+                className="absolute inset-0 h-full w-full object-cover"
+              />
 
-            {/* Produto */}
-            <div className="relative z-10 flex h-60 w-48 flex-col items-center rounded-xl border-2 border-ink bg-paper px-6 py-8">
-              <div className="flex h-24 w-24 items-center justify-center rounded-lg bg-mist text-xs text-slate">
-                A tua foto
+              {/* Nome de exemplo */}
+              <div
+                className="
+                  pointer-events-none
+                  absolute
+                  left-[34%]
+                  top-[67.2%]
+                  z-20
+                  flex
+                  w-[27.5%]
+                  items-center
+                  justify-center
+                  overflow-hidden
+                  text-center
+                "
+              >
+              <span
+                className="
+                  block
+                  max-w-full
+                  overflow-hidden
+                  text-ellipsis
+                  whitespace-nowrap
+                  font-semibold
+                  leading-none
+                  text-pink
+                "
+                style={{
+                  fontSize: "clamp(0.72rem, 2.2vw, 1.65rem)",
+                }}
+              >
+                Seu nome aqui
+              </span>
               </div>
-
-              <p className="mt-5 font-display text-2xl font-semibold text-pink">
-                Sofia
-              </p>
             </div>
           </div>
 
@@ -51,9 +84,7 @@ function PersonalizationSection() {
                 1
               </span>
 
-              <span className="text-sm font-semibold">
-                Escolhe
-              </span>
+              <span className="text-sm font-semibold">Escolhe</span>
             </div>
 
             <div className="flex items-center gap-2">
@@ -61,9 +92,7 @@ function PersonalizationSection() {
                 2
               </span>
 
-              <span className="text-sm font-semibold">
-                Personaliza
-              </span>
+              <span className="text-sm font-semibold">Personaliza</span>
             </div>
 
             <div className="flex items-center gap-2">
@@ -71,9 +100,7 @@ function PersonalizationSection() {
                 3
               </span>
 
-              <span className="text-sm font-semibold">
-                Encomenda
-              </span>
+              <span className="text-sm font-semibold">Encomenda</span>
             </div>
           </div>
 

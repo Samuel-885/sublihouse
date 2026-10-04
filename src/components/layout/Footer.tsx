@@ -16,9 +16,11 @@ function Footer() {
         <div className="grid gap-10 py-10 sm:grid-cols-2 lg:grid-cols-4">
           {/* Marca */}
           <div>
-            <h2 className="font-display text-2xl font-semibold">
-              Sublime House
-            </h2>
+          <img
+            src="/images/brand/sublihouse-logo.png"
+            alt="Sublime House"
+            className="h-20 w-auto object-contain"
+          />
 
             <p className="mt-3 max-w-xs text-sm leading-6 text-slate">
               Presentes personalizados com cor, memória e personalidade.
@@ -89,11 +91,11 @@ function Footer() {
         {/* Rodapé inferior */}
         <div className="flex flex-col gap-3 border-t border-line pt-5 text-xs text-slate sm:flex-row sm:items-center sm:justify-between">
           <p>
-            © Sublime House · Portugal
+            © SubliHouse · Portugal
           </p>
 
           <p>
-            Sublime House · Presentes personalizados
+            SubliHouse · Presentes personalizados
           </p>
         </div>
       </div>

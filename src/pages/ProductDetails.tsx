@@ -200,8 +200,8 @@ function ProductDetails() {
           {/* Informações rápidas */}
           <div className="mt-8 space-y-3 border-t border-line pt-6 text-sm text-slate">
             <p>Produção cuidada em cada detalhe.</p>
-            <p>Catálogo de demonstração para Portugal.</p>
-            <p>Sem pagamentos ou envios nesta versão de portfólio.</p>
+            <p>Presentes para celebrar momentos especiais.</p>
+            <p>Inspiração para oferecer com personalidade.</p>
           </div>
         </div>
       </div>

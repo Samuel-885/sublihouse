@@ -4,29 +4,34 @@ const categories = [
   {
     name: "Canecas",
     color: "#0B84D1",
+    image: "/images/products/caneca-tematica.png",
   },
   {
     name: "Criar a tua prenda",
     color: "#E31C79",
+    image: "/images/products/caneca-personalizada.png",
   },
   {
     name: "Fotopresentes",
     color: "#F2891C",
+    image: "/images/products/fotopresente.png",
   },
   {
     name: "Papelaria",
     color: "#4B2E93",
+    image: "/images/products/caderno-personalizado.png",
   },
   {
     name: "Porta-chaves",
     color: "#0FA3B1",
+    image: "/images/products/porta-chaves.png",
   },
   {
     name: "Ímanes",
     color: "#F5C443",
+    image: "/images/products/iman-personalizado.png",
   },
 ]
-
 
 function Categories() {
   return (
@@ -42,6 +47,7 @@ function Categories() {
               key={category.name}
               name={category.name}
               color={category.color}
+              image={category.image}
             />
           ))}
         </div>
