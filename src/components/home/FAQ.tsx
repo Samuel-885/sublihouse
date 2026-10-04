@@ -5,7 +5,7 @@ const questions = [
     id: 1,
     question: "Como funciona a personalização?",
     answer:
-      "Escolhes o produto, adicionas os elementos disponíveis para personalização e acompanhas a prévia antes de finalizar a encomenda.",
+      "Escolhes o produto, adicionas os elementos disponíveis para personalização e acompanhas a prévia antes de o adicionar ao carrinho.",
   },
   {
     id: 2,
@@ -17,13 +17,13 @@ const questions = [
     id: 3,
     question: "Quanto tempo demora a produção?",
     answer:
-      "O prazo pode variar de acordo com o produto e o tipo de personalização. O prazo estimado será apresentado antes da finalização da encomenda.",
+      "Os prazos de produção dependem do produto escolhido e dos detalhes da personalização.",
   },
   {
     id: 4,
     question: "Fazem envios para todo Portugal?",
     answer:
-      "Sim. As encomendas podem ser enviadas para diferentes regiões de Portugal, de acordo com as opções disponíveis no checkout.",
+      "As informações sobre destinos, opções de envio e custos estarão disponíveis em breve.",
   },
 ]
 
@@ -35,7 +35,7 @@ function FAQ() {
   }
 
   return (
-    <section className="bg-[#FCFBF8]">
+    <section id="perguntas-frequentes" className="border-y border-orange/10 bg-orange/5">
       <div className="mx-auto grid max-w-360 gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-18 lg:py-20">
         <div>
           <p className="text-xs font-bold uppercase tracking-wider text-violet">
@@ -65,22 +65,23 @@ function FAQ() {
                   type="button"
                   onClick={() => handleQuestionClick(item.id)}
                   aria-expanded={isOpen}
+                  aria-controls={`faq-answer-${item.id}`}
                   className="flex w-full items-center justify-between gap-6 py-5 text-left"
                 >
                   <span className="font-semibold">
                     {item.question}
                   </span>
 
-                  <span className="text-2xl font-light">
-                    {isOpen ? "−" : "+"}
+                  <span aria-hidden="true" className={`text-2xl font-light transition-transform duration-200 ${isOpen ? "rotate-45" : ""}`}>
+                    +
                   </span>
                 </button>
 
-                {isOpen && (
-                  <p className="max-w-2xl pb-6 pr-10 leading-7 text-slate">
+                <div id={`faq-answer-${item.id}`} aria-hidden={!isOpen} className={`faq-answer ${isOpen ? "is-open" : ""}`}>
+                  <div className="min-h-0 overflow-hidden"><p className="max-w-2xl pb-6 pr-10 leading-7 text-slate">
                     {item.answer}
-                  </p>
-                )}
+                  </p></div>
+                </div>
               </div>
             )
           })}

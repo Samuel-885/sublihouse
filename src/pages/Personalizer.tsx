@@ -4,24 +4,8 @@ import { products } from "../data/products"
 import { MessageCircle, Minus, Plus } from "lucide-react"
 import { useCart } from "../context/useCart"
 
-const personalizationColors = [
-  {
-    name: "Rosa",
-    value: "#E31C79",
-  },
-  {
-    name: "Azul",
-    value: "#0B84D1",
-  },
-  {
-    name: "Laranja",
-    value: "#F2891C",
-  },
-  {
-    name: "Roxo",
-    value: "#4B2E93",
-  },
-]
+import { personalizationColors, getPersonalizationColorName } from "../data/personalizationColors"
+import { createWhatsAppUrl } from "../data/contact"
 
 function Personalizer() {
   const { id } = useParams()
@@ -143,18 +127,18 @@ function Personalizer() {
           </span>
         </div>
 
-        <div className="mt-8 grid gap-10 lg:grid-cols-[1fr_0.85fr] lg:gap-16">
+        <div className="mt-8 grid gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-cols-[1fr_0.85fr] lg:gap-16">
           {/* Preview */}
-          <div>
+          <div className="min-w-0">
             <p className="text-xs font-bold uppercase tracking-wider text-blue">
               Prévia em tempo real
             </p>
 
-            <div className="sticky top-6 mt-4 flex min-h-125 items-center justify-center border border-line bg-paper p-8">
-              <div className="relative flex h-80 w-64 items-center justify-center border-2 border-ink bg-paper">
+            <div className="sticky top-6 mt-4 flex min-h-100 min-w-0 items-center justify-center rounded-xl border border-line bg-paper p-4 lg:min-h-125 lg:p-8">
+              <div className="relative flex h-80 w-full max-w-64 min-w-0 items-center justify-center border-2 border-ink bg-paper">
                 <div className="absolute h-44 w-44 rounded-full bg-orange/10" />
 
-                <div className="relative z-10 text-center">
+                <div className="relative z-10 w-full min-w-0 px-3 text-center">
                     <div className="mx-auto h-32 w-32 overflow-hidden rounded-lg bg-mist">
                     {imagePreview ? (
                         <img
@@ -170,7 +154,7 @@ function Personalizer() {
                     </div>
 
                   <p
-                    className="mt-6 text-3xl font-semibold"
+                    className="mt-6 text-3xl font-semibold wrap-anywhere"
                     style={{
                       color: selectedColor,
                       fontFamily: selectedFont,
@@ -184,12 +168,12 @@ function Personalizer() {
           </div>
 
           {/* Controles */}
-          <div className="bg-paper p-6 sm:p-8">
+          <div className="min-w-0 rounded-xl bg-paper p-5 sm:p-6 xl:p-8">
             <p className="text-xs font-bold uppercase tracking-wider text-pink">
               Personaliza
             </p>
 
-            <h1 className="mt-3 font-display text-3xl font-semibold sm:text-4xl">
+            <h1 className="mt-3 font-display text-3xl font-semibold xl:text-4xl">
               Faz esta prenda à tua maneira.
             </h1>
 
@@ -215,11 +199,12 @@ function Personalizer() {
             />
 
             <p className="mt-2 text-xs text-slate">
-                JPG, PNG ou outra imagem suportada pelo navegador.
+                JPG, PNG ou outra imagem suportada pelo navegador. Nesta demonstração,
+                a fotografia fica apenas na prévia; o carrinho guarda o nome do ficheiro.
             </p>
 
             {selectedImage && (
-            <p className="mt-2 text-xs font-medium text-ink">
+            <p className="mt-2 text-xs font-medium text-ink wrap-anywhere">
                 Selecionada: {selectedImage.name}
             </p>
             )}
@@ -252,7 +237,7 @@ function Personalizer() {
             {/* Cor */}
             <div className="mt-8">
               <p className="text-sm font-semibold">
-                Cor do texto
+                Cor do texto: {getPersonalizationColorName(selectedColor)}
               </p>
 
               <div className="mt-3 flex flex-wrap gap-3">
@@ -261,6 +246,7 @@ function Personalizer() {
                     key={color.value}
                     type="button"
                     aria-label={color.name}
+                    aria-pressed={selectedColor === color.value}
                     title={color.name}
                     onClick={() => setSelectedColor(color.value)}
                     className={`h-10 w-10 rounded-full border-2 ${
@@ -336,7 +322,7 @@ function Personalizer() {
 
             <div className="mt-10 border-t border-line pt-6">
               {errorMessage && (
-                <div className="mb-4 border border-pink bg-pink/5 px-4 py-3 text-sm text-pink">
+                <div role="alert" className="mb-4 border border-pink bg-pink/5 px-4 py-3 text-sm text-pink">
                   {errorMessage}
                 </div>
               )}              
@@ -348,7 +334,7 @@ function Personalizer() {
                 Adicionar personalizado ao carrinho
               </button>
               {successMessage && (
-                <div className="mt-4 border border-teal bg-teal/5 px-4 py-3">
+                <div role="status" className="mt-4 border border-teal bg-teal/5 px-4 py-3">
                   <p className="text-sm text-ink">
                     {successMessage}
                   </p>
@@ -376,9 +362,9 @@ function Personalizer() {
               </p>
 
               <a
-                href={`https://wa.me/31988909334?text=${encodeURIComponent(
+                href={createWhatsAppUrl(
                   `Olá! Gostaria de pedir uma personalização especial para o produto: ${product.name}.`
-                )}`}
+                )}
                 target="_blank"
                 rel="noreferrer"
                 className="mt-5 flex w-full items-center justify-center gap-2 border border-ink bg-paper px-5 py-3 text-sm font-bold transition hover:bg-mist"

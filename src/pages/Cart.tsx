@@ -1,8 +1,11 @@
+import { useState } from "react"
 import { Link } from "react-router"
 import { Minus, Plus, Trash2 } from "lucide-react"
 import { useCart } from "../context/useCart"
+import { getPersonalizationColorName } from "../data/personalizationColors"
 
 function Cart() {
+  const [showCheckoutDemo, setShowCheckoutDemo] = useState(false)
   const {
     cartItems,
     cartTotal,
@@ -52,13 +55,13 @@ function Cart() {
         </h1>
       </div>
 
-      <div className="mt-10 grid gap-12 lg:grid-cols-[1fr_380px]">
+      <div className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_380px] xl:gap-12">
         {/* Produtos */}
         <div className="border-t border-line">
           {cartItems.map((item) => (
             <article
               key={item.cartItemId}
-              className="grid gap-5 border-b border-line py-6 sm:grid-cols-[140px_1fr]"
+              className="grid grid-cols-[96px_minmax(0,1fr)] gap-4 border-b border-line py-6 sm:grid-cols-[140px_minmax(0,1fr)] sm:gap-5"
             >
               {/* Imagem temporária */}
               <div className="aspect-square bg-mist">
@@ -68,7 +71,7 @@ function Cart() {
               </div>
 
               {/* Informações */}
-              <div className="flex flex-col">
+              <div className="min-w-0 flex flex-col">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <Link
@@ -94,7 +97,7 @@ function Cart() {
                         )}
 
                         <div className="flex items-center gap-2">
-                          <span>Cor:</span>
+                          <span>Cor: {getPersonalizationColorName(item.customization.color)}</span>
 
                           <span
                             className="h-4 w-4 rounded-full border border-line"
@@ -114,7 +117,7 @@ function Cart() {
                         {item.customization.imageName && (
                           <p>
                             Foto:{" "}
-                            <span className="text-ink">
+                            <span className="break-all text-ink">
                               {item.customization.imageName}
                             </span>
                           </p>
@@ -216,15 +219,28 @@ function Cart() {
           </div>
 
           <p className="mt-3 text-xs leading-5 text-slate">
-            O valor de envio será calculado no checkout.
+            Demonstração de portfólio. Não são processados pagamentos nem envios.
           </p>
 
           <button
             type="button"
+            onClick={() => setShowCheckoutDemo(true)}
+            aria-expanded={showCheckoutDemo}
+            aria-controls="checkout-demo"
             className="mt-6 w-full bg-ink px-5 py-4 text-sm font-bold text-paper transition hover:opacity-85"
           >
             Finalizar compra
           </button>
+
+          {showCheckoutDemo && (
+            <div id="checkout-demo" role="status" className="mt-4 border border-line bg-paper p-4 text-sm leading-6">
+              <p className="font-semibold">Chegaste ao fim da demonstração.</p>
+              <p className="mt-2 text-slate">
+                O checkout real será integrado via Shopify. Nenhuma encomenda foi
+                criada e nenhum pagamento foi efetuado. O teu carrinho mantém-se intacto.
+              </p>
+            </div>
+          )}
 
           <Link
             to="/products"

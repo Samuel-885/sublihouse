@@ -41,11 +41,11 @@ function Testimonials() {
           </p>
         </div>
 
-        <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-10 grid gap-4 md:grid-cols-3">
           {testimonials.map((testimonial) => (
             <article
               key={testimonial.id}
-              className="border border-line bg-paper p-6"
+              className="rounded-xl border border-line bg-[#FCFBF8] p-5 lg:p-6"
             >
               <div
                 className={`h-1 w-10 rounded-full ${testimonial.accent}`}

@@ -1,4 +1,5 @@
-import { Route, Routes } from "react-router"
+import { useEffect } from "react"
+import { Route, Routes, useLocation } from "react-router"
 
 import Header from "./components/layout/Header"
 import Footer from "./components/layout/Footer"
@@ -8,13 +9,53 @@ import Products from "./pages/Products"
 import ProductDetails from "./pages/ProductDetails"
 import Cart from "./pages/Cart"
 import Personalizer from "./pages/Personalizer"
+import NotFound from "./pages/NotFound"
+import FloatingWhatsApp from "./components/layout/FloatingWhatsApp"
 
 function App() {
+  const { pathname, hash, key } = useLocation()
+
+  useEffect(() => {
+    if (hash) {
+      return
+    }
+
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches
+
+    window.scrollTo({
+      top: 0,
+      behavior: prefersReducedMotion ? "auto" : "smooth",
+    })
+  }, [pathname, hash, key])
+
+  useEffect(() => {
+    if (!hash) return
+    let targetId: string
+    try {
+      targetId = decodeURIComponent(hash.slice(1))
+    } catch {
+      return
+    }
+    const frame = requestAnimationFrame(() => {
+      const prefersReducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches
+
+      document.getElementById(targetId)?.scrollIntoView({
+        behavior: prefersReducedMotion ? "auto" : "smooth",
+        block: "start",
+      })
+    })
+    return () => cancelAnimationFrame(frame)
+  }, [pathname, hash, key])
+
   return (
     <>
       <Header />
 
-      <main>
+      <main key={pathname} className="page-enter">
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<Products />} />
@@ -27,10 +68,13 @@ function App() {
             path="/personalize/:id"
             element={<Personalizer />}
           />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </main>
 
       <Footer />
+      
+      <FloatingWhatsApp />
     </>
   )
 }

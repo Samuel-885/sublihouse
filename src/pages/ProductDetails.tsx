@@ -3,19 +3,12 @@ import { Link, useParams } from "react-router"
 import { Minus, Plus, ShoppingCart } from "lucide-react"
 import { products } from "../data/products"
 import { useCart } from "../context/useCart"
-
-const colorClasses: Record<string, string> = {
-  blue: "bg-blue",
-  pink: "bg-pink",
-  orange: "bg-orange",
-  violet: "bg-violet",
-  yellow: "bg-yellow",
-  teal: "bg-teal",
-}
+import ProductArtwork from "../components/product/ProductArtwork"
 
 function ProductDetails() {
   const { id } = useParams()
   const [quantity, setQuantity] = useState(1)
+  const [addedCount, setAddedCount] = useState(0)
   const { addToCart } = useCart()
 
   const product = products.find(
@@ -38,8 +31,6 @@ function ProductDetails() {
       </section>
     )
   }
-
-  const accentColor = colorClasses[product.color] ?? "bg-blue"
 
   function decreaseQuantity() {
     setQuantity((currentQuantity) =>
@@ -73,11 +64,11 @@ function ProductDetails() {
       </div>
 
       {/* Produto */}
-      <div className="mt-8 grid gap-10 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
+      <div className="mt-8 grid gap-8 md:grid-cols-[1fr_1fr] lg:grid-cols-[1.1fr_0.9fr] lg:gap-16">
         {/* Galeria */}
-        <div>
+        <div className="min-w-0">
           {/* Imagem principal */}
-          <div className="relative aspect-square overflow-hidden bg-mist">
+          <div className="relative aspect-square overflow-hidden rounded-xl bg-mist">
             {product.badge && (
               <span className="absolute left-4 top-4 z-20 bg-paper px-3 py-1.5 text-xs font-semibold">
                 {product.badge}
@@ -85,13 +76,12 @@ function ProductDetails() {
             )}
 
             <div
-              className={`absolute left-1/2 top-1/2 h-[48%] w-[48%] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-20 ${accentColor}`}
+              className="absolute left-1/2 top-1/2 h-[48%] w-[48%] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-20"
+              style={{ backgroundColor: product.color }}
             />
 
-            <div className="absolute left-1/2 top-1/2 flex h-[58%] w-[42%] -translate-x-1/2 -translate-y-1/2 items-center justify-center border-2 border-ink bg-paper">
-              <span className="text-sm font-semibold text-slate">
-                Produto
-              </span>
+            <div className="absolute inset-4 flex items-center justify-center">
+              <ProductArtwork productId={product.id} color={product.color} className="h-full w-full" />
             </div>
           </div>
 
@@ -112,12 +102,12 @@ function ProductDetails() {
         </div>
 
         {/* Informações */}
-        <div className="lg:pt-4">
+        <div className="min-w-0 lg:pt-4">
           <p className="text-xs font-bold uppercase tracking-wider text-pink">
             {product.category}
           </p>
 
-          <h1 className="mt-3 font-display text-4xl font-semibold leading-tight sm:text-5xl">
+          <h1 className="mt-3 font-display text-4xl font-semibold leading-tight md:text-4xl xl:text-5xl">
             {product.name}
           </h1>
 
@@ -165,6 +155,7 @@ function ProductDetails() {
                 <button
                   type="button"
                   onClick={decreaseQuantity}
+                  disabled={quantity === 1}
                   aria-label="Diminuir quantidade"
                   className="flex h-11 w-11 items-center justify-center transition hover:bg-mist"
                 >
@@ -192,12 +183,22 @@ function ProductDetails() {
             {!product.customizable && (
               <button
                 type="button"
-                onClick={() => addToCart(product, quantity)}
+                onClick={() => {
+                  addToCart(product, quantity)
+                  setAddedCount((count) => count + 1)
+                }}
                 className="flex w-full items-center justify-center gap-2 bg-ink px-5 py-4 text-sm font-bold text-paper transition hover:opacity-85"
               >
                 <ShoppingCart size={18} />
                 Adicionar ao carrinho
               </button>
+            )}
+
+            {addedCount > 0 && !product.customizable && (
+              <div key={addedCount} role="status" className="feedback-enter rounded-lg border border-teal/30 bg-teal/5 p-4 text-sm">
+                <p>Adicionado ao carrinho.</p>
+                <Link to="/cart" className="mt-1 inline-block font-semibold underline underline-offset-4">Ver carrinho →</Link>
+              </div>
             )}
 
             {product.customizable && (
@@ -213,8 +214,8 @@ function ProductDetails() {
           {/* Informações rápidas */}
           <div className="mt-8 space-y-3 border-t border-line pt-6 text-sm text-slate">
             <p>Produção cuidada em cada detalhe.</p>
-            <p>Envio disponível para Portugal.</p>
-            <p>Pagamento seguro no checkout.</p>
+            <p>Catálogo de demonstração para Portugal.</p>
+            <p>Sem pagamentos ou envios nesta versão de portfólio.</p>
           </div>
         </div>
       </div>

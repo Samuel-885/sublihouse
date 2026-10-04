@@ -1,6 +1,8 @@
+import { Link } from "react-router"
+
 function PersonalizationSection() {
   return (
-    <section id="personalizar" className="bg-mist">
+    <section id="personalizar" className="border-y border-violet/10 bg-violet/5">
       <div className="mx-auto grid max-w-360 gap-10 px-4 py-16 sm:px-6 md:grid-cols-2 md:items-center lg:px-18 lg:py-20">
         {/* Prévia */}
         <div className="rounded-xl border border-line bg-paper p-6 sm:p-8">
@@ -75,12 +77,12 @@ function PersonalizationSection() {
             </div>
           </div>
 
-          <a
-            href="#"
-            className="mt-8 inline-flex rounded-lg bg-ink px-5 py-3 text-sm font-bold text-paper transition hover:opacity-85"
+          <Link
+            to="/products?customizable=true"
+            className="action-button mt-8 inline-flex rounded-lg bg-ink px-5 py-3 text-sm font-bold text-paper transition hover:opacity-85"
           >
             Começar a personalizar
-          </a>
+          </Link>
         </div>
       </div>
     </section>

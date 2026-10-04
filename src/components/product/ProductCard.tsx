@@ -1,4 +1,5 @@
 import { Link } from "react-router"
+import ProductArtwork from "./ProductArtwork"
 
 type ProductCardProps = {
   id: number
@@ -9,15 +10,6 @@ type ProductCardProps = {
   
 }
 
-const colorClasses: Record<string, string> = {
-  blue: "bg-blue",
-  pink: "bg-pink",
-  orange: "bg-orange",
-  violet: "bg-violet",
-  yellow: "bg-yellow",
-  teal: "bg-teal",
-}
-
 function ProductCard({
   id,
   name,
@@ -25,16 +17,14 @@ function ProductCard({
   color,
   badge,
 }: ProductCardProps) {
-  const accentColor = colorClasses[color] ?? "bg-blue"
-
   return (
-    <article className="group">
+    <article className="product-card group min-w-0">
       <Link
         to={`/products/${id}`}
         className="block"
       >
         {/* Área da imagem */}
-        <div className="relative aspect-square overflow-hidden bg-mist">
+        <div className="relative aspect-square overflow-hidden rounded-xl border border-line/60 bg-paper">
           {/* Badge */}
           {badge && (
             <span className="absolute left-3 top-3 z-20 bg-paper px-2.5 py-1 text-xs font-semibold">
@@ -44,14 +34,13 @@ function ProductCard({
 
           {/* Accent colorido */}
           <div
-            className={`absolute left-1/2 top-1/2 h-[42%] w-[42%] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-20 transition duration-300 group-hover:scale-110 ${accentColor}`}
+            className="absolute left-1/2 top-1/2 h-[42%] w-[42%] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-20 transition duration-300 group-hover:scale-110"
+            style={{ backgroundColor: color }}
           />
 
           {/* Placeholder do produto */}
-          <div className="absolute left-1/2 top-1/2 flex h-[58%] w-[42%] -translate-x-1/2 -translate-y-1/2 items-center justify-center border-2 border-ink bg-paper transition duration-300 group-hover:translate-y-[-52%]">
-            <span className="px-3 text-center text-xs font-semibold text-slate">
-              Produto
-            </span>
+          <div className="absolute inset-2 flex items-center justify-center transition-transform duration-300 group-hover:-translate-y-1 group-hover:rotate-2">
+            <ProductArtwork productId={id} color={color} className="h-full w-full" />
           </div>
         </div>
 

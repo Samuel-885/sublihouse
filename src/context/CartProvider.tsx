@@ -1,5 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react"
 import type { Product } from "../types/product"
+import { isValidQuantity, readCart, saveCart } from "./cartStorage"
 import {
   CartContext,
   type CartItem,
@@ -11,25 +12,10 @@ type CartProviderProps = {
 }
 
 function CartProvider({ children }: CartProviderProps) {
-  const [cartItems, setCartItems] = useState<CartItem[]>(() => {
-    const storedCart = localStorage.getItem("sublime-house-cart")
-
-    if (!storedCart) {
-      return []
-    }
-
-    try {
-      return JSON.parse(storedCart)
-    } catch {
-      return []
-    }
-  })
+  const [cartItems, setCartItems] = useState<CartItem[]>(readCart)
 
   useEffect(() => {
-    localStorage.setItem(
-      "sublime-house-cart",
-      JSON.stringify(cartItems)
-    )
+    saveCart(cartItems)
   }, [cartItems])
 
   function addToCart(
@@ -37,12 +23,15 @@ function CartProvider({ children }: CartProviderProps) {
     quantity: number,
     customization?: ProductCustomization
   ) {
+    if (!isValidQuantity(quantity) || !Number.isFinite(product.price * quantity)) return
+
+    const customizationId = customization ? crypto.randomUUID() : undefined
     setCartItems((currentItems) => {
       // Produto personalizado sempre cria uma linha nova
       if (customization) {
         const customizedItem: CartItem = {
           ...product,
-          cartItemId: crypto.randomUUID(),
+          cartItemId: customizationId!,
           quantity,
           customization,
         }
@@ -58,11 +47,15 @@ function CartProvider({ children }: CartProviderProps) {
       )
 
       if (existingItem) {
+        const nextQuantity = existingItem.quantity + quantity
+        if (!isValidQuantity(nextQuantity) || !Number.isFinite(existingItem.price * nextQuantity)) {
+          return currentItems
+        }
         return currentItems.map((item) =>
           item.cartItemId === existingItem.cartItemId
             ? {
                 ...item,
-                quantity: item.quantity + quantity,
+                quantity: nextQuantity,
               }
             : item
         )
@@ -82,13 +75,13 @@ function CartProvider({ children }: CartProviderProps) {
     cartItemId: string,
     quantity: number
   ) {
-    if (quantity < 1) {
+    if (!isValidQuantity(quantity)) {
       return
     }
 
     setCartItems((currentItems) =>
       currentItems.map((item) =>
-        item.cartItemId === cartItemId
+        item.cartItemId === cartItemId && Number.isFinite(item.price * quantity)
           ? {
               ...item,
               quantity,

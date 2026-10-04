@@ -1,15 +1,49 @@
-import { useState } from "react"
+import { useCallback, useState } from "react"
+import { useSearchParams } from "react-router"
 import ProductCard from "../components/product/ProductCard"
 import { products } from "../data/products"
+import Drawer from "../components/layout/Drawer"
 
 function Products() {
-  const [searchTerm, setSearchTerm] = useState("")
-  const [selectedCategory, setSelectedCategory] = useState("Todos")
-  const [selectedCustomization, setSelectedCustomization] = useState("Todos")
-  const [onlySale, setOnlySale] = useState(false)
+  const [searchParams, setSearchParams] = useSearchParams()
+  const searchTerm = searchParams.get("q") ?? ""
+  const categoryParam = searchParams.get("category")?.trim()
+  const selectedCategory = products.some((product) => product.category === categoryParam)
+    ? categoryParam!
+    : "Todos"
+  const selectedCustomization = searchParams.get("customizable") === "true"
+    ? "Personalizável"
+    : searchParams.get("customizable") === "false" ? "Não personalizável" : "Todos"
+  const onlySale = searchParams.get("sale") === "true"
   const [selectedPrice, setSelectedPrice] = useState("Todos")
   const [sortOption, setSortOption] = useState("relevant")
   const [isFiltersOpen, setIsFiltersOpen] = useState(false)
+  const closeFilters = useCallback(() => setIsFiltersOpen(false), [])
+
+  function updateSearchParams(values: Record<string, string | null>) {
+    const nextParams = new URLSearchParams(searchParams)
+    Object.entries(values).forEach(([key, value]) => {
+      if (value) nextParams.set(key, value)
+      else nextParams.delete(key)
+    })
+    setSearchParams(nextParams, { replace: true })
+  }
+
+  function setSearchTerm(value: string) {
+    updateSearchParams({ q: value })
+  }
+
+  function setSelectedCategory(value: string) {
+    updateSearchParams({ category: value === "Todos" ? null : value })
+  }
+
+  function setOnlySale(value: boolean) {
+    updateSearchParams({ sale: value ? "true" : null })
+  }
+
+  function setSelectedCustomization(value: string) {
+    updateSearchParams({ customizable: value === "Todos" ? null : value === "Personalizável" ? "true" : "false" })
+  }
 
   // Pega as categorias dos próprios produtos e remove duplicados
   const categories = [
@@ -21,7 +55,7 @@ function Products() {
   const filteredProducts = products.filter((product) => {
     const matchesSearch = product.name
       .toLocaleLowerCase("pt-PT")
-      .includes(searchTerm.toLocaleLowerCase("pt-PT"))
+      .includes(searchTerm.trim().toLocaleLowerCase("pt-PT"))
 
     const matchesCategory =
       selectedCategory === "Todos" ||
@@ -77,9 +111,7 @@ function Products() {
     (onlySale ? 1 : 0) +
     (selectedPrice !== "Todos" ? 1 : 0)
   function clearFilters() {
-    setSelectedCategory("Todos")
-    setSelectedCustomization("Todos")
-    setOnlySale(false)
+    updateSearchParams({ category: null, sale: null, customizable: null })
     setSelectedPrice("Todos")
   }
   return (
@@ -115,6 +147,7 @@ function Products() {
       <div className="mt-8">
         <input
           type="search"
+          aria-label="Procurar produtos no catálogo"
           placeholder="Procurar produtos..."
           value={searchTerm}
           onChange={(event) => setSearchTerm(event.target.value)}
@@ -126,6 +159,8 @@ function Products() {
         <button
           type="button"
           onClick={() => setIsFiltersOpen(true)}
+          aria-haspopup="dialog"
+          aria-expanded={isFiltersOpen}
           className="rounded-lg border border-ink px-4 py-2 text-sm font-semibold lg:hidden"
         >
           Filtros
@@ -134,6 +169,7 @@ function Products() {
 
         {/* Ordenação */}
         <select
+          aria-label="Ordenar produtos"
           value={sortOption}
           onChange={(event) => setSortOption(event.target.value)}
           className="ml-auto border border-line bg-paper px-4 py-2.5 text-sm outline-none focus:border-ink"        >
@@ -341,32 +377,8 @@ function Products() {
         </div>
       </div>
 
-      {isFiltersOpen && (
-        <div className="fixed inset-0 z-50 lg:hidden">
-          {/* Fundo escuro */}
-          <button
-            type="button"
-            aria-label="Fechar filtros"
-            onClick={() => setIsFiltersOpen(false)}
-            className="absolute inset-0 bg-ink/40"
-          />
-
-          {/* Painel */}
-          <aside className="absolute top-0 right-0 h-full w-[85%] max-w-sm overflow-y-auto bg-paper p-6 shadow-xl">
-            <div className="flex items-center justify-between">
-              <h2 className="font-display text-2xl font-semibold">
-                Filtros
-              </h2>
-
-              <button
-                type="button"
-                aria-label="Fechar filtros"
-                onClick={() => setIsFiltersOpen(false)}
-                className="text-2xl"
-              >
-                ×
-              </button>
-            </div>
+      <Drawer open={isFiltersOpen} onClose={closeFilters} title="Filtros">
+          <div className="filter-panel px-6 pb-6">
             {activeFiltersCount > 0 && (
               <button
                 type="button"
@@ -482,14 +494,13 @@ function Products() {
             {/* Aplicar */}
             <button
               type="button"
-              onClick={() => setIsFiltersOpen(false)}
-              className="mt-10 w-full rounded-xl bg-ink px-5 py-3 text-sm font-bold text-paper"
+              onClick={closeFilters}
+              className="action-button sticky bottom-0 mt-10 w-full rounded-xl bg-ink px-5 py-3.5 text-sm font-bold text-paper shadow-lg"
             >
               Ver {sortedProducts.length} produtos
             </button>
-          </aside>
-        </div>
-      )}
+          </div>
+      </Drawer>
     </section>
   )
 

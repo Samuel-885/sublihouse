@@ -13,15 +13,15 @@ const benefits = [
   },
   {
     id: 3,
-    title: "Compra segura",
-    description: "Checkout e pagamento protegidos.",
-    color: "bg-violet",
+    title: "Cada detalhe conta",
+    description: "Personaliza e acompanha cada detalhe.",
+    color: "bg-orange",
   },
   {
     id: 4,
-    title: "Encomenda simples",
-    description: "Escolhe, personaliza e finaliza.",
-    color: "bg-orange",
+    title: "Personalização simples",
+    description: "Escolhe, personaliza e vê no carrinho.",
+    color: "bg-violet",
   },
 ]
 

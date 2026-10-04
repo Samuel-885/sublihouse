@@ -1,3 +1,5 @@
+import { Link } from "react-router"
+
 type CategoryCardProps = {
   name: string
   color: string
@@ -5,9 +7,9 @@ type CategoryCardProps = {
 
 function CategoryCard({ name, color }: CategoryCardProps) {
   return (
-    <a
-      href="#"
-      className="group block"
+    <Link
+      to={name === "Criar a tua prenda" ? "/products?customizable=true" : `/products?${new URLSearchParams({ category: name })}`}
+      className="group block transition-transform duration-200 hover:-translate-y-1"
     >
       <div className="flex aspect-4/3 items-center justify-center overflow-hidden rounded-xl bg-mist">
         <div
@@ -19,7 +21,7 @@ function CategoryCard({ name, color }: CategoryCardProps) {
       <h3 className="mt-3 text-sm font-semibold">
         {name}
       </h3>
-    </a>
+    </Link>
   )
 }
 

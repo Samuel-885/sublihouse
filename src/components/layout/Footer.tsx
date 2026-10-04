@@ -1,3 +1,5 @@
+import { Link } from "react-router"
+
 function Footer() {
   return (
     <footer id="contacto" className="bg-[#FCFBF8]">
@@ -30,21 +32,21 @@ function Footer() {
             </h3>
 
             <div className="mt-4 flex flex-col gap-2 text-sm text-slate">
-              <a href="/products" className="hover:text-ink">
+              <Link to="/products?category=Canecas" className="hover:text-ink">
                 Canecas
-              </a>
+              </Link>
 
-              <a href="/products" className="hover:text-ink">
+              <Link to="/products?category=Fotopresentes" className="hover:text-ink">
                 Fotopresentes
-              </a>
+              </Link>
 
-              <a href="/products" className="hover:text-ink">
+              <Link to="/products?category=Papelaria" className="hover:text-ink">
                 Papelaria
-              </a>
+              </Link>
 
-              <a href="/products" className="hover:text-ink">
+              <Link to="/products?category=Porta-chaves" className="hover:text-ink">
                 Porta-chaves
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -59,17 +61,13 @@ function Footer() {
                 Contacto
               </a>
 
-              <a href="#" className="hover:text-ink">
-                Envios
-              </a>
+              <span>Envios — em breve</span>
 
-              <a href="#" className="hover:text-ink">
-                Trocas e devoluções
-              </a>
+              <span>Trocas e devoluções — em breve</span>
 
-              <a href="#" className="hover:text-ink">
+              <Link to="/#perguntas-frequentes" className="hover:text-ink">
                 Perguntas frequentes
-              </a>
+              </Link>
             </div>
           </div>
 
@@ -80,17 +78,10 @@ function Footer() {
             </h3>
 
             <div className="mt-4 flex flex-col gap-2 text-sm text-slate">
-              <a href="#" className="hover:text-ink">
-                Instagram
-              </a>
-
-              <a href="#" className="hover:text-ink">
-                Facebook
-              </a>
-
-              <a href="#" className="hover:text-ink">
-                WhatsApp
-              </a>
+              <span>Instagram — em breve</span>
+              <span>Facebook — em breve</span>
+              <span>WhatsApp — em breve</span>
+              <p className="text-xs">Inspiração para prendas com personalidade.</p>
             </div>
           </div>
         </div>
@@ -102,7 +93,7 @@ function Footer() {
           </p>
 
           <p>
-            Multibanco · MB Way · Cartão
+            Sublime House · Presentes personalizados
           </p>
         </div>
       </div>
