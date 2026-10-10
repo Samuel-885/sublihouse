@@ -11,6 +11,9 @@ import Cart from "./pages/Cart"
 import Personalizer from "./pages/Personalizer"
 import NotFound from "./pages/NotFound"
 import FloatingWhatsApp from "./components/layout/FloatingWhatsApp"
+import HomeHeader from "./components/home/HomeHeader"
+import HomeFooter from "./components/home/HomeFooter"
+import "./components/home/home.css"
 
 function App() {
   const { pathname, hash, key } = useLocation()
@@ -53,7 +56,7 @@ function App() {
 
   return (
     <>
-      <Header />
+      {pathname === "/" ? <HomeHeader /> : <Header />}
 
       <main key={pathname} className="page-enter">
         <Routes>
@@ -72,7 +75,7 @@ function App() {
         </Routes>
       </main>
 
-      <Footer />
+      {pathname === "/" ? <HomeFooter /> : <Footer />}
       
       <FloatingWhatsApp />
     </>

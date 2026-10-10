@@ -11,14 +11,17 @@ function FloatingWhatsApp() {
 
   useEffect(() => {
     function handleScroll() {
-      setShowOnMobile(window.scrollY > 250)
-    }
+      if (window.scrollY <= 250) return
 
-    handleScroll()
+      setShowOnMobile(true)
+      window.removeEventListener("scroll", handleScroll)
+    }
 
     window.addEventListener("scroll", handleScroll, {
       passive: true,
     })
+
+    handleScroll()
 
     return () => {
       window.removeEventListener("scroll", handleScroll)

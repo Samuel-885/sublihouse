@@ -1,59 +1,15 @@
-import CategoryCard from "./CategoryCard"
+import { ArrowUpRight, Shirt } from "lucide-react"
+import { Link } from "react-router"
+import { homeCategories } from "./homeData"
 
-const categories = [
-  {
-    name: "Canecas",
-    color: "#0B84D1",
-    image: "/images/products/caneca-tematica.png",
-  },
-  {
-    name: "Criar a tua prenda",
-    color: "#E31C79",
-    image: "/images/products/caneca-personalizada.png",
-  },
-  {
-    name: "Fotopresentes",
-    color: "#F2891C",
-    image: "/images/products/fotopresente.png",
-  },
-  {
-    name: "Papelaria",
-    color: "#4B2E93",
-    image: "/images/products/caderno-personalizado.png",
-  },
-  {
-    name: "Porta-chaves",
-    color: "#0FA3B1",
-    image: "/images/products/porta-chaves.png",
-  },
-  {
-    name: "Ímanes",
-    color: "#F5C443",
-    image: "/images/products/iman-personalizado.png",
-  },
-]
-
-function Categories() {
+export default function Categories() {
   return (
-    <section className="bg-paper py-10 sm:py-12 lg:py-16">
-      <div className="mx-auto max-w-360 px-4 sm:px-6 lg:px-18">
-        <h2 className="font-display text-2xl font-semibold sm:text-3xl">
-          Encontra a tua prenda
-        </h2>
-
-        <div className="mt-6 grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
-          {categories.map((category) => (
-            <CategoryCard
-              key={category.name}
-              name={category.name}
-              color={category.color}
-              image={category.image}
-            />
-          ))}
-        </div>
-      </div>
+    <section className="sh-container sh-section sh-categories" aria-labelledby="categories-title">
+      <div className="sh-section-heading"><div><p className="sh-eyebrow">01 — Categorias</p><h2 id="categories-title">Encontra a tua prenda.</h2></div><Link className="sh-text-link" to="/products">Ver tudo <ArrowUpRight size={14} /></Link></div>
+      <div className="sh-category-grid">{homeCategories.map((category, index) => <Link to={category.to} className={`sh-category-card sh-corners sh-scene sh-category-${index}`} key={category.name}>
+        {category.image ? <img src={category.image} alt={category.name} loading="lazy" width={1024} height={1024} /> : <div className="sh-category-placeholder"><Shirt strokeWidth={0.8} aria-hidden="true" /><span>Fala connosco</span></div>}
+        <div className="sh-category-caption"><h3>{category.name}</h3><p>{category.description}</p></div>
+      </Link>)}</div>
     </section>
   )
 }
-
-export default Categories

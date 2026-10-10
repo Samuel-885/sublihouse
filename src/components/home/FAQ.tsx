@@ -1,94 +1,14 @@
 import { useState } from "react"
+import { Minus, Plus } from "lucide-react"
 
 const questions = [
-  {
-    id: 1,
-    question: "Como funciona a personalização?",
-    answer:
-      "Escolhes o produto, adicionas os elementos disponíveis para personalização e acompanhas a prévia antes de o adicionar ao carrinho.",
-  },
-  {
-    id: 2,
-    question: "Posso usar a minha própria fotografia?",
-    answer:
-      "Sim. Nos produtos compatíveis podes adicionar a tua própria fotografia durante o processo de personalização.",
-  },
-  {
-    id: 3,
-    question: "Quanto tempo demora a produção?",
-    answer:
-      "Os prazos de produção dependem do produto escolhido e dos detalhes da personalização.",
-  },
-  {
-    id: 4,
-    question: "Fazem envios para todo Portugal?",
-    answer:
-      "As informações sobre destinos, opções de envio e custos estarão disponíveis em breve.",
-  },
+  { question: "Como funciona a personalização?", answer: "Escolhes o produto, adicionas os elementos disponíveis para personalização (foto, nome, cor, fonte) e acompanhas a prévia antes de adicionar ao carrinho." },
+  { question: "Posso usar a minha própria fotografia?", answer: "Sim. Nos produtos compatíveis podes adicionar a tua própria fotografia durante o processo de personalização." },
+  { question: "Quanto tempo demora a produção?", answer: "Os prazos dependem do produto e dos detalhes da personalização. Fala connosco antes de encomendar para confirmar o prazo da tua prenda." },
+  { question: "Fazem envios para todo Portugal?", answer: "Contacta-nos para confirmar a disponibilidade, os custos e o prazo de envio para a tua morada." },
+  { question: "Qual a qualidade da estampa?", answer: "O resultado depende do produto, do material e da qualidade da imagem enviada. Usa uma fotografia nítida e consulta-nos se precisares de ajuda a preparar o ficheiro." },
 ]
-
-function FAQ() {
-  const [openQuestion, setOpenQuestion] = useState<number | null>(null)
-
-  function handleQuestionClick(id: number) {
-    setOpenQuestion(openQuestion === id ? null : id)
-  }
-
-  return (
-    <section id="perguntas-frequentes" className="border-y border-orange/10 bg-orange/5">
-      <div className="mx-auto grid max-w-360 gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[0.8fr_1.2fr] lg:px-18 lg:py-20">
-        <div>
-          <p className="text-xs font-bold uppercase tracking-wider text-violet">
-            Perguntas frequentes
-          </p>
-
-          <h2 className="mt-3 font-display text-3xl font-semibold sm:text-4xl">
-            Antes de encomendar.
-          </h2>
-
-          <p className="mt-4 max-w-md leading-7 text-slate">
-            As respostas para algumas das dúvidas mais comuns sobre
-            personalização, produção e envio.
-          </p>
-        </div>
-
-        <div className="border-t border-line">
-          {questions.map((item) => {
-            const isOpen = openQuestion === item.id
-
-            return (
-              <div
-                key={item.id}
-                className="border-b border-line"
-              >
-                <button
-                  type="button"
-                  onClick={() => handleQuestionClick(item.id)}
-                  aria-expanded={isOpen}
-                  aria-controls={`faq-answer-${item.id}`}
-                  className="flex w-full items-center justify-between gap-6 py-5 text-left"
-                >
-                  <span className="font-semibold">
-                    {item.question}
-                  </span>
-
-                  <span aria-hidden="true" className={`text-2xl font-light transition-transform duration-200 ${isOpen ? "rotate-45" : ""}`}>
-                    +
-                  </span>
-                </button>
-
-                <div id={`faq-answer-${item.id}`} aria-hidden={!isOpen} className={`faq-answer ${isOpen ? "is-open" : ""}`}>
-                  <div className="min-h-0 overflow-hidden"><p className="max-w-2xl pb-6 pr-10 leading-7 text-slate">
-                    {item.answer}
-                  </p></div>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      </div>
-    </section>
-  )
+export default function FAQ() {
+  const [openQuestion, setOpenQuestion] = useState<number | null>(0)
+  return <section id="perguntas-frequentes" className="sh-faq" aria-labelledby="faq-title"><div className="sh-container sh-faq-grid"><div><p className="sh-eyebrow">09 — FAQ</p><h2 id="faq-title">Antes de<br className="sh-desktop-break" /> encomendar.</h2><p className="sh-description">Não encontraste a resposta? Fala connosco.</p><a className="sh-text-link sh-underlined" href="#contacto">Ir para o contacto ↗</a></div><div className="sh-faq-list">{questions.map((item, index) => <div className="sh-faq-item" key={item.question}><h3><button type="button" id={`home-question-${index}`} aria-expanded={openQuestion === index} aria-controls={`home-answer-${index}`} onClick={() => setOpenQuestion(openQuestion === index ? null : index)}>{item.question}{openQuestion === index ? <Minus size={17} className="sh-pink" aria-hidden="true" /> : <Plus size={17} aria-hidden="true" />}</button></h3><div id={`home-answer-${index}`} role="region" aria-labelledby={`home-question-${index}`} className={`sh-faq-answer ${openQuestion === index ? "is-open" : ""}`} aria-hidden={openQuestion !== index} inert={openQuestion !== index}><div><p>{item.answer}</p></div></div></div>)}</div></div></section>
 }
-
-export default FAQ
