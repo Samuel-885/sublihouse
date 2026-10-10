@@ -17,7 +17,7 @@ import "./components/home/home.css"
 
 function App() {
   const { pathname, hash, key } = useLocation()
-  const usesEditorialLayout = pathname === "/" || pathname === "/products"
+  const usesEditorialLayout = pathname === "/" || pathname === "/products" || /^\/products\/[^/]+\/?$/.test(pathname)
 
   useEffect(() => {
     if (hash) {
