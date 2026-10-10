@@ -22,7 +22,7 @@ export default function HomeHeader() {
       <header className="sh-header">
         <div className="sh-container sh-header-row">
           <button className="sh-icon sh-menu-toggle" type="button" aria-label="Abrir menu" aria-haspopup="dialog" aria-expanded={menuOpen} onClick={() => { setMenuOpen(true); setSearchOpen(false) }}><Menu size={20} /></button>
-          <Link className="sh-wordmark" to="/" aria-label="Sublime House — página inicial">SUBLI<span>HOUSE</span></Link>
+          <Link className="sh-brand-logo" to="/" aria-label="Sublime House — página inicial"><img src="/images/brand/sublihouse-logo.png" alt="Sublime House" width={1536} height={1024} /></Link>
           <nav className="sh-desktop-nav" aria-label="Navegação principal">{homeNavigation.map(item => <Link key={item.label} to={item.to}>{item.label}</Link>)}</nav>
           <div className="sh-header-actions">
             <button className="sh-icon" type="button" aria-label={searchOpen ? "Fechar busca" : "Abrir busca"} aria-expanded={searchOpen} aria-controls="home-busca" onClick={() => setSearchOpen(!searchOpen)}>{searchOpen ? <X size={19} /> : <Search size={19} />}</button>
