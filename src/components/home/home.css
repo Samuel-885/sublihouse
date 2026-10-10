@@ -161,12 +161,7 @@
 .sh-story-person > span { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--sh-ink); color: white; font-size: 12px; font-weight: 800; flex: none; }
 .sh-story-person h3 { font-size: 12px; }
 .sh-story-person small { color: var(--sh-muted); font-size: 10px; }
-.sh-inspiration { padding-top: 70px; }
-.sh-inspiration-grid { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 12px; }
-.sh-inspiration-grid a { aspect-ratio: 1; }
-.sh-inspiration-3 { background: #baac8d; }
-.sh-inspiration-4 { background: #47483e; }
-.sh-inspiration-5 { background: #ded3b9; }
+
 .sh-faq { padding-block: 96px 180px; border-top: 1px solid var(--sh-line); }
 .sh-faq-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 65px; }
 .sh-faq h2 { font-size: 46px; }
@@ -253,7 +248,6 @@
   .sh-benefits article:last-child { grid-column: 1 / -1; border: 0; }
   .sh-testimonial-grid { grid-template-columns: 1fr; }
   .sh-testimonial-grid article { padding: 26px; }
-  .sh-inspiration-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
   .sh-faq { padding-block: 64px 150px; }
   .sh-faq-grid { grid-template-columns: 1fr; gap: 34px; }
   .sh-faq h2 { font-size: 44px; }
@@ -351,10 +345,6 @@
   .sh-testimonial-grid article { padding: 24px; }
   .sh-testimonial-grid article > p { font-size: 15px; }
   .sh-story-person h3 { font-size: 11px; }
-  .sh-inspiration h2 { font-size: 32px; }
-  .sh-inspiration .sh-text-link { display: none; }
-  .sh-inspiration-grid { gap: 9px; }
-  .sh-inspiration-grid .sh-scene > img { padding: 6%; }
   .sh-faq { padding-block: 60px 140px; }
   .sh-faq-grid { gap: 34px; }
   .sh-faq h2 { max-width: 300px; font-size: 36px; }

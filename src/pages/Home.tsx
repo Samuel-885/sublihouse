@@ -5,7 +5,7 @@ import PersonalizationSection from "../components/home/PersonalizationSection"
 import Testimonials from "../components/home/Testimonials"
 import FAQ from "../components/home/FAQ"
 import Benefits from "../components/home/Benefits"
-import { HowItWorks, Occasions, Editorial, Inspiration } from "../components/home/EditorialSections"
+import { HowItWorks, Occasions, Editorial } from "../components/home/EditorialSections"
 
 export default function Home() {
   return (
@@ -19,7 +19,6 @@ export default function Home() {
       <Editorial />
       <Benefits />
       <Testimonials />
-      <Inspiration />
       <FAQ />
     </div>
   )
