@@ -17,6 +17,7 @@ import "./components/home/home.css"
 
 function App() {
   const { pathname, hash, key } = useLocation()
+  const usesEditorialLayout = pathname === "/" || pathname === "/products"
 
   useEffect(() => {
     if (hash) {
@@ -56,7 +57,7 @@ function App() {
 
   return (
     <>
-      {pathname === "/" ? <HomeHeader /> : <Header />}
+      {usesEditorialLayout ? <HomeHeader /> : <Header />}
 
       <main key={pathname} className="page-enter">
         <Routes>
@@ -75,7 +76,7 @@ function App() {
         </Routes>
       </main>
 
-      {pathname === "/" ? <HomeFooter /> : <Footer />}
+      {usesEditorialLayout ? <HomeFooter /> : <Footer />}
       
       <FloatingWhatsApp />
     </>
