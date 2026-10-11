@@ -1,0 +1,146 @@
+.personalizer { --pz-paper: #fcfbf8; --pz-ink: #0b0b0b; --pz-pink: #ff2859; --pz-line: #deddd8; --pz-muted: #696963; background: var(--pz-paper); color: var(--pz-ink); font-family: 'Figtree', Arial, sans-serif; }
+.personalizer h1, .personalizer h2, .personalizer h3, .personalizer h4, .personalizer p, .personalizer figure { margin: 0; }
+.personalizer button, .personalizer a, .personalizer input, .personalizer select, .personalizer textarea { border-radius: 0; }
+.personalizer :focus-visible { outline: 2px solid var(--pz-pink); outline-offset: 4px; }
+.personalizer button, .personalizer a { transition: color 180ms ease, background-color 180ms ease, border-color 180ms ease; }
+.personalizer button:disabled, .personalizer input:disabled, .personalizer select:disabled, .personalizer textarea:disabled { cursor: not-allowed; }
+.personalizer button:disabled { opacity: 1; }
+.personalizer svg { flex-shrink: 0; }
+.pz-container { width: calc(100% - 120px); max-width: 1320px; margin-inline: auto; }
+.pz-intro { padding-block: 56px 48px; border-bottom: 1px solid var(--pz-line); }
+.personalizer .pz-eyebrow { margin-bottom: 16px; color: #dc1745; font-size: 10px; font-weight: 700; letter-spacing: .22em; text-transform: uppercase; }
+.personalizer h1 { max-width: 11em; font-size: clamp(36px, 4.4vw, 64px); font-weight: 900; line-height: .99; letter-spacing: -.05em; }
+.personalizer .pz-intro-copy { max-width: 510px; margin-top: 20px; color: var(--pz-muted); font-size: 16px; line-height: 1.65; }
+.pz-studio { padding-block: 32px 104px; }
+.pz-product-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-bottom: 22px; }
+.personalizer .pz-label { display: block; font-size: 9px; line-height: 1.5; font-weight: 500; color: var(--pz-muted); letter-spacing: .12em; text-transform: uppercase; }
+.pz-product-heading h2 { margin-top: 4px; font-size: 18px; font-weight: 700; letter-spacing: -.02em; }
+.pz-back { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; font-size: 11px; white-space: nowrap; }
+.pz-back:hover { color: var(--pz-pink); }
+.personalizer .pz-edit-notice { margin-bottom: 20px; border-left: 2px solid var(--pz-pink); padding-left: 12px; color: var(--pz-muted); font-size: 12px; }
+.pz-workspace { display: grid; grid-template-columns: minmax(0, 2.1fr) minmax(0, 1fr); gap: 32px; align-items: start; scroll-margin-top: 16px; }
+.pz-stage { min-width: 0; position: sticky; top: 16px; }
+.personalizer .pz-viewer { border: 1px solid var(--pz-line); padding: clamp(18px, 3vw, 44px); padding-bottom: 12px; }
+.pz-viewer-surface { position: relative; height: clamp(360px, 42vw, 600px); background: #eeece6; }
+.pz-viewer-label { position: absolute; z-index: 1; top: 16px; left: 16px; font-size: 8px; color: #64645e; letter-spacing: .15em; text-transform: uppercase; }
+.pz-product-image { width: 100%; height: 100%; padding: 32px 12px 12px; }
+.pz-product-image > img { object-fit: contain; }
+.pz-viewer-caption { display: flex; gap: 12px; justify-content: space-between; align-items: center; min-height: 48px; color: var(--pz-muted); font-size: 10px; }
+.pz-button { display: inline-flex; min-height: 44px; padding: 10px 12px; border: 1px solid var(--pz-line); align-items: center; justify-content: center; gap: 8px; font-size: 10px; font-weight: 700; letter-spacing: .045em; line-height: 1.4; text-transform: uppercase; }
+.pz-button-primary { border-color: var(--pz-ink); background: var(--pz-ink); color: white; }
+.pz-button:not(:disabled):hover { border-color: var(--pz-ink); background: var(--pz-ink); color: white; }
+.pz-button-primary:not(:disabled):hover { border-color: var(--pz-pink); background: var(--pz-pink); }
+.pz-button:disabled { color: #83837b; background: #f5f4f0; border-color: #e4e3de; }
+.pz-button-primary:disabled { background: #dfded8; border-color: #dfded8; color: #686861; }
+.pz-reset { font-size: 8px; padding: 6px 10px; }
+.pz-toolbar { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px; margin-top: 16px; }
+.pz-tools, .pz-history { display: flex; gap: 8px; }
+.pz-tool { display: flex; align-items: center; justify-content: center; gap: 7px; padding: 10px 13px; min-height: 44px; border: 1px solid var(--pz-ink); background: var(--pz-ink); color: white; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; }
+.pz-tool:hover, .pz-tool[aria-pressed='true'] { background: var(--pz-pink); border-color: var(--pz-pink); }
+.pz-icon-button { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 1px solid var(--pz-line); }
+.pz-icon-button:disabled { color: #99998e; }
+.pz-panel-shell { min-width: 0; border: 1px solid var(--pz-line); background: var(--pz-paper); }
+.pz-sheet-toggle { display: none; }
+.pz-panel { padding: 22px; }
+.pz-panel-title { display: flex; align-items: center; gap: 8px; padding-bottom: 16px; border-bottom: 1px solid var(--pz-line); }
+.pz-panel-title > svg { color: var(--pz-pink); }
+.pz-panel-title h2 { font-size: 17px; font-weight: 800; letter-spacing: -.025em; }
+.personalizer .pz-tools-notice { margin-block: 15px; color: var(--pz-muted); font-size: 11px; line-height: 1.6; }
+.personalizer .pz-guidance { color: var(--pz-muted); font-size: 13px; line-height: 1.7; padding-bottom: 20px; }
+.pz-tool-controls { padding: 0 0 22px; margin: 0; border: 0; min-width: 0; }
+.pz-control { display: block; margin-top: 18px; }
+.pz-control > span { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; color: var(--pz-muted); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; }
+.pz-control-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.pz-control-row .pz-button { font-size: 8px; padding-inline: 6px; gap: 5px; }
+.pz-tool-controls > .pz-control-row:last-child { margin-top: 12px; }
+.pz-tool-controls .pz-button { color: #83837b; background: #f5f4f0; border-color: #e4e3de; }
+.pz-tool-controls .pz-delete { color: #a36670; }
+.pz-control input[type='range'] { display: block; width: 100%; height: 20px; accent-color: #bbb9b0; }
+.pz-control textarea, .pz-control select { display: block; width: 100%; padding: 10px; min-height: 44px; border: 1px solid var(--pz-line); font-size: 12px; color: #83837b; background: #f5f4f0; resize: none; }
+.pz-alignment { display: flex; gap: 8px; color: #83837b; }
+.pz-full { width: 100%; }
+.pz-purchase { padding-block: 20px; }
+.pz-editor-controls + .pz-purchase { border-top: 1px solid var(--pz-line); }
+.pz-purchase h3 { margin-top: 5px; font-size: 15px; font-weight: 700; }
+.pz-purchase-row { display: flex; flex-wrap: wrap; align-items: end; justify-content: space-between; gap: 16px; margin-top: 20px; }
+.personalizer .pz-price { margin-top: 5px; font-size: 27px; line-height: 1; font-weight: 900; letter-spacing: -.045em; white-space: nowrap; }
+.pz-quantity-group > .pz-label { margin-bottom: 5px; }
+.pz-quantity { display: flex; align-items: center; border: 1px solid var(--pz-line); }
+.pz-quantity button { display: grid; place-items: center; width: 44px; height: 44px; }
+.pz-quantity button:disabled { color: #b5b4ab; }
+.pz-quantity button:not(:disabled):hover { background: #eeece6; }
+.pz-quantity output { min-width: 26px; text-align: center; font-size: 12px; font-weight: 700; }
+.pz-method { padding-block: 22px; border-top: 1px solid var(--pz-line); }
+.pz-method h3 { font-size: 17px; font-weight: 800; letter-spacing: -.025em; }
+.pz-method h4 { font-size: 13px; font-weight: 700; }
+.pz-method-option > p { margin-block: 10px 14px; font-size: 12px; color: var(--pz-muted); line-height: 1.65; }
+.pz-method-option > .pz-button { width: 100%; }
+.pz-method-note { display: block; margin-top: 9px; text-align: center; font-size: 10px; color: var(--pz-muted); }
+.pz-method-divider { display: flex; align-items: center; gap: 12px; margin-block: 18px; font-size: 11px; color: var(--pz-muted); }
+.pz-method-divider::before, .pz-method-divider::after { content: ''; flex: 1; height: 1px; background: var(--pz-line); }
+.pz-purchase-actions { display: grid; gap: 8px; padding-top: 18px; border-top: 1px solid var(--pz-line); }
+.pz-purchase-actions > p { padding-top: 3px; text-align: center; color: var(--pz-muted); font-size: 10px; line-height: 1.6; }
+.pz-change-method { display: flex; flex-direction: column; width: 100%; align-items: center; gap: 5px; min-height: 44px; margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--pz-line); font-size: 11px; color: var(--pz-muted); }
+.pz-change-method span { color: var(--pz-ink); }
+.pz-change-method:hover span { color: var(--pz-pink); }
+.pz-unavailable { min-height: 60vh; padding-block: 90px; }
+.pz-unavailable .pz-button { margin-top: 30px; }
+/* Keep the existing floating contact shortcut clear of this page's controls. */
+body:has(.personalizer) > #root > a[aria-label='Falar com a Sublime House pelo WhatsApp'] { display: none; }
+@media (min-width: 1024px) and (max-width: 1199px) {
+  .pz-container { width: calc(100% - 64px); }
+  .pz-workspace { gap: 24px; grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr); }
+  .pz-panel { padding: 18px; }
+  .pz-tool-long { display: none; }
+}
+@media (max-width: 1023px) {
+  .pz-container { width: calc(100% - 48px); }
+  .pz-intro { padding-block: 40px 36px; }
+  .personalizer h1 { font-size: clamp(36px, 6.6vw, 52px); }
+  .pz-studio { padding-block: 24px 64px; }
+  .pz-workspace { grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .pz-stage { position: static; }
+  .personalizer .pz-viewer { padding: 24px 24px 8px; }
+  .pz-viewer-surface { height: min(65vw, 560px); }
+  .pz-workspace-editing .pz-viewer { padding: 12px 12px 4px; }
+  .pz-workspace-editing .pz-viewer-surface { height: clamp(140px, 30svh, 360px); }
+  .pz-sheet-toggle { position: relative; display: flex; width: 100%; min-height: 60px; align-items: center; justify-content: space-between; gap: 12px; padding: 22px 20px 12px; font-size: 14px; font-weight: 700; }
+  .pz-sheet-handle { position: absolute; top: 8px; left: calc(50% - 16px); width: 32px; height: 3px; background: #c5c3bb; }
+  .pz-sheet-action { display: flex; gap: 8px; align-items: center; color: var(--pz-muted); font-size: 10px; font-weight: 500; }
+  .pz-panel-content { max-height: calc(42svh - 60px); overflow-y: auto; overscroll-behavior-y: contain; scrollbar-width: thin; border-top: 1px solid var(--pz-line); animation: pz-sheet-open 180ms ease-out; }
+  .pz-panel-shell[data-expanded='false'] .pz-panel-content { display: none; }
+  .pz-panel { padding: 20px; }
+  .pz-panel-title { display: none; }
+  .pz-purchase { padding-top: 0; }
+  .pz-editor-controls + .pz-purchase { padding-top: 20px; }
+  .personalizer .pz-tools-notice { margin-top: 0; }
+  .pz-tool-long { display: none; }
+}
+@media (max-width: 599px) {
+  .pz-container { width: calc(100% - 32px); }
+  .pz-intro { padding-block: 32px; }
+  .personalizer h1 { font-size: clamp(32px, 9.2vw, 40px); max-width: 370px; }
+  .personalizer .pz-eyebrow { font-size: 9px; margin-bottom: 12px; }
+  .personalizer .pz-intro-copy { font-size: 13px; line-height: 1.65; margin-top: 14px; }
+  .pz-product-heading { gap: 10px; margin-bottom: 16px; }
+  .pz-product-heading h2 { font-size: 15px; }
+  .pz-back { font-size: 10px; }
+  .pz-back svg { display: none; }
+  .personalizer .pz-viewer { padding: 14px 14px 4px; }
+  .pz-viewer-surface { height: min(85vw, 420px); }
+  .pz-viewer-label { font-size: 7px; left: 12px; top: 12px; }
+  .pz-viewer-caption { font-size: 9px; }
+  .pz-toolbar { gap: 8px; margin-top: 12px; }
+  .pz-tools { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); width: 100%; gap: 6px; }
+  .pz-tool { font-size: 9px; gap: 5px; padding-inline: 6px; }
+  .pz-history { margin-left: auto; gap: 6px; }
+  .pz-workspace { gap: 12px; scroll-margin-top: 8px; }
+  .pz-panel { padding: 16px; }
+  .pz-purchase { padding-bottom: 12px; }
+  .pz-purchase-row { margin-top: 12px; }
+  .pz-method { padding-block: 16px; }
+}
+@keyframes pz-sheet-open { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) {
+  .personalizer *, .personalizer *::before, .personalizer *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
+}

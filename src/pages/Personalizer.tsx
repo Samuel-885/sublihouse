@@ -1,410 +1,89 @@
-import { useEffect, useState } from "react"
-import { Link, useParams } from "react-router"
+import { useRef, useState } from "react"
+import { ArrowLeft, ArrowRight } from "lucide-react"
+import { Link, useParams, useSearchParams } from "react-router"
 import { products } from "../data/products"
-import { MessageCircle, Minus, Plus } from "lucide-react"
-import { useCart } from "../context/useCart"
+import type { Product } from "../types/product"
+import PersonalizerViewer from "../components/personalizer/PersonalizerViewer"
+import PersonalizerToolbar from "../components/personalizer/PersonalizerToolbar"
+import PersonalizerPanel from "../components/personalizer/PersonalizerPanel"
+import PersonalizerBottomSheet from "../components/personalizer/PersonalizerBottomSheet"
+import type { PersonalizerTool } from "../components/personalizer/types"
+import "../components/personalizer/personalizer.css"
 
-import { personalizationColors, getPersonalizationColorName } from "../data/personalizationColors"
-import { createWhatsAppUrl } from "../data/contact"
-
-function Personalizer() {
-  const { id } = useParams()
-
-  const [customName, setCustomName] = useState("")
-  const [selectedColor, setSelectedColor] = useState("#E31C79")
-  const [selectedFont, setSelectedFont] = useState("Figtree")
-  const [selectedImage, setSelectedImage] = useState<File | null>(null)
-  const [imagePreview, setImagePreview] = useState<string | null>(null)
+function PersonalizerWorkspace({ product, cartItemId }: { product: Product; cartItemId: string | null }) {
+  const [activeTool, setActiveTool] = useState<PersonalizerTool>("default")
+  const [isEditor, setIsEditor] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(true)
   const [quantity, setQuantity] = useState(1)
-  const [errorMessage, setErrorMessage] = useState("")
-  const [successMessage, setSuccessMessage] = useState("")
+  const workspaceRef = useRef<HTMLDivElement>(null)
+  const isEditingExistingItem = Boolean(cartItemId)
 
-  const { addToCart } = useCart()
-
-    useEffect(() => {
-    return () => {
-        if (imagePreview) {
-        URL.revokeObjectURL(imagePreview)
-        }
-    }
-    }, [imagePreview])
-
-  const product = products.find(
-    (product) => product.id === Number(id)
-  )
-
-  if (!product || !product.customizable) {
-    return (
-      <section className="mx-auto max-w-360 px-4 py-20 sm:px-6 lg:px-18">
-        <h1 className="font-display text-3xl font-semibold">
-          Produto não disponível para personalização
-        </h1>
-
-        <Link
-          to="/products"
-          className="mt-6 inline-block font-semibold underline underline-offset-4"
-        >
-          Voltar aos produtos
-        </Link>
-      </section>
-    )
+  function revealWorkspace() {
+    // Position after the compact mobile viewer has laid out.
+    requestAnimationFrame(() => {
+      workspaceRef.current?.scrollIntoView({
+        block: "start",
+        behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth",
+      })
+    })
   }
 
-    function handleImageChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0]
-
-    if (!file) {
-        return
+  function startCreating(tool: PersonalizerTool = "default") {
+    setIsEditor(true)
+    setActiveTool(tool)
+    setIsExpanded(true)
+    revealWorkspace()
+    if (tool === "default") {
+      requestAnimationFrame(() => workspaceRef.current?.querySelector<HTMLButtonElement>(".pz-tool")?.focus({ preventScroll: true }))
     }
-
-    setSelectedImage(file)
-
-    const previewUrl = URL.createObjectURL(file)
-
-    setImagePreview(previewUrl)
-    }
-
-    function decreaseQuantity() {
-      setQuantity((currentQuantity) =>
-        Math.max(1, currentQuantity - 1)
-      )
-    }
-
-    function increaseQuantity() {
-      setQuantity((currentQuantity) => currentQuantity + 1)
-    }
-
-    function handleAddCustomizedProduct() {
-      if (!product) {
-        return
-      }
-
-      setErrorMessage("")
-      setSuccessMessage("")
-
-      const hasName = customName.trim().length > 0
-      const hasImage = selectedImage !== null
-
-      if (!hasName && !hasImage) {
-        setErrorMessage(
-          "Adiciona pelo menos um nome ou uma fotografia para personalizar o produto."
-        )
-
-        return
-      }
-
-      addToCart(product, quantity, {
-        name: customName.trim(),
-        color: selectedColor,
-        font: selectedFont,
-        imageName: selectedImage?.name,
-      })
-
-      setSuccessMessage(
-        `${product.name} foi adicionado ao carrinho.`
-      )
-    }
+  }
 
   return (
-    <section className="bg-mist">
-      <div className="mx-auto max-w-360 px-4 py-10 sm:px-6 lg:px-18 lg:py-14">
-        {/* Breadcrumb */}
-        <div className="flex flex-wrap items-center gap-2 text-sm text-slate">
-          <Link to="/" className="hover:text-ink">
-            Início
-          </Link>
-
-          <span>/</span>
-
-          <Link to={`/products/${product.id}`} className="hover:text-ink">
-            {product.name}
-          </Link>
-
-          <span>/</span>
-
-          <span className="text-ink">
-            Personalizar
-          </span>
+    <section className="personalizer" id="home-conteudo" data-mode={isEditingExistingItem ? "edit" : "new"}>
+      <div className="pz-intro"><div className="pz-container">
+        <p className="pz-eyebrow">Personalização</p>
+        <h1>Cria diretamente na tua peça.</h1>
+        <p className="pz-intro-copy">Adiciona fotografias, textos e detalhes e acompanha a tua criação diretamente na peça.</p>
+      </div></div>
+      <div className="pz-container pz-studio">
+        <div className="pz-product-heading">
+          <div><p className="pz-label">Estás a personalizar</p><h2>{product.name}</h2></div>
+          <Link to={`/products/${product.id}`} className="pz-back"><ArrowLeft size={14} /> Ver produto</Link>
         </div>
-
-        <div className="mt-8 grid gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,1fr)] lg:grid-cols-[1fr_0.85fr] lg:gap-16">
-          {/* Preview */}
-          <div className="min-w-0">
-            <p className="text-xs font-bold uppercase tracking-wider text-blue">
-              Prévia em tempo real
-            </p>
-
-            <div className="sticky top-24 mt-4 flex min-h-125 items-center justify-center border border-line bg-paper p-3 sm:p-6 lg:p-8">
-              <div className="relative aspect-square w-full max-w-150 overflow-hidden rounded-lg">
-                {/* Caneca base */}
-                <img
-                  src="/images/personalization/caneca-base.png"
-                  alt={`Prévia de ${product.name}`}
-                  className="absolute inset-0 h-full w-full object-cover"
-                />
-
-                {/* Fotografia do cliente */}
-                {imagePreview && (
-                  <img
-                    src={imagePreview}
-                    alt="Fotografia escolhida para personalização"
-                    className="
-                      pointer-events-none
-                      absolute
-                      left-[33.4%]
-                      top-[31%]
-                      z-10
-                      h-[33%]
-                      w-[28.4%]
-                      rounded-[6%]
-                      object-cover
-                    "
-                  />
-                )}
-
-                {/* Nome */}
-                <div
-                  className="
-                    pointer-events-none
-                    absolute
-                    left-[34%]
-                    top-[67.2%]
-                    z-20
-                    flex
-                    w-[27.5%]
-                    items-center
-                    justify-center
-                    overflow-hidden
-                    text-center
-                  "
-                >
-                  <span
-                    className="block max-w-full overflow-hidden text-ellipsis whitespace-nowrap font-semibold leading-none"
-                    style={{
-                      color: selectedColor,
-                      fontFamily: selectedFont,
-                      fontSize: "clamp(0.72rem, 2.2vw, 1.65rem)",
-                    }}
-                  >
-                    {customName || "O teu nome"}
-                  </span>
-                </div>
-              </div>
-            </div>
+        {isEditingExistingItem && <p className="pz-edit-notice" role="status">Edição de personalização · A recuperação da tua criação estará disponível em breve.</p>}
+        <div ref={workspaceRef} className={`pz-workspace${isEditor ? " pz-workspace-editing" : ""}`}>
+          <div className="pz-stage">
+            <PersonalizerViewer product={product} />
+            <PersonalizerToolbar activeTool={activeTool} onSelect={startCreating} />
           </div>
-
-          {/* Controles */}
-          <div className="min-w-0 rounded-xl bg-paper p-5 sm:p-6 xl:p-8">
-            <p className="text-xs font-bold uppercase tracking-wider text-pink">
-              Personaliza
-            </p>
-
-            <h1 className="mt-3 font-display text-3xl font-semibold xl:text-4xl">
-              Faz esta prenda à tua maneira.
-            </h1>
-
-            <p className="mt-3 leading-7 text-slate">
-              Personaliza {product.name} e acompanha cada alteração na prévia.
-            </p>
-
-            {/* Fotografia */}
-            <div className="mt-8">
-            <label
-                htmlFor="custom-image"
-                className="text-sm font-semibold"
-            >
-                Fotografia
-            </label>
-
-            <input
-                id="custom-image"
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="mt-3 block w-full text-sm text-slate file:mr-4 file:border-0 file:bg-mist file:px-4 file:py-3 file:text-sm file:font-semibold file:text-ink"
-            />
-
-            <p className="mt-2 text-xs text-slate">
-                JPG, PNG ou outra imagem suportada pelo navegador. A fotografia
-                fica apenas na prévia; o carrinho guarda o nome do ficheiro.
-            </p>
-
-            {selectedImage && (
-            <p className="mt-2 text-xs font-medium text-ink wrap-anywhere">
-                Selecionada: {selectedImage.name}
-            </p>
-            )}
-            </div>
-
-            {/* Nome */}
-            <div className="mt-8">
-              <label
-                htmlFor="custom-name"
-                className="text-sm font-semibold"
-              >
-                Nome
-              </label>
-
-              <input
-                id="custom-name"
-                type="text"
-                value={customName}
-                onChange={(event) => setCustomName(event.target.value)}
-                maxLength={20}
-                placeholder="Ex.: Sofia"
-                className="mt-3 w-full border border-line bg-paper px-4 py-3 outline-none transition focus:border-ink"
-              />
-
-              <p className="mt-2 text-right text-xs text-slate">
-                {customName.length}/20
-              </p>
-            </div>
-
-            {/* Cor */}
-            <div className="mt-8">
-              <p className="text-sm font-semibold">
-                Cor do texto: {getPersonalizationColorName(selectedColor)}
-              </p>
-
-              <div className="mt-3 flex flex-wrap gap-3">
-                {personalizationColors.map((color) => (
-                  <button
-                    key={color.value}
-                    type="button"
-                    aria-label={color.name}
-                    aria-pressed={selectedColor === color.value}
-                    title={color.name}
-                    onClick={() => setSelectedColor(color.value)}
-                    className={`h-10 w-10 rounded-full border-2 ${
-                      selectedColor === color.value
-                        ? "border-ink"
-                        : "border-transparent"
-                    }`}
-                    style={{
-                      backgroundColor: color.value,
-                    }}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Fonte */}
-            <div className="mt-8">
-              <label
-                htmlFor="font"
-                className="text-sm font-semibold"
-              >
-                Fonte
-              </label>
-
-              <select
-                id="font"
-                value={selectedFont}
-                onChange={(event) => setSelectedFont(event.target.value)}
-                className="mt-3 w-full border border-line bg-paper px-4 py-3 outline-none focus:border-ink"
-              >
-                <option value="Figtree">
-                  Figtree
-                </option>
-
-                <option value="Fredoka">
-                  Fredoka
-                </option>
-              </select>
-            </div>
-
-            {/* Quantidade */}
-            <div className="mt-8">
-              <p className="text-sm font-semibold">
-                Quantidade
-              </p>
-
-              <div className="mt-3 inline-flex items-center border border-line">
-                <button
-                  type="button"
-                  onClick={decreaseQuantity}
-                  disabled={quantity === 1}
-                  aria-label="Diminuir quantidade"
-                  className="flex h-11 w-11 items-center justify-center transition hover:bg-mist disabled:cursor-not-allowed disabled:opacity-30"
-                >
-                  <Minus size={16} />
-                </button>
-
-                <span className="flex h-11 min-w-12 items-center justify-center border-x border-line text-sm font-semibold">
-                  {quantity}
-                </span>
-
-                <button
-                  type="button"
-                  onClick={increaseQuantity}
-                  aria-label="Aumentar quantidade"
-                  className="flex h-11 w-11 items-center justify-center transition hover:bg-mist"
-                >
-                  <Plus size={16} />
-                </button>
-              </div>
-            </div>
-
-
-            <div className="mt-10 border-t border-line pt-6">
-              {errorMessage && (
-                <div role="alert" className="mb-4 border border-pink bg-pink/5 px-4 py-3 text-sm text-pink">
-                  {errorMessage}
-                </div>
-              )}              
-              <button
-                type="button"
-                onClick={handleAddCustomizedProduct}
-                className="w-full bg-ink px-5 py-4 text-sm font-bold text-paper"
-              >
-                Adicionar personalizado ao carrinho
-              </button>
-              {successMessage && (
-                <div role="status" className="mt-4 border border-teal bg-teal/5 px-4 py-3">
-                  <p className="text-sm text-ink">
-                    {successMessage}
-                  </p>
-
-                  <Link
-                    to="/cart"
-                    className="mt-2 inline-block text-sm font-bold underline underline-offset-4"
-                  >
-                    Ver carrinho
-                  </Link>
-                </div>
-              )}
-            </div>
-
-            <div className="mt-8 border-t border-line pt-6">
-              <div className="h-1 w-9 rounded-full bg-orange" />
-
-              <h2 className="mt-3 font-display text-xl font-semibold">
-                Precisas de algo diferente?
-              </h2>
-
-              <p className="mt-2 text-sm leading-6 text-slate">
-                Se a personalização que procuras não estiver disponível nas opções acima,
-                fala connosco pelo WhatsApp para combinar os detalhes.
-              </p>
-
-              <a
-                href={createWhatsAppUrl(
-                  `Olá! Gostaria de pedir uma personalização especial para o produto: ${product.name}.`
-                )}
-                target="_blank"
-                rel="noreferrer"
-                className="mt-5 flex w-full items-center justify-center gap-2 border border-ink bg-paper px-5 py-3 text-sm font-bold transition hover:bg-mist"
-              >
-                <MessageCircle size={18} />
-                Falar pelo WhatsApp
-              </a>
-            </div>            
-
-          </div>
+          <PersonalizerBottomSheet key={`${activeTool}:${isEditor}`} activeTool={activeTool} expanded={isExpanded} onToggle={() => {
+            setIsExpanded(!isExpanded)
+            if (!isExpanded && isEditor) revealWorkspace()
+          }}>
+            <PersonalizerPanel product={product} quantity={quantity} onQuantityChange={setQuantity} activeTool={activeTool} isEditor={isEditor} onStart={() => startCreating()} onChangeMethod={() => {
+              setIsEditor(false)
+              setActiveTool("default")
+              requestAnimationFrame(() => workspaceRef.current?.querySelector<HTMLButtonElement>(".pz-method button")?.focus())
+            }} />
+          </PersonalizerBottomSheet>
         </div>
       </div>
     </section>
   )
 }
 
-export default Personalizer
+export default function Personalizer() {
+  const { id } = useParams()
+  const [searchParams] = useSearchParams()
+  const cartItemId = searchParams.get("cartItemId")?.trim() || null
+  const product = products.find(item => item.id === Number(id))
+  if (!product || !product.customizable) {
+    return <section className="personalizer pz-unavailable" id="home-conteudo"><div className="pz-container">
+      <p className="pz-eyebrow">Personalização</p>
+      <h1>{product ? "Este produto não é personalizável." : "Produto não encontrado."}</h1>
+      <Link className="pz-button pz-button-primary" to={product ? `/products/${product.id}` : "/products"}>{product ? "Voltar ao produto" : "Ver produtos"}<ArrowRight size={16} /></Link>
+    </div></section>
+  }
+  // A different product or cart item starts a fresh local session; no cart mutation.
+  return <PersonalizerWorkspace key={`${product.id}:${cartItemId ?? "new"}`} product={product} cartItemId={cartItemId} />
+}

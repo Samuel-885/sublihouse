@@ -18,7 +18,7 @@ import "./components/home/home.css"
 
 function App() {
   const { pathname, hash, key } = useLocation()
-  const usesEditorialLayout = pathname === "/" || /^\/personalizados\/?$/.test(pathname) || /^\/cart\/?$/.test(pathname) || pathname === "/products" || /^\/products\/[^/]+\/?$/.test(pathname)
+  const usesEditorialLayout = pathname === "/" || /^\/personalizados\/?$/.test(pathname) || /^\/cart\/?$/.test(pathname) || pathname === "/products" || /^\/products\/[^/]+\/?$/.test(pathname) || /^\/personalize\/[^/]+\/?$/.test(pathname)
 
   useEffect(() => {
     if (hash) {
