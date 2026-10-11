@@ -1,253 +1,141 @@
 import { useState } from "react"
 import { Link } from "react-router"
-import { Minus, Plus, Trash2 } from "lucide-react"
+import { ArrowRight, Minus, Plus, ShoppingBag } from "lucide-react"
 import { useCart } from "../context/useCart"
 import { getPersonalizationColorName } from "../data/personalizationColors"
 import ProductImage from "../components/product/ProductImage"
+import "./cart.css"
+
+const currency = new Intl.NumberFormat("pt-PT", {
+  style: "currency",
+  currency: "EUR",
+})
 
 function Cart() {
   const [showCheckoutDemo, setShowCheckoutDemo] = useState(false)
-  const {
-    cartItems,
-    cartTotal,
-    updateQuantity,
-    removeFromCart,
-  } = useCart()
+  const { cartItems, cartTotal, updateQuantity, removeFromCart } = useCart()
 
   if (cartItems.length === 0) {
     return (
-      <section className="mx-auto max-w-360 px-4 py-20 text-center sm:px-6 lg:px-18">
-        <p className="text-xs font-bold uppercase tracking-wider text-pink">
-          O teu carrinho
-        </p>
-
-        <h1 className="mt-3 font-display text-4xl font-semibold">
-          O carrinho está vazio.
-        </h1>
-
-        <p className="mx-auto mt-4 max-w-md leading-7 text-slate">
-          Ainda não adicionaste nenhuma prenda. Explora os produtos e encontra
-          algo especial.
-        </p>
-
-        <Link
-          to="/products"
-          className="mt-8 inline-flex bg-ink px-6 py-3 text-sm font-bold text-paper"
-        >
-          Ver produtos
-        </Link>
+      <section id="home-conteudo" tabIndex={-1} className="cart-page cart-empty" aria-labelledby="cart-title">
+        <div className="cart-container">
+          <ShoppingBag className="cart-empty-icon" size={32} strokeWidth={1} aria-hidden="true" />
+          <h1 id="cart-title">O teu carrinho está vazio.</h1>
+          <p>Ainda não adicionaste nenhuma prenda. Vamos mudar isso.</p>
+          <Link to="/products" className="cart-button">
+            Ver produtos <ArrowRight size={16} aria-hidden="true" />
+          </Link>
+        </div>
       </section>
     )
   }
 
   return (
-    <section className="mx-auto max-w-360 px-4 py-10 sm:px-6 lg:px-18 lg:py-14">
-      <p className="text-sm text-slate">
-        Início / Carrinho
-      </p>
-
-      <div className="mt-4">
-        <p className="text-xs font-bold uppercase tracking-wider text-pink">
-          A tua encomenda
-        </p>
-
-        <h1 className="mt-2 font-display text-4xl font-semibold sm:text-5xl">
-          Carrinho
-        </h1>
-      </div>
-
-      <div className="mt-10 grid gap-8 lg:grid-cols-[minmax(0,1fr)_320px] xl:grid-cols-[minmax(0,1fr)_380px] xl:gap-12">
-        {/* Produtos */}
-        <div className="border-t border-line">
-          {cartItems.map((item) => (
-            <article
-              key={item.cartItemId}
-              className="grid grid-cols-[96px_minmax(0,1fr)] gap-4 border-b border-line py-6 sm:grid-cols-[140px_minmax(0,1fr)] sm:gap-5"
-            >
-              {/* Imagem do produto, mantendo a miniatura compacta no mobile. */}
-              <div className="aspect-square bg-mist">
-                <ProductImage product={item} />
-              </div>
-
-              {/* Informações */}
-              <div className="min-w-0 flex flex-col wrap-anywhere">
-                <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
-                  <div className="min-w-0">
-                    <Link
-                      to={`/products/${item.id}`}
-                      className="font-display text-xl font-semibold hover:text-pink"
+    <section id="home-conteudo" tabIndex={-1} className="cart-page" aria-labelledby="cart-title">
+      <div className="cart-container">
+        <h1 id="cart-title">Carrinho.</h1>
+        <div className="cart-layout">
+          <div className="cart-items" aria-label="Itens do carrinho">
+            {cartItems.map((item) => (
+              <article key={item.cartItemId} className="cart-item" aria-label={item.name}>
+                <Link to={`/products/${item.id}`} className="cart-item-image" tabIndex={-1} aria-hidden="true">
+                  <ProductImage product={item} />
+                </Link>
+                <div className="cart-item-details">
+                  <div className="cart-item-heading">
+                    <div>
+                      <h2><Link to={`/products/${item.id}`}>{item.name}</Link></h2>
+                      {item.category && <p className="cart-item-category">{item.category}</p>}
+                    </div>
+                    <button
+                      type="button"
+                      className="cart-remove"
+                      aria-label={`Remover ${item.name}`}
+                      onClick={() => removeFromCart(item.cartItemId)}
                     >
-                      {item.name}
-                    </Link>
-
-                    <p className="mt-1 text-sm text-slate">
-                      {item.category}
-                    </p>
-
-                    {item.customization && (
-                      <div className="mt-3 space-y-1 text-sm text-slate">
+                      Remover
+                    </button>
+                  </div>
+                  {item.customization && (
+                    <div className="cart-customization">
+                      <p className="cart-customization-status">Personalização criada</p>
+                      <dl>
                         {item.customization.name && (
-                          <p>
-                            Nome:{" "}
-                            <span className="text-ink">
-                              {item.customization.name}
-                            </span>
-                          </p>
+                          <div><dt>Nome:</dt><dd>{item.customization.name}</dd></div>
                         )}
-
-                        <div className="flex items-center gap-2">
-                          <span>Cor: {getPersonalizationColorName(item.customization.color)}</span>
-
-                          <span
-                            className="h-4 w-4 rounded-full border border-line"
-                            style={{
-                              backgroundColor: item.customization.color,
-                            }}
-                          />
-                        </div>
-
-                        <p>
-                          Fonte:{" "}
-                          <span className="text-ink">
-                            {item.customization.font}
-                          </span>
-                        </p>
-
+                        {item.customization.color && (
+                          <div><dt>Cor:</dt><dd>{getPersonalizationColorName(item.customization.color)}</dd></div>
+                        )}
+                        {item.customization.font && (
+                          <div><dt>Fonte:</dt><dd>{item.customization.font}</dd></div>
+                        )}
                         {item.customization.imageName && (
-                          <p>
-                            Foto:{" "}
-                            <span className="break-all text-ink">
-                              {item.customization.imageName}
-                            </span>
-                          </p>
+                          <div><dt>Foto:</dt><dd>{item.customization.imageName} (apenas o nome do ficheiro guardado)</dd></div>
                         )}
-                      </div>
-                    )}
+                      </dl>
+                      <Link to={`/personalize/${item.id}`} className="cart-edit">
+                        Editar personalização <ArrowRight size={14} aria-hidden="true" />
+                      </Link>
+                    </div>
+                  )}
+                  <div className="cart-item-bottom">
+                    <div className="cart-quantity" role="group" aria-label={`Quantidade de ${item.name}`}>
+                      <button
+                        type="button"
+                        aria-label={`Diminuir quantidade de ${item.name}`}
+                        disabled={item.quantity === 1}
+                        onClick={() => updateQuantity(item.cartItemId, item.quantity - 1)}
+                      >
+                        <Minus size={15} aria-hidden="true" />
+                      </button>
+                      <output aria-label={`Quantidade de ${item.name}`}>{item.quantity}</output>
+                      <button
+                        type="button"
+                        aria-label={`Aumentar quantidade de ${item.name}`}
+                        onClick={() => updateQuantity(item.cartItemId, item.quantity + 1)}
+                      >
+                        <Plus size={15} aria-hidden="true" />
+                      </button>
+                    </div>
+                    <div className="cart-item-price">
+                      <p aria-label="Total do item">{currency.format(item.price * item.quantity)}</p>
+                      {item.quantity > 1 && <span>{currency.format(item.price)} / un.</span>}
+                    </div>
                   </div>
-
-                  <p className="shrink-0 font-semibold whitespace-nowrap">
-                    {(item.price * item.quantity).toLocaleString("pt-PT", {
-                      style: "currency",
-                      currency: "EUR",
-                    })}
-                  </p>
                 </div>
-
-                <div className="mt-auto flex flex-wrap items-center justify-between gap-4 pt-6">
-                  {/* Quantidade */}
-                  <div className="inline-flex items-center border border-line">
-                    <button
-                      type="button"
-                      aria-label="Diminuir quantidade"
-                      onClick={() =>
-                        updateQuantity(
-                          item.cartItemId,
-                          item.quantity - 1
-                        )
-                      }
-                      disabled={item.quantity === 1}
-                      className="flex h-10 w-10 items-center justify-center disabled:cursor-not-allowed disabled:opacity-30"
-                    >
-                      <Minus size={15} />
-                    </button>
-
-                    <span className="flex h-10 min-w-11 items-center justify-center border-x border-line text-sm font-semibold">
-                      {item.quantity}
-                    </span>
-
-                    <button
-                      type="button"
-                      aria-label="Aumentar quantidade"
-                      onClick={() =>
-                        updateQuantity(
-                          item.cartItemId,
-                          item.quantity + 1
-                        )
-                      }
-                      className="flex h-10 w-10 items-center justify-center"
-                    >
-                      <Plus size={15} />
-                    </button>
-                  </div>
-
-                  {/* Remover */}
-                  <button
-                    type="button"
-                    onClick={() => removeFromCart(item.cartItemId)}
-                    className="flex items-center gap-2 text-sm text-slate transition hover:text-pink"
-                  >
-                    <Trash2 size={16} />
-                    Remover
-                  </button>
-                </div>
+              </article>
+            ))}
+          </div>
+          <aside className="cart-summary" aria-labelledby="cart-summary-title">
+            <h2 id="cart-summary-title">Resumo</h2>
+            <dl className="cart-summary-lines">
+              <div><dt>Subtotal</dt><dd>{currency.format(cartTotal)}</dd></div>
+              <div className="cart-shipping"><dt>Envio</dt><dd>Calculado na finalização</dd></div>
+              <div className="cart-total" aria-live="polite" aria-atomic="true">
+                <dt>Total</dt><dd>{currency.format(cartTotal)}</dd>
               </div>
-            </article>
-          ))}
+            </dl>
+            <p className="cart-demo-note">
+              Demonstração de portfólio. Não são processados pagamentos nem envios.
+            </p>
+            <button
+              type="button"
+              onClick={() => setShowCheckoutDemo(true)}
+              aria-expanded={showCheckoutDemo}
+              aria-controls={showCheckoutDemo ? "checkout-demo" : undefined}
+              className="cart-button"
+            >
+              Finalizar encomenda <ArrowRight size={16} aria-hidden="true" />
+            </button>
+            {showCheckoutDemo && (
+              <div id="checkout-demo" role="status" className="cart-demo-message">
+                <p><strong>Chegaste ao fim da demonstração.</strong></p>
+                <p>Nenhuma encomenda foi criada e nenhum pagamento foi efetuado. O teu carrinho mantém-se intacto.</p>
+              </div>
+            )}
+            <Link to="/products" className="cart-continue">Continuar a comprar</Link>
+          </aside>
         </div>
-
-        {/* Resumo */}
-        <aside className="h-fit bg-mist p-6 lg:sticky lg:top-6">
-          <h2 className="font-display text-2xl font-semibold">
-            Resumo
-          </h2>
-
-          <div className="mt-6 flex items-center justify-between border-b border-line pb-5 text-sm">
-            <span className="text-slate">
-              Subtotal
-            </span>
-
-            <span className="font-semibold">
-              {cartTotal.toLocaleString("pt-PT", {
-                style: "currency",
-                currency: "EUR",
-              })}
-            </span>
-          </div>
-
-          <div className="mt-5 flex items-center justify-between">
-            <span className="font-semibold">
-              Total
-            </span>
-
-            <span className="text-xl font-bold">
-              {cartTotal.toLocaleString("pt-PT", {
-                style: "currency",
-                currency: "EUR",
-              })}
-            </span>
-          </div>
-
-          <p className="mt-3 text-xs leading-5 text-slate">
-            Demonstração de portfólio. Não são processados pagamentos nem envios.
-          </p>
-
-          <button
-            type="button"
-            onClick={() => setShowCheckoutDemo(true)}
-            aria-expanded={showCheckoutDemo}
-            aria-controls="checkout-demo"
-            className="mt-6 w-full bg-ink px-5 py-4 text-sm font-bold text-paper transition hover:opacity-85"
-          >
-            Finalizar compra
-          </button>
-
-          {showCheckoutDemo && (
-            <div id="checkout-demo" role="status" className="mt-4 border border-line bg-paper p-4 text-sm leading-6">
-              <p className="font-semibold">Chegaste ao fim da demonstração.</p>
-              <p className="mt-2 text-slate">
-                O checkout real será integrado via Shopify. Nenhuma encomenda foi
-                criada e nenhum pagamento foi efetuado. O teu carrinho mantém-se intacto.
-              </p>
-            </div>
-          )}
-
-          <Link
-            to="/products"
-            className="mt-4 block text-center text-sm font-semibold underline underline-offset-4"
-          >
-            Continuar a comprar
-          </Link>
-        </aside>
       </div>
     </section>
   )

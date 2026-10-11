@@ -9,6 +9,7 @@ import Products from "./pages/Products"
 import ProductDetails from "./pages/ProductDetails"
 import Cart from "./pages/Cart"
 import Personalizer from "./pages/Personalizer"
+import Personalizados from "./pages/Personalizados"
 import NotFound from "./pages/NotFound"
 import FloatingWhatsApp from "./components/layout/FloatingWhatsApp"
 import HomeHeader from "./components/home/HomeHeader"
@@ -17,7 +18,7 @@ import "./components/home/home.css"
 
 function App() {
   const { pathname, hash, key } = useLocation()
-  const usesEditorialLayout = pathname === "/" || pathname === "/products" || /^\/products\/[^/]+\/?$/.test(pathname)
+  const usesEditorialLayout = pathname === "/" || /^\/personalizados\/?$/.test(pathname) || /^\/cart\/?$/.test(pathname) || pathname === "/products" || /^\/products\/[^/]+\/?$/.test(pathname)
 
   useEffect(() => {
     if (hash) {
@@ -63,6 +64,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/products" element={<Products />} />
+          <Route path="/personalizados" element={<Personalizados />} />
           <Route
             path="/products/:id"
             element={<ProductDetails />}

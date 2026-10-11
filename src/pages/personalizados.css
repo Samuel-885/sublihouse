@@ -1,0 +1,99 @@
+.personalized-page {
+  --catalog-paper: var(--sh-paper);
+  --catalog-ink: var(--sh-ink);
+  --catalog-accent: var(--sh-pink);
+  --catalog-line: var(--sh-line);
+  --catalog-muted: var(--sh-muted);
+}
+.sh-home.personalized-page h1, .sh-home.personalized-page h2 { font-family: 'Figtree', Arial, sans-serif; font-weight: 900; }
+.sh-home.personalized-page h2 { font-size: clamp(32px, 3.5vw, 48px); line-height: 1.08; }
+.personalized-hero { background: var(--sh-ink); color: var(--sh-paper); }
+.personalized-hero-grid { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 72px; padding-block: 100px; }
+.personalized-hero-copy { min-width: 0; }
+.personalized-hero .sh-eyebrow { color: #abab9f; }
+.sh-home.personalized-page h1 { font-size: clamp(56px, 5.5vw, 80px); line-height: .98; letter-spacing: -.045em; }
+.personalized-page .personalized-intro { max-width: 390px; margin-block: 28px 32px; color: #b4b4ad; font-size: 16px; line-height: 1.7; }
+.personalized-page .personalized-outline { border-color: #50504b; background: transparent; }
+.personalized-page .personalized-outline:hover { border-color: var(--sh-pink); background: var(--sh-pink); }
+.personalized-hero-photo { position: relative; margin: 0; }
+.personalized-hero-photo img { width: 100%; height: auto; aspect-ratio: 4 / 5; object-fit: cover; }
+.personalized-hero-photo figcaption { position: absolute; bottom: -12px; left: -12px; transform: rotate(-4deg); padding: 14px 20px; background: var(--sh-pink); color: white; font-size: 11px; font-weight: 800; text-transform: uppercase; }
+.personalized-experience { padding-block: 88px; background: #fff0ad; }
+.personalized-experience-heading { text-align: center; margin-bottom: 42px; }
+.personalized-experience-heading > p:last-child { max-width: 540px; margin: 18px auto 0; color: #70684b; font-size: 16px; line-height: 1.65; }
+.personalized-moments { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.personalized-moments figure { min-width: 0; margin: 0; border: 1px solid #dfd4a5; background: var(--sh-paper); }
+.personalized-moments img { width: 100%; height: auto; aspect-ratio: 4 / 3; object-fit: cover; }
+.personalized-moments figcaption { padding: 16px; font-size: 13px; font-weight: 800; }
+.personalized-how { padding-block: 92px 52px; }
+.personalized-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); list-style: none; padding: 0; margin: 38px 0 0; border-top: 1px solid var(--sh-line); border-left: 1px solid var(--sh-line); }
+.personalized-steps li { min-width: 0; padding: 30px; border-right: 1px solid var(--sh-line); border-bottom: 1px solid var(--sh-line); }
+.personalized-step-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 26px; color: var(--sh-pink); }
+.personalized-step-top span { color: #85857d; font-size: 24px; font-weight: 800; }
+.personalized-steps h3 { font-size: 17px; line-height: 1.3; }
+.personalized-steps p { margin-top: 10px; color: #676761; font-size: 14px; line-height: 1.6; }
+.personalized-page .personalized-availability { max-width: 840px; margin-top: 22px; color: #676761; font-size: 13px; line-height: 1.7; }
+.personalized-availability a { color: var(--sh-ink); text-decoration: underline; text-underline-offset: 3px; }
+.personalized-availability svg { display: inline; vertical-align: middle; }
+.personalized-products { padding-block: 40px 92px; }
+.personalized-products-heading { display: flex; justify-content: space-between; align-items: end; gap: 24px; margin-bottom: 40px; }
+.personalized-products-heading > a { flex-shrink: 0; }
+.personalized-product-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 36px 24px; }
+/* Keep the reused catalogue card's typography independent of editorial headings. */
+.personalized-page .catalog-card-info h2 { font-size: 14px; font-weight: 600; line-height: 1.45; letter-spacing: normal; }
+.personalized-faq { padding-block: 88px; border-top: 1px solid var(--sh-line); }
+.personalized-faq-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 64px; }
+.personalized-page .personalized-faq h2 { font-size: 36px; }
+.personalized-faq .sh-faq-item button { font-size: 17px; }
+.personalized-final { padding-bottom: 150px; }
+.personalized-final > div { display: flex; align-items: center; justify-content: space-between; gap: 32px; padding: 52px 60px; background: var(--sh-ink); color: var(--sh-paper); }
+.personalized-page .personalized-final h2 { font-size: 40px; }
+.personalized-page .personalized-pink-button { background: var(--sh-pink); border-color: var(--sh-pink); }
+.personalized-page .personalized-pink-button:hover { background: var(--sh-paper); border-color: var(--sh-paper); color: var(--sh-ink); }
+@media (max-width: 1023px) {
+  .personalized-hero-grid { grid-template-columns: 1fr; gap: 40px; padding-block: 64px; }
+  .sh-home.personalized-page h1 { font-size: 64px; }
+  .personalized-page .personalized-intro { max-width: 480px; }
+  .personalized-hero-photo img { aspect-ratio: 1; }
+  .personalized-experience { padding-block: 64px; }
+  .personalized-experience-heading { margin-bottom: 32px; }
+  .personalized-moments figcaption { padding: 14px 12px; font-size: 12px; }
+  .personalized-how { padding-block: 64px 32px; }
+  .personalized-steps { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .personalized-products { padding-block: 32px 64px; }
+  .personalized-product-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px 18px; }
+  .personalized-faq { padding-block: 64px; }
+  .personalized-faq-grid { grid-template-columns: 1fr; gap: 32px; }
+  .personalized-faq h2 br { display: none; }
+  .personalized-final { padding-bottom: 100px; }
+  .personalized-final > div { flex-direction: column; text-align: center; padding: 42px 28px; gap: 26px; }
+}
+@media (max-width: 479px) {
+  .personalized-hero-grid { padding-block: 48px 56px; gap: 38px; }
+  .sh-home.personalized-page h1 { font-size: clamp(44px, 12vw, 54px); }
+  .sh-home.personalized-page h2 { font-size: 32px; }
+  .personalized-page .personalized-intro { margin-block: 24px; font-size: 15px; }
+  .personalized-hero-photo img { aspect-ratio: 4 / 5; }
+  .personalized-hero-photo figcaption { left: -6px; padding: 12px 14px; font-size: 10px; }
+  .personalized-experience { padding-block: 56px; }
+  .personalized-experience-heading > p:last-child { font-size: 14px; }
+  .personalized-moments { grid-template-columns: 1fr; }
+  .personalized-moments figcaption { padding: 16px; font-size: 13px; }
+  .personalized-how { padding-block: 60px 28px; }
+  .personalized-steps { margin-top: 28px; }
+  .personalized-steps li { padding: 22px 16px; }
+  .personalized-step-top { margin-bottom: 22px; }
+  .personalized-step-top span { font-size: 22px; }
+  .personalized-steps h3 { font-size: 15px; }
+  .personalized-steps p { font-size: 13px; }
+  .personalized-products { padding-block: 28px 60px; }
+  .personalized-products-heading { align-items: end; gap: 12px; margin-bottom: 28px; }
+  .personalized-products-heading > a { font-size: 10px; gap: 5px; }
+  .personalized-product-grid { gap: 28px 12px; }
+  .personalized-page .catalog-card-info h2 { font-size: 13px; line-height: 1.4; }
+  .personalized-faq { padding-block: 56px; }
+  .personalized-faq .sh-faq-item button { font-size: 15px; gap: 16px; padding-block: 22px; }
+  .personalized-final { padding-bottom: 80px; }
+  .personalized-final > div { padding: 32px 24px; }
+  .personalized-final .sh-button { width: 100%; font-size: 10px; padding-inline: 16px; }
+}

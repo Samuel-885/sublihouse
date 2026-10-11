@@ -7,7 +7,7 @@ import HeaderSearch from "./HeaderSearch"
 
 const navigationItems = [
   { label: "Início", to: "/" },
-  { label: "Criar a tua prenda", to: "/#personalizar" },
+  { label: "Criar a tua prenda", to: "/personalizados" },
   { label: "Papelaria Personalizada", to: "/products?category=Papelaria" },
   { label: "Canecas Temáticas", to: "/products?category=Canecas&q=Tem%C3%A1tica" },
   { label: "Canecas Mágicas", to: "/products?category=Canecas&q=M%C3%A1gica" },
