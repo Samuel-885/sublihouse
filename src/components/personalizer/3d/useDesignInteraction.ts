@@ -3,7 +3,8 @@ import { useThree } from "@react-three/fiber"
 import type { OrbitControls } from "@react-three/drei"
 import { Raycaster, Vector2 } from "three"
 import type { DesignStore } from "../editor/createDesignStore"
-import { handleCursor, hitTest, hitTestHandle, unwrapDelta, uvToDesign, type TransformHandle } from "../editor/geometry"
+import { handleCursor, hitTest, hitTestHandle, selectionHandles, toDesign, unwrapDelta, type TransformHandle } from "../editor/geometry"
+import { pickPrintablePoint } from "./printableSurface"
 import type { DesignPoint, PersonalizationElement } from "../editor/types"
 
 type Controls = ComponentRef<typeof OrbitControls>
@@ -15,6 +16,7 @@ export function useDesignInteraction(store: DesignStore, editing: boolean, contr
     const canvas = gl.domElement
     const raycaster = new Raycaster()
     const pointer = new Vector2()
+    const space = store.getDesign().space
     let drag: Drag | null = null
     const suppressedPointers = new Set<number>()
 
@@ -27,8 +29,7 @@ export function useDesignInteraction(store: DesignStore, editing: boolean, contr
       raycaster.setFromCamera(pointer, camera)
       // The nearest physical surface wins. The handle/shell can occlude the print;
       // the overlay's no-op raycast never contributes an intersection.
-      const hit = raycaster.intersectObjects(scene.children, true)[0]
-      return hit?.object.name === "printable-surface" && hit.uv ? uvToDesign(hit.uv) : null
+      return pickPrintablePoint(raycaster, scene) ?? null
     }
     function stop(event: PointerEvent) {
       event.preventDefault()
@@ -52,8 +53,8 @@ export function useDesignInteraction(store: DesignStore, editing: boolean, contr
       if (!point) return
       const design = store.getDesign()
       const selected = design.elements.find(element => element.id === design.selectedElementId)
-      const handle = selected ? hitTestHandle(selected, point, event.pointerType !== "mouse") : null
-      const element = handle ? selected : hitTest(design.elements, point)
+      const handle = selected ? hitTestHandle(selected, point, event.pointerType !== "mouse", space) : null
+      const element = handle ? selected : hitTest(design.elements, point, space)
       store.select(element?.id ?? null)
       const orbit = controls.current
       if (!element || !orbit) return
@@ -61,8 +62,12 @@ export function useDesignInteraction(store: DesignStore, editing: boolean, contr
       orbit.autoRotate = false
       orbit.enabled = false
       store.begin()
-      drag = { pointerId: event.pointerId, id: element.id, initial: { ...element }, handle, start: point, previousX: point.x, unwrappedX: point.x,
-        offsetX: point.x - element.x, offsetY: point.y - element.y, controls: orbit }
+      // Lift the UV point into the same horizontal turn as the chosen body or
+      // handle. Keep this unwrapped frame for the entire gesture.
+      const anchor = handle ? toDesign(element, selectionHandles(element, space).find(item => item.kind === handle)!) : element
+      const start = { ...point, x: space.wrapX ? anchor.x + unwrapDelta(point.x, anchor.x) : point.x }
+      drag = { pointerId: event.pointerId, id: element.id, initial: { ...element }, handle, start, previousX: point.x, unwrappedX: start.x,
+        offsetX: start.x - element.x, offsetY: point.y - element.y, controls: orbit }
       canvas.setPointerCapture(event.pointerId)
       canvas.style.cursor = "grabbing"
     }
@@ -72,7 +77,7 @@ export function useDesignInteraction(store: DesignStore, editing: boolean, contr
         stop(event)
         const point = pick(event)
         if (!point) return // Off the visible print: hold the last valid position.
-        drag.unwrappedX += unwrapDelta(point.x, drag.previousX)
+        drag.unwrappedX += space.wrapX ? unwrapDelta(point.x, drag.previousX) : point.x - drag.previousX
         drag.previousX = point.x
         if (drag.handle) store.transform(drag.initial, drag.handle, drag.start, { x: drag.unwrappedX, y: point.y })
         else store.move(drag.id, drag.unwrappedX - drag.offsetX, point.y - drag.offsetY)
@@ -80,8 +85,8 @@ export function useDesignInteraction(store: DesignStore, editing: boolean, contr
         const point = editing && !event.buttons ? pick(event) : null
         const design = store.getDesign()
         const selected = design.elements.find(element => element.id === design.selectedElementId)
-        const handle = selected && point ? hitTestHandle(selected, point) : null
-        canvas.style.cursor = event.buttons ? "grabbing" : handle ? handleCursor(handle) : point && hitTest(design.elements, point) ? "move" : "grab"
+        const handle = selected && point ? hitTestHandle(selected, point, false, space) : null
+        canvas.style.cursor = event.buttons ? "grabbing" : handle ? handleCursor(handle) : point && hitTest(design.elements, point, space) ? "move" : "grab"
       }
     }
     function up(event: PointerEvent) {

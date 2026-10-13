@@ -1,8 +1,9 @@
-import { lazy, Suspense, useCallback, useRef, useState } from "react"
+import { lazy, Suspense, useCallback, useImperativeHandle, useRef, useState, type Ref } from "react"
 import { RotateCcw } from "lucide-react"
 import type { Product } from "../../types/product"
 import ProductImage from "../product/ProductImage"
 import type { DesignStore } from "./editor/createDesignStore"
+import type { DesignPoint } from "./editor/types"
 
 import { getPersonalizer3DConfig } from "./3d/personalizer3dConfig"
 import { useWebGLSupport } from "./3d/useWebGLSupport"
@@ -11,7 +12,9 @@ import type { PersonalizerSceneHandle } from "./3d/PersonalizerScene"
 
 const PersonalizerScene = lazy(() => import("./3d/PersonalizerScene"))
 
-export default function PersonalizerViewer({ product, store, editing, onAvailabilityChange }: { product: Product; store: DesignStore; editing: boolean; onAvailabilityChange: (available: boolean) => void }) {
+export type PersonalizerViewerHandle = { getInsertionPoint: () => DesignPoint | undefined }
+
+export default function PersonalizerViewer({ product, store, editing, onAvailabilityChange, ref }: { product: Product; store: DesignStore; editing: boolean; onAvailabilityChange: (available: boolean) => void; ref?: Ref<PersonalizerViewerHandle> }) {
   const config = getPersonalizer3DConfig(product)
   const supported = useWebGLSupport(Boolean(config))
   const [failed, setFailed] = useState(false)
@@ -20,6 +23,9 @@ export default function PersonalizerViewer({ product, store, editing, onAvailabi
   const onError = useCallback(() => { setFailed(true); onAvailabilityChange(false) }, [onAvailabilityChange])
   const onReady = useCallback(() => { setReady(true); onAvailabilityChange(true) }, [onAvailabilityChange])
   const show3D = Boolean(config && supported && !failed)
+  useImperativeHandle(ref, () => ({
+    getInsertionPoint: () => show3D && ready ? scene.current?.getInsertionPoint() : undefined,
+  }), [show3D, ready])
   const unavailable = Boolean(config && (!supported || failed))
   const fallback = <div className="pz-product-image"><ProductImage product={product} loading="eager" /></div>
 

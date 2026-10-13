@@ -75,7 +75,14 @@ try {
     await until('!!document.querySelector(".personalizer")')
     await evaluate('document.fonts.ready.then(() => true)')
   }
-  async function click(selector) { await evaluate(`document.querySelector(${JSON.stringify(selector)}).click()`); await pause(180) }
+  async function click(selector) {
+    await evaluate(`document.querySelector(${JSON.stringify(selector)}).click()`); await pause(180)
+    // Transform fixtures use a known center. Visible insertion is covered by
+    // personalizer-insertion-review.mjs without repositioning any new content.
+    if (selector === '[aria-label="Adicionar texto"]') {
+      await evaluate('designStore.move(design().selectedElementId,512,256);designStore.commit()')
+    }
+  }
   async function screenshot(name) {
     const image = await cdp('Page.captureScreenshot', { format: 'png' })
     await writeFile(path.join(out, name + '.png'), Buffer.from(image.data, 'base64'))
@@ -111,6 +118,7 @@ try {
     await pause(250)
   }
   async function upload(type = 'image/png', options = {}) {
+    const countBefore = await evaluate('design().elements.length')
     await evaluate(`(async () => {
       const c = document.createElement('canvas'); c.width = 400; c.height = 240;
       const ctx = c.getContext('2d'); ctx.fillStyle='#28a6b5';ctx.fillRect(0,0,400,240);
@@ -121,6 +129,7 @@ try {
     })()`)
     await until('!document.querySelector(".pz-upload-status") || document.querySelector(".pz-upload-status").getAttribute("role") === "alert"')
     await pause(160)
+    await evaluate(`if(design().elements.length>${countBefore}) {designStore.move(design().selectedElementId,512,256);designStore.commit()}`)
   }
   async function pointer(type, point, touch) {
     if (touch) await cdp('Input.dispatchTouchEvent', { type: ({ down: 'touchStart', move: 'touchMove', up: 'touchEnd' })[type], touchPoints: type === 'up' ? [] : [{ ...point, id: 1 }] })
@@ -232,12 +241,11 @@ try {
   for (const [label,x,y] of [['center',512,256],['left',440,256],['right',620,256],['top',512,30],['bottom',512,480]]) {
     await check('UV ' + label, `(()=>{const p=project(${x},${y}),s=state(),r=s.gl.domElement.getBoundingClientRect(),ray=new three.Raycaster();ray.setFromCamera(new three.Vector2((p.x-r.left)/r.width*2-1,-(p.y-r.top)/r.height*2+1),s.camera);const hit=ray.intersectObject(s.scene.getObjectByName('printable-surface'))[0];const d=geometry.uvToDesign(hit.uv);return Math.abs(d.x-${x})<2&&Math.abs(d.y-${y})<2})()`)
   }
-  // View the rear seam; move a partly grabbed photo across u=0/1. Its box
-  // remains bounded rather than jumping to the opposite side of the texture.
+  // View the rear seam; the grabbed photo now moves through u=0/1 continuously.
   await evaluate(`design().elements.filter(e=>e.type==='text').forEach(e=>designStore.move(e.id,512,400));designStore.move(design().elements[0].id,140,256);designStore.commit();state().controls.target.set(0,0,0);state().camera.position.set(0,1,-6);state().controls.update();state().invalidate();true`)
   await pause(150)
   await drag(await evaluate('project(30,256)'),await evaluate('project(1000,256)'),false)
-  await check('actual seam drag stays bounded without teleport', 'design().selectedElementId===design().elements[0].id && Math.abs(design().elements[0].x-140)<2 && state().controls.enabled')
+  await check('actual seam drag continues without a horizontal wall', 'design().selectedElementId===design().elements[0].id && Math.abs(design().elements[0].x-86)<4 && state().controls.enabled')
   await click('.pz-reset')
   await evaluate('designStore.select(design().elements.at(-1).id)')
   await click('.pz-delete')
@@ -343,7 +351,7 @@ try {
   await evaluate(`designStore.resizeElement(id,'width',1);true`)
   await check('locked minimum preserves ratio','Math.abs(el().width/el().height-2.5)<.001 && el().height>=40')
   await evaluate(`designStore.resizeElement(id,'width',9000);designStore.rotateElement(id,Math.PI/4);designStore.move(id,-999,9999);designStore.commit();true`)
-  await check('rotated oversized element stays in print', `(()=>{const e=el(),r=geom.rotatedExtents(e);return e.x-r.x>=-.001&&e.y-r.y>=-.001&&e.x+r.x<=1024.001&&e.y+r.y<=512.001})()`)
+  await check('rotated oversized element wraps X and stays within vertical print', `(()=>{const e=el(),r=geom.rotatedExtents(e);return e.x>=0&&e.x<1024&&e.y-r.y>=-.001&&e.y+r.y<=512.001})()`)
   await evaluate(`designStore.updateText(textId,{content:'LONG TEXT '.repeat(50),fontSize:140});designStore.rotateElement(textId,.7);true`)
   await check('long rotated text fits without glyph distortion', `(()=>{const e=design().elements.find(e=>e.id===textId),r=geom.rotatedExtents(e);return r.x<=512.001&&r.y<=256.001&&e.fontSize===140})()`)
   // Render known pixels: ellipse corners transparent over ceramic, centered cover,
@@ -442,7 +450,7 @@ try {
       const sx=Math.sign(h.x),sy=Math.sign(h.y),anchor=geom.toDesign(e,{x:-sx*e.width/2,y:-sy*e.height/2}),after=geom.toDesign(next,{x:-sx*next.width/2,y:-sy*next.height/2});
       if(Math.hypot(anchor.x-after.x,anchor.y-after.y)>.001)return false;
     }
-    const edge={...e,x:110,y:256,rotation:0};const h=geom.selectionHandles(edge).find(h=>h.kind==='left');const start=geom.toDesign(edge,h);designStore.transform(edge,'left',start,{x:-35,y:256});designStore.commit();return el().x<200&&el().x-el().width/2>=0;
+    const edge={...e,x:110,y:256,rotation:0};const h=geom.selectionHandles(edge).find(h=>h.kind==='left');const start=geom.toDesign(edge,h);designStore.transform(edge,'left',start,{x:-35,y:256});designStore.commit();return el().x<200&&Math.abs(el().x-el().width/2+35)<.001;
   })()`)
   // Desktop cursor is picked from the selected control before the element body.
   await evaluate(`designStore.select(el().id);designStore.rotateElement(el().id,0);designStore.move(el().id,512,256);designStore.commit();designStore.resizeElement(el().id,'width',180);document.querySelector('.pz-workspace').scrollIntoView({block:'start',behavior:'instant'});true`)

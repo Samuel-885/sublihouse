@@ -1,19 +1,20 @@
 import { useEffect, useMemo } from "react"
 import { useThree } from "@react-three/fiber"
-import { CanvasTexture, LinearFilter, LinearMipmapLinearFilter, SRGBColorSpace } from "three"
+import { CanvasTexture, ClampToEdgeWrapping, LinearFilter, LinearMipmapLinearFilter, RepeatWrapping, SRGBColorSpace } from "three"
 import { createDesignCanvas, renderDesignToCanvas, renderSelectionToCanvas } from "../editor/compositor"
 import type { DesignStore } from "../editor/createDesignStore"
 
-function createTexture() {
+function createTexture(wrapX: boolean) {
   const texture = new CanvasTexture(createDesignCanvas())
   texture.colorSpace = SRGBColorSpace
   texture.magFilter = LinearFilter
   texture.minFilter = LinearMipmapLinearFilter
+  texture.wrapS = wrapX ? RepeatWrapping : ClampToEdgeWrapping
   return texture
 }
 
-function createTextures() {
-  const art = createTexture(), selection = createTexture()
+function createTextures(wrapX: boolean) {
+  const art = createTexture(wrapX), selection = createTexture(wrapX)
   return {
     art, selection,
     paint(store: DesignStore) {
@@ -27,7 +28,7 @@ function createTextures() {
 
 export function useDesignTextures(store: DesignStore) {
   const invalidate = useThree(state => state.invalidate)
-  const textures = useMemo(() => createTextures(), [])
+  const textures = useMemo(() => createTextures(store.getDesign().space.wrapX), [store])
   useEffect(() => {
     let frame = 0
     let active = true

@@ -1,4 +1,4 @@
-import { DESIGN_HEIGHT, DESIGN_WIDTH, type DesignPoint, type PersonalizationElement } from "./types"
+import { DESIGN_HEIGHT, DESIGN_WIDTH, FLAT_SPACE, type PrintableSpace, type DesignPoint, type PersonalizationElement } from "./types"
 
 // CylinderGeometry's UV orientation and CanvasTexture.flipY meet here only.
 export function uvToDesign(uv: DesignPoint): DesignPoint {
@@ -10,12 +10,28 @@ export function rotatedExtents(element: PersonalizationElement) {
   return { x: (element.width * c + element.height * s) / 2, y: (element.width * s + element.height * c) / 2 }
 }
 
-export function constrainElement<T extends PersonalizationElement>(element: T): T {
+export function normalizeDesignX(x: number) {
+  return ((x % DESIGN_WIDTH) + DESIGN_WIDTH) % DESIGN_WIDTH
+}
+
+export function constrainElement<T extends PersonalizationElement>(element: T, space: PrintableSpace = FLAT_SPACE): T {
   const extent = rotatedExtents(element)
   return { ...element,
-    x: Math.max(Math.min(extent.x, DESIGN_WIDTH / 2), Math.min(DESIGN_WIDTH - extent.x, element.x)),
+    x: space.wrapX ? normalizeDesignX(element.x)
+      : Math.max(Math.min(extent.x, DESIGN_WIDTH / 2), Math.min(DESIGN_WIDTH - extent.x, element.x)),
     y: Math.max(Math.min(extent.y, DESIGN_HEIGHT / 2), Math.min(DESIGN_HEIGHT - extent.y, element.y)),
   }
+}
+
+/** Auxiliary paint centers only; never additional design elements. Padding also
+ * includes controls/strokes that cross a seam before the artwork itself does. */
+export function wrappedPaintCenters(element: PersonalizationElement, space: PrintableSpace = FLAT_SPACE, padding = 0) {
+  if (!space.wrapX) return [element.x]
+  const x = normalizeDesignX(element.x), extent = rotatedExtents(element).x + padding
+  const centers = [x]
+  if (x - extent < 0) centers.push(x + DESIGN_WIDTH)
+  if (x + extent > DESIGN_WIDTH) centers.push(x - DESIGN_WIDTH)
+  return centers
 }
 
 export const MIN_PHOTO_SIZE = 40
@@ -37,7 +53,7 @@ export function toDesign(element: PersonalizationElement, point: DesignPoint): D
 
 // Shared by painting and picking. Keep the rotation control on the printable
 // surface even at the top/bottom edge; the panel remains available if occluded.
-export function selectionHandles(element: PersonalizationElement) {
+export function selectionHandles(element: PersonalizationElement, space: PrintableSpace = FLAT_SPACE) {
   const w = element.width / 2, h = element.height / 2
   const handles: { kind: TransformHandle; x: number; y: number }[] = [
     { kind: "top-left", x: -w, y: -h }, { kind: "top-right", x: w, y: -h },
@@ -48,17 +64,21 @@ export function selectionHandles(element: PersonalizationElement) {
     { kind: "bottom", x: 0, y: h }, { kind: "left", x: -w, y: 0 },
   )
   const outside = toDesign(element, { x: 0, y: -h - 30 })
-  const fits = outside.x >= 10 && outside.x <= DESIGN_WIDTH - 10 && outside.y >= 10 && outside.y <= DESIGN_HEIGHT - 10
+  const fits = (space.wrapX || (outside.x >= 10 && outside.x <= DESIGN_WIDTH - 10)) && outside.y >= 10 && outside.y <= DESIGN_HEIGHT - 10
   handles.push({ kind: "rotate", x: 0, y: fits ? -h - 30 : -h + 24 })
   return handles
 }
 
-export function hitTestHandle(element: PersonalizationElement, point: DesignPoint, touch = false) {
-  const local = toLocal(element, point), radius = touch ? 28 : 15
+export function hitTestHandle(element: PersonalizationElement, point: DesignPoint, touch = false, space: PrintableSpace = FLAT_SPACE) {
+  const radius = touch ? 28 : 15
+  const distance = (handle: DesignPoint) => {
+    const position = toDesign(element, handle)
+    return Math.hypot(space.wrapX ? unwrapDelta(point.x, position.x) : point.x - position.x, point.y - position.y)
+  }
   // Rotation first, then the nearest resize handle (large touch targets overlap).
-  return selectionHandles(element).filter(handle => Math.hypot(local.x - handle.x, local.y - handle.y) <= radius)
+  return selectionHandles(element, space).filter(handle => distance(handle) <= radius)
     .sort((a, b) => a.kind === "rotate" ? -1 : b.kind === "rotate" ? 1
-      : Math.hypot(local.x - a.x, local.y - a.y) - Math.hypot(local.x - b.x, local.y - b.y))[0]?.kind ?? null
+      : distance(a) - distance(b))[0]?.kind ?? null
 }
 
 export function handleCursor(handle: TransformHandle) {
@@ -91,17 +111,14 @@ export function resizeFromPointer(element: PersonalizationElement, handle: Resiz
   return { width, height, sx, sy }
 }
 
-export function hitTest(elements: PersonalizationElement[], point: DesignPoint) {
+export function hitTest(elements: PersonalizationElement[], point: DesignPoint, space: PrintableSpace = FLAT_SPACE) {
   return [...elements].sort((a, b) => b.zIndex - a.zIndex).find(element => {
-    const dx = point.x - element.x, dy = point.y - element.y
+    const dx = space.wrapX ? unwrapDelta(point.x, element.x) : point.x - element.x, dy = point.y - element.y
     const c = Math.cos(element.rotation), s = Math.sin(element.rotation)
     return Math.abs(dx * c + dy * s) <= element.width / 2 && Math.abs(-dx * s + dy * c) <= element.height / 2
   }) ?? null
 }
 
 export function unwrapDelta(currentX: number, previousX: number) {
-  let delta = currentX - previousX
-  if (delta > DESIGN_WIDTH / 2) delta -= DESIGN_WIDTH
-  if (delta < -DESIGN_WIDTH / 2) delta += DESIGN_WIDTH
-  return delta
+  return normalizeDesignX(currentX - previousX + DESIGN_WIDTH / 2) - DESIGN_WIDTH / 2
 }

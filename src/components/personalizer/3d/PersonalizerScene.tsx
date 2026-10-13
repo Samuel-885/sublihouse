@@ -5,8 +5,10 @@ import ProductModel from "./ProductModel"
 import type { Personalizer3DConfig } from "./personalizer3dConfig"
 import type { DesignStore } from "../editor/createDesignStore"
 import { useDesignInteraction } from "./useDesignInteraction"
+import { getInsertionPoint } from "./insertionPoint"
+import type { DesignPoint } from "../editor/types"
 
-export type PersonalizerSceneHandle = { resetView: () => void }
+export type PersonalizerSceneHandle = { resetView: () => void; getInsertionPoint: () => DesignPoint | undefined }
 type SceneProps = { config: Personalizer3DConfig; store: DesignStore; editing: boolean; ref: Ref<PersonalizerSceneHandle>; onReady: () => void; onError: () => void }
 
 const motionQuery = "(prefers-reduced-motion: reduce)"
@@ -20,6 +22,7 @@ const getReducedMotion = () => window.matchMedia(motionQuery).matches
 function SceneContent({ config, store, editing, ref, onReady, onError }: SceneProps) {
   const controls = useRef<ComponentRef<typeof OrbitControls>>(null)
   const camera = useThree(state => state.camera)
+  const scene = useThree(state => state.scene)
   const gl = useThree(state => state.gl)
   const invalidate = useThree(state => state.invalidate)
   const reducedMotion = useSyncExternalStore(subscribeMotion, getReducedMotion, () => true)
@@ -36,6 +39,7 @@ function SceneContent({ config, store, editing, ref, onReady, onError }: ScenePr
   }), [store, onInteraction])
 
   useImperativeHandle(ref, () => ({
+    getInsertionPoint: () => getInsertionPoint(camera, scene),
     resetView() {
       setInteracted(true)
       // Recreate only the lightweight controls to discard any pending damping.
@@ -44,7 +48,7 @@ function SceneContent({ config, store, editing, ref, onReady, onError }: ScenePr
       setControlsVersion(version => version + 1)
       invalidate()
     },
-  }), [camera, config, invalidate])
+  }), [camera, scene, config, invalidate])
 
   useEffect(() => {
     const canvas = gl.domElement

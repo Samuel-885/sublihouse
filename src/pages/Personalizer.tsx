@@ -3,16 +3,17 @@ import { ArrowLeft, ArrowRight } from "lucide-react"
 import { Link, useParams, useSearchParams } from "react-router"
 import { products } from "../data/products"
 import type { Product } from "../types/product"
-import PersonalizerViewer from "../components/personalizer/PersonalizerViewer"
+import PersonalizerViewer, { type PersonalizerViewerHandle } from "../components/personalizer/PersonalizerViewer"
 import PersonalizerToolbar from "../components/personalizer/PersonalizerToolbar"
 import PersonalizerPanel from "../components/personalizer/PersonalizerPanel"
 import PersonalizerBottomSheet from "../components/personalizer/PersonalizerBottomSheet"
 import type { PersonalizerTool } from "../components/personalizer/types"
 import { createDesignStore } from "../components/personalizer/editor/createDesignStore"
+import { getPersonalizer3DConfig } from "../components/personalizer/3d/personalizer3dConfig"
 import "../components/personalizer/personalizer.css"
 
 function PersonalizerWorkspace({ product, cartItemId }: { product: Product; cartItemId: string | null }) {
-  const [store] = useState(createDesignStore)
+  const [store] = useState(() => createDesignStore({ wrapX: getPersonalizer3DConfig(product)?.printableArea.wrapX ?? false }))
   const mounted = useRef(false)
   useEffect(() => {
     mounted.current = true
@@ -25,6 +26,7 @@ function PersonalizerWorkspace({ product, cartItemId }: { product: Product; cart
   const [busy, setBusy] = useState(false)
   const [uploadError, setUploadError] = useState("")
   const photoInput = useRef<HTMLInputElement>(null)
+  const viewer = useRef<PersonalizerViewerHandle>(null)
   const replacementId = useRef<string | null>(null)
   const [isEditor, setIsEditor] = useState(false)
   const [isExpanded, setIsExpanded] = useState(true)
@@ -78,7 +80,7 @@ function PersonalizerWorkspace({ product, cartItemId }: { product: Product; cart
     if (!available || busy) return
     if (!isEditor) startCreating()
     if (tool === "photo") choosePhoto()
-    if (tool === "text") store.addText()
+    if (tool === "text") store.addText(viewer.current?.getInsertionPoint())
   }
 
   async function uploadPhoto(event: ChangeEvent<HTMLInputElement>) {
@@ -90,7 +92,7 @@ function PersonalizerWorkspace({ product, cartItemId }: { product: Product; cart
     setUploadError("")
     try {
       if (id) await store.replacePhoto(id, file)
-      else await store.addPhoto(file)
+      else await store.addPhoto(file, viewer.current?.getInsertionPoint())
     } catch (error) {
       if (mounted.current) setUploadError(error instanceof Error ? error.message : "Não foi possível abrir a imagem.")
     } finally {
@@ -113,7 +115,7 @@ function PersonalizerWorkspace({ product, cartItemId }: { product: Product; cart
         {isEditingExistingItem && <p className="pz-edit-notice" role="status">Edição de personalização · A recuperação da tua criação estará disponível em breve.</p>}
         <div ref={workspaceRef} className={`pz-workspace${isEditor ? " pz-workspace-editing" : ""}`}>
           <div className="pz-stage">
-            <PersonalizerViewer product={product} store={store} editing={isEditor} onAvailabilityChange={setAvailable} />
+            <PersonalizerViewer ref={viewer} product={product} store={store} editing={isEditor} onAvailabilityChange={setAvailable} />
             <PersonalizerToolbar activeTool={activeTool} onSelect={addContent} available={available} busy={busy} store={store} />
             <input ref={photoInput} type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={uploadPhoto} aria-label="Escolher fotografia" />
             {busy && <p className="pz-upload-status" role="status">A preparar fotografia…</p>}

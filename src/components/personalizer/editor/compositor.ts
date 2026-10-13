@@ -1,5 +1,5 @@
 import { canvasFont, layoutText, TEXT_PADDING } from "./textLayout"
-import { selectionHandles } from "./geometry"
+import { selectionHandles, wrappedPaintCenters } from "./geometry"
 import { DESIGN_HEIGHT, DESIGN_WIDTH, type PersonalizationDesign } from "./types"
 
 export function createDesignCanvas() {
@@ -23,33 +23,35 @@ export function renderDesignToCanvas(canvas: HTMLCanvasElement, design: Personal
   context.fillStyle = "#fffdf9"
   context.fillRect(0, 0, DESIGN_WIDTH, DESIGN_HEIGHT)
   for (const element of [...design.elements].sort((a, b) => a.zIndex - b.zIndex)) {
-    context.save()
-    context.translate(element.x, element.y)
-    context.rotate(element.rotation)
-    if (element.type === "photo") {
-      const image = getPhoto(element.source)
-      if (image) {
-        const { width, height } = element
-        context.beginPath()
-        context.roundRect(-width / 2, -height / 2, width, height,
-          { x: width * element.cornerRadius / 200, y: height * element.cornerRadius / 200 })
-        context.clip()
-        // Centered cover: crop the source rectangle, never stretch its pixels.
-        const scale = Math.max(width / image.naturalWidth, height / image.naturalHeight)
-        const sw = width / scale, sh = height / scale
-        context.drawImage(image, (image.naturalWidth - sw) / 2, (image.naturalHeight - sh) / 2, sw, sh, -width / 2, -height / 2, width, height)
+    for (const centerX of wrappedPaintCenters(element, design.space)) {
+      context.save()
+      context.translate(centerX, element.y)
+      context.rotate(element.rotation)
+      if (element.type === "photo") {
+        const image = getPhoto(element.source)
+        if (image) {
+          const { width, height } = element
+          context.beginPath()
+          context.roundRect(-width / 2, -height / 2, width, height,
+            { x: width * element.cornerRadius / 200, y: height * element.cornerRadius / 200 })
+          context.clip()
+          // Centered cover: crop the source rectangle, never stretch its pixels.
+          const scale = Math.max(width / image.naturalWidth, height / image.naturalHeight)
+          const sw = width / scale, sh = height / scale
+          context.drawImage(image, (image.naturalWidth - sw) / 2, (image.naturalHeight - sh) / 2, sw, sh, -width / 2, -height / 2, width, height)
+        }
+      } else {
+        const layout = layoutText(context, element)
+        context.font = canvasFont(element, layout.scale)
+        context.fillStyle = element.color
+        context.textAlign = element.align
+        context.textBaseline = "middle"
+        const x = element.align === "left" ? -element.width / 2 + TEXT_PADDING
+          : element.align === "right" ? element.width / 2 - TEXT_PADDING : 0
+        layout.lines.forEach((line, index) => context.fillText(line, x, -element.height / 2 + TEXT_PADDING + (index + 0.5) * layout.lineHeight))
       }
-    } else {
-      const layout = layoutText(context, element)
-      context.font = canvasFont(element, layout.scale)
-      context.fillStyle = element.color
-      context.textAlign = element.align
-      context.textBaseline = "middle"
-      const x = element.align === "left" ? -element.width / 2 + TEXT_PADDING
-        : element.align === "right" ? element.width / 2 - TEXT_PADDING : 0
-      layout.lines.forEach((line, index) => context.fillText(line, x, -element.height / 2 + TEXT_PADDING + (index + 0.5) * layout.lineHeight))
+      context.restore()
     }
-    context.restore()
   }
 }
 
@@ -57,27 +59,29 @@ export function renderSelectionToCanvas(canvas: HTMLCanvasElement, design: Perso
   const context = contextFor(canvas)
   const element = design.elements.find(item => item.id === design.selectedElementId)
   if (!element) return
-  context.save()
-  context.translate(element.x, element.y)
-  context.rotate(element.rotation)
-  context.lineWidth = 2
-  context.strokeStyle = "#ff2859"
-  context.setLineDash([7, 4])
-  context.strokeRect(-element.width / 2 + 1, -element.height / 2 + 1, Math.max(1, element.width - 2), Math.max(1, element.height - 2))
-  context.setLineDash([])
-  const handles = selectionHandles(element)
-  const rotation = handles.find(handle => handle.kind === "rotate")!
-  context.beginPath()
-  context.moveTo(0, -element.height / 2)
-  context.lineTo(rotation.x, rotation.y)
-  context.stroke()
-  context.fillStyle = "#fffdf9"
-  for (const handle of handles) {
+  for (const centerX of wrappedPaintCenters(element, design.space, 40)) {
+    context.save()
+    context.translate(centerX, element.y)
+    context.rotate(element.rotation)
+    context.lineWidth = 2
+    context.strokeStyle = "#ff2859"
+    context.setLineDash([7, 4])
+    context.strokeRect(-element.width / 2 + 1, -element.height / 2 + 1, Math.max(1, element.width - 2), Math.max(1, element.height - 2))
+    context.setLineDash([])
+    const handles = selectionHandles(element, design.space)
+    const rotation = handles.find(handle => handle.kind === "rotate")!
     context.beginPath()
-    if (handle.kind === "rotate") context.arc(handle.x, handle.y, 7, 0, Math.PI * 2)
-    else context.roundRect(handle.x - 6, handle.y - 6, 12, 12, 2)
-    context.fill()
+    context.moveTo(0, -element.height / 2)
+    context.lineTo(rotation.x, rotation.y)
     context.stroke()
+    context.fillStyle = "#fffdf9"
+    for (const handle of handles) {
+      context.beginPath()
+      if (handle.kind === "rotate") context.arc(handle.x, handle.y, 7, 0, Math.PI * 2)
+      else context.roundRect(handle.x - 6, handle.y - 6, 12, 12, 2)
+      context.fill()
+      context.stroke()
+    }
+    context.restore()
   }
-  context.restore()
 }

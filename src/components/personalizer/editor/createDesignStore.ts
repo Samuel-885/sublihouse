@@ -1,6 +1,6 @@
 import { constrainElement, MAX_FONT_SIZE, MIN_FONT_SIZE, MIN_PHOTO_SIZE, resizeFromPointer, rotatedExtents, toDesign, type ResizeHandle, type TransformHandle } from "./geometry"
 import { layoutText } from "./textLayout"
-import { DESIGN_HEIGHT, DESIGN_WIDTH, type DesignPoint, type PersonalizationDesign, type PersonalizationElement, type TextElement, type TextUpdate } from "./types"
+import { DESIGN_HEIGHT, DESIGN_WIDTH, FLAT_SPACE, type PrintableSpace, type DesignPoint, type PersonalizationDesign, type PersonalizationElement, type TextElement, type TextUpdate } from "./types"
 
 export const MAX_PHOTO_BYTES = 20 * 1024 * 1024
 export const HISTORY_LIMIT = 50
@@ -9,8 +9,10 @@ type PhotoResource = { image: HTMLImageElement; cancel: () => void }
 const sameElements = (a: PersonalizationDesign, b: PersonalizationDesign) => JSON.stringify(a.elements) === JSON.stringify(b.elements)
 const clamp = (value: number, min: number, max: number) => Math.max(min, Math.min(max, value))
 
-export function createDesignStore() {
-  let design: PersonalizationDesign = { elements: [], selectedElementId: null }
+export function createDesignStore(printableSpace: PrintableSpace = FLAT_SPACE) {
+  const space = Object.freeze({ ...printableSpace })
+  const constrain = <T extends PersonalizationElement>(element: T) => constrainElement(element, space)
+  let design: PersonalizationDesign = { space, elements: [], selectedElementId: null }
   let snapshot = design
   let past: PersonalizationDesign[] = [], future: PersonalizationDesign[] = []
   let transaction: PersonalizationDesign | null = null
@@ -75,7 +77,7 @@ export function createDesignStore() {
     if (!context) throw new Error("Canvas 2D is unavailable")
     const sized = { ...element, fontSize: clamp(element.fontSize, MIN_FONT_SIZE, MAX_FONT_SIZE) }
     const { width, height } = layoutText(context, sized)
-    return constrainElement({ ...sized, width, height })
+    return constrain({ ...sized, width, height })
   }
   function fit(element: PersonalizationElement): PersonalizationElement {
     if (element.type === "text") return measure(element)
@@ -93,19 +95,20 @@ export function createDesignStore() {
         if (sized.height === MIN_PHOTO_SIZE) sized.width = Math.min(sized.width, c ? (DESIGN_WIDTH - sized.height * s) / c : Infinity, s ? (DESIGN_HEIGHT - sized.height * c) / s : Infinity)
       }
     }
-    return constrainElement(sized)
+    return constrain(sized)
   }
   function update(id: string, fn: (element: PersonalizationElement) => PersonalizationElement, transient = false) {
     change({ ...design, elements: design.elements.map(element => element.id === id ? fn(element) : element) }, transient)
   }
-  function base() {
-    return { id: crypto.randomUUID(), x: DESIGN_WIDTH / 2, y: DESIGN_HEIGHT / 2,
+  function base(point?: DesignPoint) {
+    const valid = point && Number.isFinite(point.x) && Number.isFinite(point.y)
+    return { id: crypto.randomUUID(), x: valid ? point.x : DESIGN_WIDTH / 2, y: valid ? point.y : DESIGN_HEIGHT / 2,
       width: 280, height: 280, rotation: 0,
       zIndex: Math.max(0, ...design.elements.map(element => element.zIndex)) + 1 }
   }
   function insert(element: PersonalizationElement) {
     commit()
-    change({ elements: [...design.elements, element], selectedElementId: element.id })
+    change({ space, elements: [...design.elements, element], selectedElementId: element.id })
   }
   async function loadPhoto(file: File) {
     if (!photoTypes.has(file.type)) throw new Error("Escolhe uma imagem JPG, PNG ou WebP.")
@@ -161,11 +164,11 @@ export function createDesignStore() {
       design = { ...design, selectedElementId }
       publish()
     },
-    async addPhoto(file: File) {
+    async addPhoto(file: File, point?: DesignPoint) {
       const loaded = await loadPhoto(file)
       if (!loaded) return
       const scale = 280 / Math.max(loaded.image.naturalWidth, loaded.image.naturalHeight)
-      insert(fit({ ...base(), type: "photo", source: loaded.source, name: file.name, lockAspectRatio: true, cornerRadius: 0,
+      insert(fit({ ...base(point), type: "photo", source: loaded.source, name: file.name, lockAspectRatio: true, cornerRadius: 0,
         width: loaded.image.naturalWidth * scale, height: loaded.image.naturalHeight * scale }))
       pendingPhotos.delete(loaded.source)
     },
@@ -178,8 +181,8 @@ export function createDesignStore() {
       update(id, () => ({ ...previous, source: loaded.source, name: file.name }))
       pendingPhotos.delete(loaded.source)
     },
-    addText() {
-      insert(measure({ ...base(), type: "text", content: "O teu texto", font: "Figtree", fontSize: 36, color: "#262620", align: "center" }))
+    addText(point?: DesignPoint) {
+      insert(measure({ ...base(point), type: "text", content: "O teu texto", font: "Figtree", fontSize: 36, color: "#262620", align: "center" }))
     },
     updateText(id: string, updateText: TextUpdate) {
       if (updateText.fontSize !== undefined && !Number.isFinite(updateText.fontSize)) return
@@ -194,7 +197,7 @@ export function createDesignStore() {
     },
     move(id: string, x: number, y: number, transient = true) {
       if (!Number.isFinite(x) || !Number.isFinite(y)) return
-      update(id, element => constrainElement({ ...element, x, y }), transient)
+      update(id, element => constrain({ ...element, x, y }), transient)
     },
     resizeElement(id: string, axis: "width" | "height", value: number) {
       if (!Number.isFinite(value)) return
@@ -227,18 +230,18 @@ export function createDesignStore() {
         const { width, height, sx, sy } = resizeFromPointer(initial, handle as ResizeHandle, start, point)
         const sized = fit(initial.type === "text" ? { ...initial, fontSize: initial.fontSize * width / initial.width } : { ...initial, width, height })
         const center = toDesign(initial, { x: sx * (sized.width - initial.width) / 2, y: sy * (sized.height - initial.height) / 2 })
-        update(initial.id, () => constrainElement({ ...sized, ...center }), true)
+        update(initial.id, () => constrain({ ...sized, ...center }), true)
       }
     },
     duplicate(id: string) {
       const element = design.elements.find(item => item.id === id)
-      if (element) insert(constrainElement({ ...element, id: crypto.randomUUID(), x: element.x + 20, y: element.y + 20, zIndex: base().zIndex }))
+      if (element) insert(constrain({ ...element, id: crypto.randomUUID(), x: element.x + 20, y: element.y + 20, zIndex: base().zIndex }))
     },
     bringForward: (id: string) => reorder(id, true),
     sendBackward: (id: string) => reorder(id, false),
     remove(id: string) {
       commit()
-      change({ elements: design.elements.filter(item => item.id !== id), selectedElementId: design.selectedElementId === id ? null : design.selectedElementId })
+      change({ space, elements: design.elements.filter(item => item.id !== id), selectedElementId: design.selectedElementId === id ? null : design.selectedElementId })
     },
     undo() {
       commit()
@@ -259,7 +262,7 @@ export function createDesignStore() {
       for (const source of photos.keys()) release(source)
       pendingPhotos.clear()
       measureCanvas = null
-      design = snapshot = { elements: [], selectedElementId: null }
+      design = snapshot = { space, elements: [], selectedElementId: null }
       past = []; future = []; transaction = null
       paintListeners.clear()
       uiListeners.clear()

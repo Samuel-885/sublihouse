@@ -1,5 +1,7 @@
 export const DESIGN_WIDTH = 1024
 export const DESIGN_HEIGHT = 512
+export type PrintableSpace = Readonly<{ wrapX: boolean }>
+export const FLAT_SPACE: PrintableSpace = Object.freeze({ wrapX: false })
 
 export type DesignPoint = { x: number; y: number }
 type ElementBase = DesignPoint & {
@@ -25,5 +27,5 @@ export type TextElement = ElementBase & {
   align: "left" | "center" | "right"
 }
 export type PersonalizationElement = PhotoElement | TextElement
-export type PersonalizationDesign = { elements: PersonalizationElement[]; selectedElementId: string | null }
+export type PersonalizationDesign = { space: PrintableSpace; elements: PersonalizationElement[]; selectedElementId: string | null }
 export type TextUpdate = Partial<Pick<TextElement, "content" | "font" | "fontSize" | "color" | "align">>
