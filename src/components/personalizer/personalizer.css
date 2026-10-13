@@ -56,6 +56,13 @@
 .personalizer .pz-guidance { color: var(--pz-muted); font-size: 13px; line-height: 1.7; padding-bottom: 20px; }
 .pz-tool-controls { padding: 0 0 22px; margin: 0; border: 0; min-width: 0; }
 .pz-control { display: block; margin-top: 18px; }
+.personalizer .pz-control-heading { margin-block: 20px 10px; color: var(--pz-ink); font-size: 9px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; }
+.personalizer .pz-control-heading:first-of-type { margin-top: 0; }
+.pz-control-heading + .pz-control, .pz-control-heading + .pz-control-row > .pz-control { margin-top: 0; }
+.pz-control input[type='number'] { width: 100%; min-width: 0; min-height: 44px; padding: 8px 10px; border: 1px solid var(--pz-line); background: var(--pz-paper); color: var(--pz-ink); font-size: 12px; }
+.pz-aspect-lock { display: flex; align-items: center; gap: 8px; min-height: 44px; font-size: 12px; }
+.pz-aspect-lock input { width: 16px; height: 16px; accent-color: var(--pz-pink); }
+.pz-control input[type='range']:not(:disabled) { min-height: 32px; accent-color: var(--pz-pink); }
 .pz-control > span { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 8px; color: var(--pz-muted); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; }
 .pz-control-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
 .pz-control-row .pz-button { font-size: 8px; padding-inline: 6px; gap: 5px; }

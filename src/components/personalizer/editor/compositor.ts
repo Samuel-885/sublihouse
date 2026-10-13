@@ -1,4 +1,5 @@
 import { canvasFont, layoutText, TEXT_PADDING } from "./textLayout"
+import { selectionHandles } from "./geometry"
 import { DESIGN_HEIGHT, DESIGN_WIDTH, type PersonalizationDesign } from "./types"
 
 export function createDesignCanvas() {
@@ -28,10 +29,15 @@ export function renderDesignToCanvas(canvas: HTMLCanvasElement, design: Personal
     if (element.type === "photo") {
       const image = getPhoto(element.source)
       if (image) {
-        // Replacements retain the original box and fit without stretching/cropping.
-        const scale = Math.min(element.width / image.naturalWidth, element.height / image.naturalHeight)
-        const width = image.naturalWidth * scale, height = image.naturalHeight * scale
-        context.drawImage(image, -width / 2, -height / 2, width, height)
+        const { width, height } = element
+        context.beginPath()
+        context.roundRect(-width / 2, -height / 2, width, height,
+          { x: width * element.cornerRadius / 200, y: height * element.cornerRadius / 200 })
+        context.clip()
+        // Centered cover: crop the source rectangle, never stretch its pixels.
+        const scale = Math.max(width / image.naturalWidth, height / image.naturalHeight)
+        const sw = width / scale, sh = height / scale
+        context.drawImage(image, (image.naturalWidth - sw) / 2, (image.naturalHeight - sh) / 2, sw, sh, -width / 2, -height / 2, width, height)
       }
     } else {
       const layout = layoutText(context, element)
@@ -58,5 +64,20 @@ export function renderSelectionToCanvas(canvas: HTMLCanvasElement, design: Perso
   context.strokeStyle = "#ff2859"
   context.setLineDash([7, 4])
   context.strokeRect(-element.width / 2 + 1, -element.height / 2 + 1, Math.max(1, element.width - 2), Math.max(1, element.height - 2))
+  context.setLineDash([])
+  const handles = selectionHandles(element)
+  const rotation = handles.find(handle => handle.kind === "rotate")!
+  context.beginPath()
+  context.moveTo(0, -element.height / 2)
+  context.lineTo(rotation.x, rotation.y)
+  context.stroke()
+  context.fillStyle = "#fffdf9"
+  for (const handle of handles) {
+    context.beginPath()
+    if (handle.kind === "rotate") context.arc(handle.x, handle.y, 7, 0, Math.PI * 2)
+    else context.roundRect(handle.x - 6, handle.y - 6, 12, 12, 2)
+    context.fill()
+    context.stroke()
+  }
   context.restore()
 }

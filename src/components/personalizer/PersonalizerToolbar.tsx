@@ -1,5 +1,6 @@
 import { Image, Plus, Redo2, Shapes, Type, Undo2 } from "lucide-react"
 import type { PersonalizerTool } from "./types"
+import type { DesignStore } from "./editor/createDesignStore"
 
 const tools = [
   { id: "photo", label: "Foto", icon: Image },
@@ -7,12 +8,12 @@ const tools = [
   { id: "element", label: "Elemento", icon: Shapes },
 ] as const
 
-export default function PersonalizerToolbar({ activeTool, onSelect, available, busy }: { activeTool: PersonalizerTool; onSelect: (tool: PersonalizerTool) => void; available: boolean; busy: boolean }) {
+export default function PersonalizerToolbar({ activeTool, onSelect, available, busy, store }: { activeTool: PersonalizerTool; onSelect: (tool: PersonalizerTool) => void; available: boolean; busy: boolean; store: DesignStore }) {
   return <div className="pz-toolbar" role="group" aria-label="Ferramentas de personalização">
     <div className="pz-tools">{tools.map(({ id, label, icon: Icon }) => <button key={id} className="pz-tool" type="button" disabled={id === "element" || !available || busy} aria-label={`Adicionar ${label.toLowerCase()}`} aria-pressed={activeTool === id} aria-controls="pz-panel-content" onClick={() => onSelect(id)}><Plus size={13} /><Icon size={15} /><span><span className="pz-tool-long">Adicionar </span>{label}</span></button>)}</div>
     <div className="pz-history" role="group" aria-label="Histórico">
-      <button className="pz-icon-button" type="button" aria-label="Desfazer" disabled><Undo2 size={16} /></button>
-      <button className="pz-icon-button" type="button" aria-label="Refazer" disabled><Redo2 size={16} /></button>
+      <button className="pz-icon-button" type="button" aria-label="Desfazer" disabled={!available || busy || !store.canUndo()} onClick={store.undo}><Undo2 size={16} /></button>
+      <button className="pz-icon-button" type="button" aria-label="Refazer" disabled={!available || busy || !store.canRedo()} onClick={store.redo}><Redo2 size={16} /></button>
     </div>
   </div>
 }

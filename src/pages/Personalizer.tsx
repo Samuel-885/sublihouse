@@ -32,6 +32,25 @@ function PersonalizerWorkspace({ product, cartItemId }: { product: Product; cart
   const workspaceRef = useRef<HTMLDivElement>(null)
   const isEditingExistingItem = Boolean(cartItemId)
 
+  useEffect(() => {
+    function keydown(event: KeyboardEvent) {
+      const target = event.target
+      if (!isEditor || !available || busy || event.defaultPrevented || event.isComposing ||
+        (target instanceof HTMLElement && (target.closest("input,textarea,select") || target.isContentEditable))) return
+      const command = event.ctrlKey || event.metaKey
+      const key = event.key.toLowerCase()
+      if (command && !event.altKey && (key === "z" || key === "y")) {
+        event.preventDefault()
+        if (key === "y" || event.shiftKey) store.redo(); else store.undo()
+      } else if (!command && !event.altKey && (key === "delete" || key === "backspace")) {
+        const id = store.getDesign().selectedElementId
+        if (id) { event.preventDefault(); store.remove(id) }
+      }
+    }
+    window.addEventListener("keydown", keydown)
+    return () => window.removeEventListener("keydown", keydown)
+  }, [available, busy, isEditor, store])
+
   function revealWorkspace() {
     // Position after the compact mobile viewer has laid out.
     requestAnimationFrame(() => {
@@ -95,7 +114,7 @@ function PersonalizerWorkspace({ product, cartItemId }: { product: Product; cart
         <div ref={workspaceRef} className={`pz-workspace${isEditor ? " pz-workspace-editing" : ""}`}>
           <div className="pz-stage">
             <PersonalizerViewer product={product} store={store} editing={isEditor} onAvailabilityChange={setAvailable} />
-            <PersonalizerToolbar activeTool={activeTool} onSelect={addContent} available={available} busy={busy} />
+            <PersonalizerToolbar activeTool={activeTool} onSelect={addContent} available={available} busy={busy} store={store} />
             <input ref={photoInput} type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={uploadPhoto} aria-label="Escolher fotografia" />
             {busy && <p className="pz-upload-status" role="status">A preparar fotografia…</p>}
             {uploadError && <p className="pz-upload-status" role="alert">{uploadError}</p>}

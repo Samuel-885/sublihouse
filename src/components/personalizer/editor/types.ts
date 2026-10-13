@@ -10,7 +10,12 @@ type ElementBase = DesignPoint & {
   rotation: number
   zIndex: number
 }
-export type PhotoElement = ElementBase & { type: "photo"; source: string; name: string }
+export type PhotoElement = ElementBase & {
+  type: "photo"; source: string; name: string
+  lockAspectRatio: boolean
+  /** 0–100; 100 clips to an ellipse without modifying the source. */
+  cornerRadius: number
+}
 export type TextElement = ElementBase & {
   type: "text"
   content: string
@@ -21,4 +26,4 @@ export type TextElement = ElementBase & {
 }
 export type PersonalizationElement = PhotoElement | TextElement
 export type PersonalizationDesign = { elements: PersonalizationElement[]; selectedElementId: string | null }
-export type TextUpdate = Partial<Pick<TextElement, "content" | "font" | "color" | "align">>
+export type TextUpdate = Partial<Pick<TextElement, "content" | "font" | "fontSize" | "color" | "align">>

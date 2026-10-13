@@ -28,7 +28,7 @@ export default function PersonalizerPanel({ product, quantity, onQuantityChange,
     <div className="pz-panel-title"><Icon size={16} /><h2>{personalizerToolLabels[activeTool]}</h2></div>
     {isEditor && <div className="pz-editor-controls">
       <p id="pz-tools-notice" className="pz-tools-notice">{available ? "Toca numa fotografia ou texto na peça para selecionar. Arrasta para mover." : "A edição 3D não está disponível nesta pré-visualização."}</p>
-      {!selectedElement ? <p className="pz-guidance">Adiciona uma fotografia ou texto na barra abaixo da peça para começares a criar.</p> : <PersonalizerToolControls element={selectedElement} store={store} onReplacePhoto={onReplacePhoto} busy={busy} available={available} />}
+      {!selectedElement ? <p className="pz-guidance">Adiciona uma fotografia ou texto na barra abaixo da peça para começares a criar.</p> : <PersonalizerToolControls key={selectedElement.id} element={selectedElement} store={store} onReplacePhoto={onReplacePhoto} busy={busy} available={available} />}
     </div>}
     <section className="pz-purchase" aria-label="Produto e quantidade">
       <p className="pz-label">{product.category}</p><h3>{product.name}</h3>
