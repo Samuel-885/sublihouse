@@ -7,9 +7,9 @@ const tools = [
   { id: "element", label: "Elemento", icon: Shapes },
 ] as const
 
-export default function PersonalizerToolbar({ activeTool, onSelect }: { activeTool: PersonalizerTool; onSelect: (tool: PersonalizerTool) => void }) {
+export default function PersonalizerToolbar({ activeTool, onSelect, available, busy }: { activeTool: PersonalizerTool; onSelect: (tool: PersonalizerTool) => void; available: boolean; busy: boolean }) {
   return <div className="pz-toolbar" role="group" aria-label="Ferramentas de personalização">
-    <div className="pz-tools">{tools.map(({ id, label, icon: Icon }) => <button key={id} className="pz-tool" type="button" aria-label={`Adicionar ${label.toLowerCase()}`} aria-pressed={activeTool === id} aria-controls="pz-panel-content" onClick={() => onSelect(id)}><Plus size={13} /><Icon size={15} /><span><span className="pz-tool-long">Adicionar </span>{label}</span></button>)}</div>
+    <div className="pz-tools">{tools.map(({ id, label, icon: Icon }) => <button key={id} className="pz-tool" type="button" disabled={id === "element" || !available || busy} aria-label={`Adicionar ${label.toLowerCase()}`} aria-pressed={activeTool === id} aria-controls="pz-panel-content" onClick={() => onSelect(id)}><Plus size={13} /><Icon size={15} /><span><span className="pz-tool-long">Adicionar </span>{label}</span></button>)}</div>
     <div className="pz-history" role="group" aria-label="Histórico">
       <button className="pz-icon-button" type="button" aria-label="Desfazer" disabled><Undo2 size={16} /></button>
       <button className="pz-icon-button" type="button" aria-label="Refazer" disabled><Redo2 size={16} /></button>

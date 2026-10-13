@@ -1,11 +1,13 @@
-import { useEffect, useImperativeHandle, useRef, useState, useSyncExternalStore, type ComponentRef, type Ref } from "react"
+import { useCallback, useEffect, useImperativeHandle, useRef, useState, useSyncExternalStore, type ComponentRef, type Ref } from "react"
 import { Canvas, useFrame, useThree } from "@react-three/fiber"
 import { OrbitControls } from "@react-three/drei"
 import ProductModel from "./ProductModel"
 import type { Personalizer3DConfig } from "./personalizer3dConfig"
+import type { DesignStore } from "../editor/createDesignStore"
+import { useDesignInteraction } from "./useDesignInteraction"
 
 export type PersonalizerSceneHandle = { resetView: () => void }
-type SceneProps = { config: Personalizer3DConfig; ref: Ref<PersonalizerSceneHandle>; onReady: () => void; onError: () => void }
+type SceneProps = { config: Personalizer3DConfig; store: DesignStore; editing: boolean; ref: Ref<PersonalizerSceneHandle>; onReady: () => void; onError: () => void }
 
 const motionQuery = "(prefers-reduced-motion: reduce)"
 function subscribeMotion(callback: () => void) {
@@ -15,7 +17,7 @@ function subscribeMotion(callback: () => void) {
 }
 const getReducedMotion = () => window.matchMedia(motionQuery).matches
 
-function SceneContent({ config, ref, onReady, onError }: SceneProps) {
+function SceneContent({ config, store, editing, ref, onReady, onError }: SceneProps) {
   const controls = useRef<ComponentRef<typeof OrbitControls>>(null)
   const camera = useThree(state => state.camera)
   const gl = useThree(state => state.gl)
@@ -23,7 +25,15 @@ function SceneContent({ config, ref, onReady, onError }: SceneProps) {
   const reducedMotion = useSyncExternalStore(subscribeMotion, getReducedMotion, () => true)
   const [interacted, setInteracted] = useState(false)
   const [controlsVersion, setControlsVersion] = useState(0)
-  const autoRotate = !interacted && !reducedMotion
+  const autoRotate = !interacted && !editing && !reducedMotion
+  const onInteraction = useCallback(() => {
+    if (controls.current) controls.current.autoRotate = false
+    setInteracted(true)
+  }, [])
+  useDesignInteraction(store, editing, controls, onInteraction)
+  useEffect(() => store.subscribe(() => {
+    if (store.getDesign().elements.length) onInteraction()
+  }), [store, onInteraction])
 
   useImperativeHandle(ref, () => ({
     resetView() {
@@ -52,7 +62,7 @@ function SceneContent({ config, ref, onReady, onError }: SceneProps) {
     <hemisphereLight args={["#ffffff", "#c9c2b5", 2.1]} />
     <directionalLight position={[3, 5, 4]} intensity={2.6} />
     <directionalLight position={[-4, 2, -3]} intensity={1.4} color="#fff1e7" />
-    <ProductModel config={config} />
+    <ProductModel config={config} store={store} />
     <OrbitControls
       key={controlsVersion}
       ref={controls}
@@ -75,7 +85,7 @@ function SceneContent({ config, ref, onReady, onError }: SceneProps) {
 }
 
 export default function PersonalizerScene(props: SceneProps) {
-  return <div className="pz-scene" role="img" aria-label="Caneca 3D com arte de exemplo. Arrasta para girar; usa dois dedos ou a roda do rato para ampliar.">
+  return <div className="pz-scene" role="img" aria-label="Caneca 3D. Arrasta uma fotografia ou texto para mover; arrasta uma área vazia para girar. Usa dois dedos ou a roda do rato para ampliar.">
     <Canvas
       camera={{ position: props.config.camera.position, fov: props.config.camera.fov, near: 0.1, far: 40 }}
       dpr={[1, 1.5]}

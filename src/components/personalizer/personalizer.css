@@ -42,6 +42,8 @@
 .pz-tools, .pz-history { display: flex; gap: 8px; }
 .pz-tool { display: flex; align-items: center; justify-content: center; gap: 7px; padding: 10px 13px; min-height: 44px; border: 1px solid var(--pz-ink); background: var(--pz-ink); color: white; font-size: 9px; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; }
 .pz-tool:hover, .pz-tool[aria-pressed='true'] { background: var(--pz-pink); border-color: var(--pz-pink); }
+.pz-tool:disabled { color: #83837b; background: #f5f4f0; border-color: #e4e3de; }
+.personalizer .pz-upload-status { margin-top: 10px; font-size: 12px; line-height: 1.5; }
 .pz-icon-button { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 1px solid var(--pz-line); }
 .pz-icon-button:disabled { color: #99998e; }
 .pz-panel-shell { min-width: 0; border: 1px solid var(--pz-line); background: var(--pz-paper); }
@@ -60,8 +62,13 @@
 .pz-tool-controls > .pz-control-row:last-child { margin-top: 12px; }
 .pz-tool-controls .pz-button { color: #83837b; background: #f5f4f0; border-color: #e4e3de; }
 .pz-tool-controls .pz-delete { color: #a36670; }
+.pz-tool-controls .pz-button:not(:disabled) { color: var(--pz-ink); background: var(--pz-paper); border-color: var(--pz-line); }
+.pz-tool-controls .pz-button:not(:disabled):hover { background: var(--pz-ink); color: white; }
 .pz-control input[type='range'] { display: block; width: 100%; height: 20px; accent-color: #bbb9b0; }
 .pz-control textarea, .pz-control select { display: block; width: 100%; padding: 10px; min-height: 44px; border: 1px solid var(--pz-line); font-size: 12px; color: #83837b; background: #f5f4f0; resize: none; }
+.pz-control textarea:not(:disabled), .pz-control select:not(:disabled) { color: var(--pz-ink); background: var(--pz-paper); }
+.pz-control input[type='color'] { width: 100%; height: 44px; padding: 4px; border: 1px solid var(--pz-line); background: var(--pz-paper); cursor: pointer; }
+.pz-alignment [aria-pressed='true'] { color: var(--pz-pink); border-color: var(--pz-pink); }
 .pz-alignment { display: flex; gap: 8px; color: #83837b; }
 .pz-full { width: 100%; }
 .pz-purchase { padding-block: 20px; }

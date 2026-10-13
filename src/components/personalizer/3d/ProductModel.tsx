@@ -1,14 +1,12 @@
-import { useEffect, useMemo } from "react"
 import MugModel from "./MugModel"
-import { createDemoTexture } from "./createDemoTexture"
+import { useDesignTextures } from "./useDesignTextures"
+import type { DesignStore } from "../editor/createDesignStore"
 import type { Personalizer3DConfig } from "./personalizer3dConfig"
 
-export default function ProductModel({ config }: { config: Personalizer3DConfig }) {
-  const texture = useMemo(() => createDemoTexture(config.printableArea), [config])
-  // Three can re-upload a disposed texture during StrictMode's effect replay.
-  useEffect(() => () => texture.dispose(), [texture])
+export default function ProductModel({ config, store }: { config: Personalizer3DConfig; store: DesignStore }) {
+  const textures = useDesignTextures(store)
 
   switch (config.kind) {
-    case "mug": return <MugModel texture={texture} />
+    case "mug": return <MugModel texture={textures.art} selectionTexture={textures.selection} />
   }
 }

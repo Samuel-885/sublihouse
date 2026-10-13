@@ -8,7 +8,7 @@ const profile = [
   [0.85, 1.04], [0.85, -0.92], [0.81, -0.98], [0, -0.98],
 ].map(([radius, height]) => new Vector2(radius, height))
 
-export default function MugModel({ texture }: { texture: Texture | null }) {
+export default function MugModel({ texture, selectionTexture }: { texture: Texture | null; selectionTexture: Texture | null }) {
   return <group name="mug">
     <mesh name="ceramic-shell">
       <latheGeometry args={[profile, 96]} />
@@ -19,6 +19,10 @@ export default function MugModel({ texture }: { texture: Texture | null }) {
           lip, interior or handle in the print. Ready for future UV picking. */}
       <cylinderGeometry args={[0.942, 0.942, 1.94, 96, 1, true, -Math.PI]} />
       <meshStandardMaterial map={texture} color="#ffffff" roughness={0.3} metalness={0} />
+    </mesh>
+    <mesh name="selection-overlay" raycast={() => {}}>
+      <cylinderGeometry args={[0.945, 0.945, 1.94, 96, 1, true, -Math.PI]} />
+      <meshBasicMaterial map={selectionTexture} transparent depthWrite={false} toneMapped={false} />
     </mesh>
     <mesh name="ceramic-handle" position={[0.89, 0, 0]} rotation={[0, 0, -Math.PI / 2]} scale={[1.25, 1, 1]}>
       <torusGeometry args={[0.59, 0.12, 12, 40, Math.PI]} />

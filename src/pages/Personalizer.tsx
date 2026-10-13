@@ -1,4 +1,4 @@
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState, useSyncExternalStore, type ChangeEvent } from "react"
 import { ArrowLeft, ArrowRight } from "lucide-react"
 import { Link, useParams, useSearchParams } from "react-router"
 import { products } from "../data/products"
@@ -8,10 +8,24 @@ import PersonalizerToolbar from "../components/personalizer/PersonalizerToolbar"
 import PersonalizerPanel from "../components/personalizer/PersonalizerPanel"
 import PersonalizerBottomSheet from "../components/personalizer/PersonalizerBottomSheet"
 import type { PersonalizerTool } from "../components/personalizer/types"
+import { createDesignStore } from "../components/personalizer/editor/createDesignStore"
 import "../components/personalizer/personalizer.css"
 
 function PersonalizerWorkspace({ product, cartItemId }: { product: Product; cartItemId: string | null }) {
-  const [activeTool, setActiveTool] = useState<PersonalizerTool>("default")
+  const [store] = useState(createDesignStore)
+  const mounted = useRef(false)
+  useEffect(() => {
+    mounted.current = true
+    return () => { mounted.current = false; store.cleanup() }
+  }, [store])
+  const design = useSyncExternalStore(store.subscribe, store.getSnapshot)
+  const selectedElement = design.elements.find(element => element.id === design.selectedElementId) ?? null
+  const activeTool: PersonalizerTool = selectedElement?.type ?? "default"
+  const [available, setAvailable] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [uploadError, setUploadError] = useState("")
+  const photoInput = useRef<HTMLInputElement>(null)
+  const replacementId = useRef<string | null>(null)
   const [isEditor, setIsEditor] = useState(false)
   const [isExpanded, setIsExpanded] = useState(true)
   const [quantity, setQuantity] = useState(1)
@@ -28,13 +42,40 @@ function PersonalizerWorkspace({ product, cartItemId }: { product: Product; cart
     })
   }
 
-  function startCreating(tool: PersonalizerTool = "default") {
+  function startCreating() {
     setIsEditor(true)
-    setActiveTool(tool)
     setIsExpanded(true)
     revealWorkspace()
-    if (tool === "default") {
-      requestAnimationFrame(() => workspaceRef.current?.querySelector<HTMLButtonElement>(".pz-tool")?.focus({ preventScroll: true }))
+    requestAnimationFrame(() => workspaceRef.current?.querySelector<HTMLButtonElement>(".pz-tool:not(:disabled)")?.focus({ preventScroll: true }))
+  }
+
+  function choosePhoto(id: string | null = null) {
+    replacementId.current = id
+    setUploadError("")
+    photoInput.current?.click()
+  }
+
+  function addContent(tool: PersonalizerTool) {
+    if (!available || busy) return
+    if (!isEditor) startCreating()
+    if (tool === "photo") choosePhoto()
+    if (tool === "text") store.addText()
+  }
+
+  async function uploadPhoto(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.currentTarget.files?.[0]
+    const id = replacementId.current
+    event.currentTarget.value = ""
+    if (!file) return
+    setBusy(true)
+    setUploadError("")
+    try {
+      if (id) await store.replacePhoto(id, file)
+      else await store.addPhoto(file)
+    } catch (error) {
+      if (mounted.current) setUploadError(error instanceof Error ? error.message : "Não foi possível abrir a imagem.")
+    } finally {
+      if (mounted.current) setBusy(false)
     }
   }
 
@@ -53,16 +94,19 @@ function PersonalizerWorkspace({ product, cartItemId }: { product: Product; cart
         {isEditingExistingItem && <p className="pz-edit-notice" role="status">Edição de personalização · A recuperação da tua criação estará disponível em breve.</p>}
         <div ref={workspaceRef} className={`pz-workspace${isEditor ? " pz-workspace-editing" : ""}`}>
           <div className="pz-stage">
-            <PersonalizerViewer product={product} />
-            <PersonalizerToolbar activeTool={activeTool} onSelect={startCreating} />
+            <PersonalizerViewer product={product} store={store} editing={isEditor} onAvailabilityChange={setAvailable} />
+            <PersonalizerToolbar activeTool={activeTool} onSelect={addContent} available={available} busy={busy} />
+            <input ref={photoInput} type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={uploadPhoto} aria-label="Escolher fotografia" />
+            {busy && <p className="pz-upload-status" role="status">A preparar fotografia…</p>}
+            {uploadError && <p className="pz-upload-status" role="alert">{uploadError}</p>}
           </div>
-          <PersonalizerBottomSheet key={`${activeTool}:${isEditor}`} activeTool={activeTool} expanded={isExpanded} onToggle={() => {
+          <PersonalizerBottomSheet activeTool={activeTool} expanded={isExpanded} onToggle={() => {
             setIsExpanded(!isExpanded)
             if (!isExpanded && isEditor) revealWorkspace()
           }}>
-            <PersonalizerPanel product={product} quantity={quantity} onQuantityChange={setQuantity} activeTool={activeTool} isEditor={isEditor} onStart={() => startCreating()} onChangeMethod={() => {
+            <PersonalizerPanel product={product} quantity={quantity} onQuantityChange={setQuantity} activeTool={activeTool} isEditor={isEditor} selectedElement={selectedElement} store={store} onReplacePhoto={() => choosePhoto(selectedElement?.id ?? null)} busy={busy} available={available} onStart={startCreating} onChangeMethod={() => {
               setIsEditor(false)
-              setActiveTool("default")
+              store.select(null)
               requestAnimationFrame(() => workspaceRef.current?.querySelector<HTMLButtonElement>(".pz-method button")?.focus())
             }} />
           </PersonalizerBottomSheet>
