@@ -6,11 +6,12 @@ import type { DesignStore } from "../editor/createDesignStore"
 import { handleCursor, hitTest, hitTestHandle, selectionHandles, toDesign, unwrapDelta, type TransformHandle } from "../editor/geometry"
 import { pickPrintablePoint } from "./printableSurface"
 import type { DesignPoint, PersonalizationElement } from "../editor/types"
+import { hitMobileHandle, projectMobileHandles } from "./mobileSelection"
 
 type Controls = ComponentRef<typeof OrbitControls>
-type Drag = { pointerId: number; id: string; initial: PersonalizationElement; handle: TransformHandle | null; start: DesignPoint; previousX: number; unwrappedX: number; offsetX: number; offsetY: number; controls: Controls }
+type Drag = { pointerId: number; id: string; initial: PersonalizationElement; handle: TransformHandle | null; start: DesignPoint; previousX: number; unwrappedX: number; offsetX: number; offsetY: number; screenOffsetX: number; screenOffsetY: number; controls: Controls }
 
-export function useDesignInteraction(store: DesignStore, editing: boolean, controls: RefObject<Controls | null>, onInteraction: () => void) {
+export function useDesignInteraction(store: DesignStore, editing: boolean, controls: RefObject<Controls | null>, onInteraction: () => void, mobile = false) {
   const { gl, camera, scene, invalidate } = useThree()
   useEffect(() => {
     const canvas = gl.domElement
@@ -20,7 +21,7 @@ export function useDesignInteraction(store: DesignStore, editing: boolean, contr
     let drag: Drag | null = null
     const suppressedPointers = new Set<number>()
 
-    function pick(event: PointerEvent) {
+    function pick(event: { clientX: number; clientY: number }) {
       const rect = canvas.getBoundingClientRect()
       if (event.clientX < rect.left || event.clientX > rect.right || event.clientY < rect.top || event.clientY > rect.bottom) return null
       pointer.set((event.clientX - rect.left) / rect.width * 2 - 1, -(event.clientY - rect.top) / rect.height * 2 + 1)
@@ -49,11 +50,13 @@ export function useDesignInteraction(store: DesignStore, editing: boolean, contr
       if (drag) { suppressedPointers.add(event.pointerId); stop(event); return }
       if (!editing || !event.isPrimary || event.button !== 0) return
       onInteraction()
-      const point = pick(event)
-      if (!point) return
       const design = store.getDesign()
       const selected = design.elements.find(element => element.id === design.selectedElementId)
-      const handle = selected ? hitTestHandle(selected, point, event.pointerType !== "mouse", space) : null
+      const rect = canvas.getBoundingClientRect()
+      const screenHandle = mobile && selected ? hitMobileHandle(projectMobileHandles(design, camera, scene, rect), event.clientX - rect.left, event.clientY - rect.top) : undefined
+      const point = screenHandle?.point ?? pick(event)
+      if (!point) return
+      const handle = mobile ? screenHandle?.kind ?? null : selected ? hitTestHandle(selected, point, event.pointerType !== "mouse", space) : null
       const element = handle ? selected : hitTest(design.elements, point, space)
       store.select(element?.id ?? null)
       const orbit = controls.current
@@ -67,7 +70,11 @@ export function useDesignInteraction(store: DesignStore, editing: boolean, contr
       const anchor = handle ? toDesign(element, selectionHandles(element, space).find(item => item.kind === handle)!) : element
       const start = { ...point, x: space.wrapX ? anchor.x + unwrapDelta(point.x, anchor.x) : point.x }
       drag = { pointerId: event.pointerId, id: element.id, initial: { ...element }, handle, start, previousX: point.x, unwrappedX: start.x,
-        offsetX: start.x - element.x, offsetY: point.y - element.y, controls: orbit }
+        offsetX: start.x - element.x, offsetY: point.y - element.y,
+        // Translate the finger's grab offset back onto the original print
+        // anchor. Resize/rotation math and the continuous UV frame stay intact.
+        screenOffsetX: screenHandle ? event.clientX - rect.left - screenHandle.anchorX : 0,
+        screenOffsetY: screenHandle ? event.clientY - rect.top - screenHandle.anchorY : 0, controls: orbit }
       canvas.setPointerCapture(event.pointerId)
       canvas.style.cursor = "grabbing"
     }
@@ -75,7 +82,7 @@ export function useDesignInteraction(store: DesignStore, editing: boolean, contr
       if (suppressedPointers.has(event.pointerId)) { stop(event); return }
       if (drag && drag.pointerId === event.pointerId) {
         stop(event)
-        const point = pick(event)
+        const point = pick({ clientX: event.clientX - drag.screenOffsetX, clientY: event.clientY - drag.screenOffsetY })
         if (!point) return // Off the visible print: hold the last valid position.
         drag.unwrappedX += space.wrapX ? unwrapDelta(point.x, drag.previousX) : point.x - drag.previousX
         drag.previousX = point.x
@@ -85,7 +92,9 @@ export function useDesignInteraction(store: DesignStore, editing: boolean, contr
         const point = editing && !event.buttons ? pick(event) : null
         const design = store.getDesign()
         const selected = design.elements.find(element => element.id === design.selectedElementId)
-        const handle = selected && point ? hitTestHandle(selected, point, false, space) : null
+        const rect = canvas.getBoundingClientRect()
+        const handle = mobile ? hitMobileHandle(projectMobileHandles(design, camera, scene, rect), event.clientX - rect.left, event.clientY - rect.top)?.kind
+          : selected && point ? hitTestHandle(selected, point, false, space) : null
         canvas.style.cursor = event.buttons ? "grabbing" : handle ? handleCursor(handle) : point && hitTest(design.elements, point, space) ? "move" : "grab"
       }
     }
@@ -114,5 +123,5 @@ export function useDesignInteraction(store: DesignStore, editing: boolean, contr
       canvas.removeEventListener("lostpointercapture", lostCapture)
       window.removeEventListener("blur", blur)
     }
-  }, [store, editing, controls, onInteraction, gl, camera, scene, invalidate])
+  }, [store, editing, controls, onInteraction, gl, camera, scene, invalidate, mobile])
 }

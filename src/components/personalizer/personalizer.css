@@ -28,6 +28,7 @@
 .pz-scene { position: absolute; inset: 0; overflow: hidden; cursor: grab; }
 .pz-scene:active { cursor: grabbing; }
 .pz-scene canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+.pz-scene .pz-mobile-handles { position: absolute; inset: 0; pointer-events: none; }
 .pz-viewer-label { pointer-events: none; }
 .personalizer .pz-viewer-notice { position: absolute; bottom: 12px; left: 12px; right: 12px; padding: 10px 12px; background: #fcfbf8ed; color: var(--pz-muted); font-size: 11px; line-height: 1.5; text-align: center; }
 .pz-viewer-caption { display: flex; gap: 12px; justify-content: space-between; align-items: center; min-height: 48px; color: var(--pz-muted); font-size: 10px; }
@@ -106,6 +107,9 @@
 .pz-unavailable .pz-button { margin-top: 30px; }
 /* Keep the existing floating contact shortcut clear of this page's controls. */
 body:has(.personalizer) > #root > a[aria-label='Falar com a Sublime House pelo WhatsApp'] { display: none; }
+@media (min-width: 1024px) {
+  .pz-panel-content { max-height: calc(100svh - 32px); overflow-y: auto; overscroll-behavior-y: contain; scrollbar-width: thin; }
+}
 @media (min-width: 1024px) and (max-width: 1199px) {
   .pz-container { width: calc(100% - 64px); }
   .pz-workspace { gap: 24px; grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr); }
@@ -113,6 +117,8 @@ body:has(.personalizer) > #root > a[aria-label='Falar com a Sublime House pelo W
   .pz-tool-long { display: none; }
 }
 @media (max-width: 1023px) {
+  /* Expanding the sheet must not pull a footer scroll anchor into view. */
+  body:has(.personalizer) { overflow-anchor: none; }
   .pz-container { width: calc(100% - 48px); }
   .pz-intro { padding-block: 40px 36px; }
   .personalizer h1 { font-size: clamp(36px, 6.6vw, 52px); }
@@ -122,11 +128,12 @@ body:has(.personalizer) > #root > a[aria-label='Falar com a Sublime House pelo W
   .personalizer .pz-viewer { padding: 24px 24px 8px; }
   .pz-viewer-surface { height: min(65vw, 560px); }
   .pz-workspace-editing .pz-viewer { padding: 12px 12px 4px; }
-  .pz-workspace-editing .pz-viewer-surface { height: clamp(140px, 30svh, 360px); }
+  .pz-workspace-editing .pz-viewer-surface { height: clamp(420px, 65vw, 560px); }
   .pz-sheet-toggle { position: relative; display: flex; width: 100%; min-height: 60px; align-items: center; justify-content: space-between; gap: 12px; padding: 22px 20px 12px; font-size: 14px; font-weight: 700; }
   .pz-sheet-handle { position: absolute; top: 8px; left: calc(50% - 16px); width: 32px; height: 3px; background: #c5c3bb; }
   .pz-sheet-action { display: flex; gap: 8px; align-items: center; color: var(--pz-muted); font-size: 10px; font-weight: 500; }
-  .pz-panel-content { max-height: calc(42svh - 60px); overflow-y: auto; overscroll-behavior-y: contain; scrollbar-width: thin; border-top: 1px solid var(--pz-line); animation: pz-sheet-open 180ms ease-out; }
+  .pz-panel-content { max-height: none; overflow: visible; border-top: 1px solid var(--pz-line); animation: pz-sheet-open 180ms ease-out; }
+  .pz-workspace-editing .pz-panel-content { min-height: 520px; }
   .pz-panel-shell[data-expanded='false'] .pz-panel-content { display: none; }
   .pz-panel { padding: 20px; }
   .pz-panel-title { display: none; }
@@ -134,6 +141,11 @@ body:has(.personalizer) > #root > a[aria-label='Falar com a Sublime House pelo W
   .pz-editor-controls + .pz-purchase { padding-top: 20px; }
   .personalizer .pz-tools-notice { margin-top: 0; }
   .pz-tool-long { display: none; }
+  .pz-toolbar { flex-direction: column; align-items: stretch; }
+  .pz-tools { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .pz-history { align-self: flex-end; }
+  .pz-control input[type='range']:not(:disabled) { min-height: 44px; }
+  .pz-control input[type='number'], .pz-control textarea, .pz-control select { font-size: 16px; }
 }
 @media (max-width: 599px) {
   .pz-container { width: calc(100% - 32px); }

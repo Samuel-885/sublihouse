@@ -146,6 +146,13 @@ try {
     await pause(250)
   }
 
+  async function positionRotationGrip(from, to, width) {
+    if (width >= 1024) return
+    // Mobile's rotation grip is spaced in CSS pixels; its UV anchor is unchanged.
+    const grip = await evaluate(`(async()=>{const m=await import('/src/components/personalizer/3d/mobileSelection.ts'),s=state(),r=s.gl.domElement.getBoundingClientRect(),h=m.projectMobileHandles(design(),s.camera,s.scene,r).find(h=>h.kind==='rotate');return {x:r.left+h.x,y:r.top+h.y}})()`)
+    to.x += grip.x - from.x; to.y += grip.y - from.y
+    from.x = grip.x; from.y = grip.y
+  }
   for (const width of [390,430,1024,1440]) {
     await mug(width);await start();await upload()
     await evaluate(`(async()=>{window.geom=await import('/src/components/personalizer/editor/geometry.ts');window.comp=await import('/src/components/personalizer/editor/compositor.ts');window.el=()=>design().elements[0];window.id=el().id;window.space=design().space;designStore.setAspectLock(id,false);designStore.resizeElement(id,'width',200);designStore.resizeElement(id,'height',120);designStore.setPhotoCorners(id,35);designStore.move(id,1000,256);designStore.commit();state().controls.target.set(0,0,0);state().camera.position.set(0,1,-6);state().controls.update();state().invalidate();return true})()`)
@@ -177,6 +184,7 @@ try {
       await evaluate(`designStore.rotateElement(id,0);designStore.move(id,1000,256);designStore.commit();window.initial={...el()};window.saved=JSON.stringify(design().elements);window.h=geom.selectionHandles(el(),space).find(h=>h.kind==='${handle}');window.hp=geom.toDesign(el(),h);true`)
       const from=await evaluate('project(hp.x,hp.y)')
       const to=await evaluate(handle==='rotate'?`project(initial.x+(hp.x-initial.x)*Math.cos(.4)-(hp.y-initial.y)*Math.sin(.4),initial.y+(hp.x-initial.x)*Math.sin(.4)+(hp.y-initial.y)*Math.cos(.4))`:`project(hp.x+(h.x?Math.sign(h.x)*16:0),hp.y+(h.y?Math.sign(h.y)*16:0))`)
+      if (handle === 'rotate') await positionRotationGrip(from, to, width)
       await drag(from,to,width<1024)
       await check(width+': seam handle '+handle,`JSON.stringify(design().elements)!==saved&&state().controls.enabled&&el().cornerRadius===35&&el().x>=0&&el().x<1024&&${handle==='rotate'?'Math.abs(el().rotation)>.2':handle==='left'||handle==='right'?'Math.abs(el().height-initial.height)<.01&&el().width>initial.width':handle==='top'||handle==='bottom'?'Math.abs(el().width-initial.width)<.01&&el().height>initial.height':'Math.abs(el().width/el().height-initial.width/initial.height)<.001'}`)
       await evaluate('designStore.undo()')
@@ -205,7 +213,9 @@ try {
     await drag(await evaluate('project(hp.x,hp.y)'),await evaluate('project(hp.x+20,hp.y+12)'),width<1024)
     await check(width+': text resize across seam','txt().fontSize>initial.fontSize&&geom.selectionHandles(txt(),space).length===5')
     await evaluate(`window.h=geom.selectionHandles(txt(),space).find(h=>h.kind==='rotate');window.hp=geom.toDesign(txt(),h);window.initial={...txt()};true`)
-    await drag(await evaluate('project(hp.x,hp.y)'),await evaluate('project(initial.x+30,hp.y+5)'),width<1024)
+    const rotateFrom = await evaluate('project(hp.x,hp.y)'), rotateTo = await evaluate('project(initial.x+30,hp.y+5)')
+    await positionRotationGrip(rotateFrom, rotateTo, width)
+    await drag(rotateFrom,rotateTo,width<1024)
     await check(width+': text rotation across seam','Math.abs(txt().rotation)>.1')
     await check(width+': photo/text layers hit through seam',`(()=>{const point={x:15,y:256};designStore.bringForward(id);const photo=geom.hitTest(design().elements,point,space)?.id===id;designStore.bringForward(tid);return photo&&geom.hitTest(design().elements,point,space)?.id===tid})()`)
     await click('.pz-reset')

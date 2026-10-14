@@ -55,7 +55,7 @@ export function renderDesignToCanvas(canvas: HTMLCanvasElement, design: Personal
   }
 }
 
-export function renderSelectionToCanvas(canvas: HTMLCanvasElement, design: PersonalizationDesign) {
+export function renderSelectionToCanvas(canvas: HTMLCanvasElement, design: PersonalizationDesign, drawHandles = true) {
   const context = contextFor(canvas)
   const element = design.elements.find(item => item.id === design.selectedElementId)
   if (!element) return
@@ -68,6 +68,7 @@ export function renderSelectionToCanvas(canvas: HTMLCanvasElement, design: Perso
     context.setLineDash([7, 4])
     context.strokeRect(-element.width / 2 + 1, -element.height / 2 + 1, Math.max(1, element.width - 2), Math.max(1, element.height - 2))
     context.setLineDash([])
+    if (!drawHandles) { context.restore(); continue }
     const handles = selectionHandles(element, design.space)
     const rotation = handles.find(handle => handle.kind === "rotate")!
     context.beginPath()

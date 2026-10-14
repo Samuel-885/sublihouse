@@ -7,6 +7,8 @@ import type { DesignStore } from "../editor/createDesignStore"
 import { useDesignInteraction } from "./useDesignInteraction"
 import { getInsertionPoint } from "./insertionPoint"
 import type { DesignPoint } from "../editor/types"
+import { useMobileEditor } from "./useMobileEditor"
+import MobileSelectionHandles from "./MobileSelectionHandles"
 
 export type PersonalizerSceneHandle = { resetView: () => void; getInsertionPoint: () => DesignPoint | undefined }
 type SceneProps = { config: Personalizer3DConfig; store: DesignStore; editing: boolean; ref: Ref<PersonalizerSceneHandle>; onReady: () => void; onError: () => void }
@@ -26,6 +28,7 @@ function SceneContent({ config, store, editing, ref, onReady, onError }: ScenePr
   const gl = useThree(state => state.gl)
   const invalidate = useThree(state => state.invalidate)
   const reducedMotion = useSyncExternalStore(subscribeMotion, getReducedMotion, () => true)
+  const mobile = useMobileEditor()
   const [interacted, setInteracted] = useState(false)
   const [controlsVersion, setControlsVersion] = useState(0)
   const autoRotate = !interacted && !editing && !reducedMotion
@@ -33,7 +36,7 @@ function SceneContent({ config, store, editing, ref, onReady, onError }: ScenePr
     if (controls.current) controls.current.autoRotate = false
     setInteracted(true)
   }, [])
-  useDesignInteraction(store, editing, controls, onInteraction)
+  useDesignInteraction(store, editing, controls, onInteraction, mobile)
   useEffect(() => store.subscribe(() => {
     if (store.getDesign().elements.length) onInteraction()
   }), [store, onInteraction])
@@ -67,6 +70,7 @@ function SceneContent({ config, store, editing, ref, onReady, onError }: ScenePr
     <directionalLight position={[3, 5, 4]} intensity={2.6} />
     <directionalLight position={[-4, 2, -3]} intensity={1.4} color="#fff1e7" />
     <ProductModel config={config} store={store} />
+    {mobile && <MobileSelectionHandles store={store} />}
     <OrbitControls
       key={controlsVersion}
       ref={controls}
@@ -77,7 +81,7 @@ function SceneContent({ config, store, editing, ref, onReady, onError }: ScenePr
       dampingFactor={0.08}
       rotateSpeed={0.65}
       zoomSpeed={0.6}
-      minDistance={config.controls.minDistance}
+      minDistance={mobile ? config.controls.mobileMinDistance : config.controls.minDistance}
       maxDistance={config.controls.maxDistance}
       minPolarAngle={config.controls.minPolarAngle}
       maxPolarAngle={config.controls.maxPolarAngle}

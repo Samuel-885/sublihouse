@@ -293,6 +293,12 @@ try {
       await evaluate(`designStore.move(el().id,512,256);designStore.commit();window.initial={...el()};window.saved=JSON.stringify(design().elements);window.stable=designStore.getSnapshot();window.cam=state().camera.position.clone();window.tex=state().scene.getObjectByName('printable-surface').material.map;window.h=geom.selectionHandles(el()).find(h=>h.kind==='${handle}');window.hp=geom.toDesign(el(),h);true`)
       const from = await evaluate('project(hp.x,hp.y)')
       const to = await evaluate(handle==='rotate' ? `project(initial.x+(hp.x-initial.x)*Math.cos(.35)-(hp.y-initial.y)*Math.sin(.35),initial.y+(hp.x-initial.x)*Math.sin(.35)+(hp.y-initial.y)*Math.cos(.35))` : `project(hp.x+(h.x===0?0:Math.sign(h.x)*14),hp.y+(h.y===0?0:Math.sign(h.y)*14))`)
+      if (width < 1024 && handle === 'rotate') {
+        // Mobile's rotation grip is spaced in CSS pixels; its UV anchor is unchanged.
+        const grip = await evaluate(`(async()=>{const m=await import('/src/components/personalizer/3d/mobileSelection.ts'),s=state(),r=s.gl.domElement.getBoundingClientRect(),h=m.projectMobileHandles(design(),s.camera,s.scene,r).find(h=>h.kind==='rotate');return {x:r.left+h.x,y:r.top+h.y}})()`)
+        to.x += grip.x - from.x; to.y += grip.y - from.y
+        from.x = grip.x; from.y = grip.y
+      }
       await drag(from,to,width<1024,async()=>{
         await check(`${width}: ${handle} live transform, stable React/texture, orbit locked`, `JSON.stringify(design().elements)!==saved && designStore.getSnapshot()===stable && !state().controls.enabled && state().camera.position.distanceTo(cam)<.000001 && state().scene.getObjectByName('printable-surface').material.map===tex`)
       })

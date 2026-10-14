@@ -54,7 +54,7 @@ function PersonalizerWorkspace({ product, cartItemId }: { product: Product; cart
   }, [available, busy, isEditor, store])
 
   function revealWorkspace() {
-    // Position after the compact mobile viewer has laid out.
+    // Position after the editor has laid out.
     requestAnimationFrame(() => {
       workspaceRef.current?.scrollIntoView({
         block: "start",
@@ -123,7 +123,6 @@ function PersonalizerWorkspace({ product, cartItemId }: { product: Product; cart
           </div>
           <PersonalizerBottomSheet activeTool={activeTool} expanded={isExpanded} onToggle={() => {
             setIsExpanded(!isExpanded)
-            if (!isExpanded && isEditor) revealWorkspace()
           }}>
             <PersonalizerPanel product={product} quantity={quantity} onQuantityChange={setQuantity} activeTool={activeTool} isEditor={isEditor} selectedElement={selectedElement} store={store} onReplacePhoto={() => choosePhoto(selectedElement?.id ?? null)} busy={busy} available={available} onStart={startCreating} onChangeMethod={() => {
               setIsEditor(false)

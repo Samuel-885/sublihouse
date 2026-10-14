@@ -3,6 +3,7 @@ import { useThree } from "@react-three/fiber"
 import { CanvasTexture, ClampToEdgeWrapping, LinearFilter, LinearMipmapLinearFilter, RepeatWrapping, SRGBColorSpace } from "three"
 import { createDesignCanvas, renderDesignToCanvas, renderSelectionToCanvas } from "../editor/compositor"
 import type { DesignStore } from "../editor/createDesignStore"
+import { useMobileEditor } from "./useMobileEditor"
 
 function createTexture(wrapX: boolean) {
   const texture = new CanvasTexture(createDesignCanvas())
@@ -17,9 +18,9 @@ function createTextures(wrapX: boolean) {
   const art = createTexture(wrapX), selection = createTexture(wrapX)
   return {
     art, selection,
-    paint(store: DesignStore) {
+    paint(store: DesignStore, drawHandles: boolean) {
       renderDesignToCanvas(art.image, store.getDesign(), store.getPhoto)
-      renderSelectionToCanvas(selection.image, store.getDesign())
+      renderSelectionToCanvas(selection.image, store.getDesign(), drawHandles)
       art.needsUpdate = selection.needsUpdate = true
     },
     dispose() { art.dispose(); selection.dispose() },
@@ -27,6 +28,7 @@ function createTextures(wrapX: boolean) {
 }
 
 export function useDesignTextures(store: DesignStore) {
+  const mobile = useMobileEditor()
   const invalidate = useThree(state => state.invalidate)
   const textures = useMemo(() => createTextures(store.getDesign().space.wrapX), [store])
   useEffect(() => {
@@ -34,7 +36,7 @@ export function useDesignTextures(store: DesignStore) {
     let active = true
     const paint = () => {
       frame = 0
-      textures.paint(store)
+      textures.paint(store, !mobile)
       invalidate()
     }
     const unsubscribe = store.subscribePaint(() => { if (!frame) frame = requestAnimationFrame(paint) })
@@ -44,8 +46,8 @@ export function useDesignTextures(store: DesignStore) {
       active = false
       cancelAnimationFrame(frame)
       unsubscribe()
-      textures.dispose()
     }
-  }, [store, textures, invalidate])
+  }, [store, textures, invalidate, mobile])
+  useEffect(() => () => textures.dispose(), [textures])
   return textures
 }
