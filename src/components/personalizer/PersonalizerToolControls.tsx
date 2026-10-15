@@ -3,7 +3,9 @@ import { AlignCenter, AlignLeft, AlignRight, ArrowDown, ArrowUp, Bold, Copy, Cro
 import type { DesignStore } from "./editor/createDesignStore"
 import { MAX_FONT_SIZE, MIN_FONT_SIZE, MIN_PHOTO_SIZE } from "./editor/geometry"
 import type { PersonalizationElement, TextElement } from "./editor/types"
-import { fontCatalog, fontCategories, fontStack, resolveFont, weightLabels } from "./editor/fontCatalog"
+import { resolveFont, weightLabels } from "./editor/fontCatalog"
+
+import FontPicker from "./FontPicker"
 
 function NumberControl({ label, value, min, max, onChange }: { label: string; value: number; min: number; max: number; onChange: (value: number) => void }) {
   const [draft, setDraft] = useState<string | null>(null)
@@ -38,9 +40,7 @@ export default function PersonalizerToolControls({ element, store, onReplacePhot
     {element.type === "text" && <>
       <label className="pz-control"><span>Editar conteúdo</span><textarea placeholder="O teu texto" rows={2} maxLength={600} value={element.content} onChange={event => store.updateText(element.id, { content: event.target.value })} /></label>
       <p className="pz-control-heading">Tipografia</p>
-      <label className="pz-control"><span>Fonte</span><select aria-label="Fonte" value={element.fontFamily} style={{ fontFamily: fontStack(element.fontFamily) }} onChange={event => store.updateText(element.id, { fontFamily: event.target.value as TextElement["fontFamily"] })}>
-        {fontCategories.map(category => <optgroup key={category} label={category}>{fontCatalog.filter(item => item.category === category).map(item => <option key={item.family} value={item.family}>{item.label}</option>)}</optgroup>)}
-      </select></label>
+      <FontPicker value={element.fontFamily} disabled={!available} onChange={fontFamily => store.updateText(element.id, { fontFamily })} />
       <div className="pz-control-row">
         <label className="pz-control"><span>Peso</span><select aria-label="Peso da fonte" disabled={font!.weights.length === 1} value={element.fontWeight} onChange={event => store.updateText(element.id, { fontWeight: Number(event.target.value) })}>{font!.weights.map(weight => <option key={weight} value={weight}>{weightLabels[weight]}</option>)}</select></label>
         <NumberControl label="Tamanho da fonte" value={element.fontSize} min={MIN_FONT_SIZE} max={MAX_FONT_SIZE} onChange={fontSize => store.updateText(element.id, { fontSize })} />

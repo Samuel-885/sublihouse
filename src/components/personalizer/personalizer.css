@@ -18,7 +18,7 @@
 .pz-back { display: inline-flex; align-items: center; gap: 7px; min-height: 44px; font-size: 11px; white-space: nowrap; }
 .pz-back:hover { color: var(--pz-pink); }
 .personalizer .pz-edit-notice { margin-bottom: 20px; border-left: 2px solid var(--pz-pink); padding-left: 12px; color: var(--pz-muted); font-size: 12px; }
-.pz-workspace { display: grid; grid-template-columns: minmax(0, 2.1fr) minmax(0, 1fr); gap: 32px; align-items: start; scroll-margin-top: 16px; }
+.pz-workspace { overflow-anchor: none; display: grid; grid-template-columns: minmax(0, 2.1fr) minmax(0, 1fr); gap: 32px; align-items: start; scroll-margin-top: 16px; }
 .pz-stage { min-width: 0; position: sticky; top: 16px; }
 .personalizer .pz-viewer { border: 1px solid var(--pz-line); padding: clamp(18px, 3vw, 44px); padding-bottom: 12px; }
 .pz-viewer-surface { position: relative; height: clamp(360px, 42vw, 600px); background: #eeece6; }
@@ -47,7 +47,7 @@
 .personalizer .pz-upload-status { margin-top: 10px; font-size: 12px; line-height: 1.5; }
 .pz-icon-button { display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; border: 1px solid var(--pz-line); }
 .pz-icon-button:disabled { color: #99998e; }
-.pz-panel-shell { min-width: 0; border: 1px solid var(--pz-line); background: var(--pz-paper); }
+.pz-panel-shell { min-width: 0; min-height: 0; border: 1px solid var(--pz-line); background: var(--pz-paper); }
 .pz-sheet-toggle { display: none; }
 .pz-panel { padding: 22px; }
 .pz-panel-title { display: flex; align-items: center; gap: 8px; padding-bottom: 16px; border-bottom: 1px solid var(--pz-line); }
@@ -108,7 +108,9 @@
 /* Keep the existing floating contact shortcut clear of this page's controls. */
 body:has(.personalizer) > #root > a[aria-label='Falar com a Sublime House pelo WhatsApp'] { display: none; }
 @media (min-width: 1024px) {
-  .pz-panel-content { max-height: calc(100svh - 32px); overflow-y: auto; overscroll-behavior-y: contain; scrollbar-width: thin; }
+  /* Keep the outer grid stable when controls mount/unmount; only content scrolls. */
+  .pz-workspace-editing .pz-panel-content { height: calc(100svh - 32px); }
+  .pz-panel-content { min-height: 0; max-height: calc(100svh - 32px); overflow-y: auto; overscroll-behavior-y: contain; scrollbar-width: thin; }
 }
 @media (min-width: 1024px) and (max-width: 1199px) {
   .pz-container { width: calc(100% - 64px); }
@@ -117,8 +119,6 @@ body:has(.personalizer) > #root > a[aria-label='Falar com a Sublime House pelo W
   .pz-tool-long { display: none; }
 }
 @media (max-width: 1023px) {
-  /* Expanding the sheet must not pull a footer scroll anchor into view. */
-  body:has(.personalizer) { overflow-anchor: none; }
   .pz-container { width: calc(100% - 48px); }
   .pz-intro { padding-block: 40px 36px; }
   .personalizer h1 { font-size: clamp(36px, 6.6vw, 52px); }
@@ -175,3 +175,13 @@ body:has(.personalizer) > #root > a[aria-label='Falar com a Sublime House pelo W
 @media (prefers-reduced-motion: reduce) {
   .personalizer *, .personalizer *::before, .personalizer *::after { animation: none !important; transition: none !important; scroll-behavior: auto !important; }
 }
+
+/* Fixed portal: opening previews never changes the workspace's document height. */
+.pz-font-trigger { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; min-height: 44px; padding: 8px 10px; border: 1px solid var(--pz-line); background: var(--pz-paper); text-align: left; font-size: 16px; }
+.pz-font-trigger > span { min-width: 0; overflow-wrap: anywhere; font-weight: 400; font-style: normal; }
+.pz-font-list { position: fixed; z-index: 100; overflow-y: auto; overscroll-behavior: contain; overflow-anchor: none; box-sizing: border-box; border: 1px solid #deddd8; background: #fcfbf8; color: #0b0b0b; box-shadow: 0 8px 24px #0002; font-family: 'Figtree', Arial, sans-serif; }
+.pz-font-category { padding: 12px 10px 4px; font-size: 11px; font-weight: 700; }
+.pz-font-option { display: flex; align-items: center; min-height: 44px; padding: 8px 10px; cursor: pointer; font-size: 18px; line-height: 1.4; font-weight: 400; font-style: normal; overflow-wrap: anywhere; }
+.pz-font-option[aria-selected='true'] { color: #dc1745; }
+.pz-font-option[data-active='true'] { outline: 2px solid #ff2859; outline-offset: -2px; background: #f2eee8; }
+.pz-font-option:hover { background: #f2eee8; }

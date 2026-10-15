@@ -166,6 +166,12 @@ try {
     await fonts.loadFont(el());return true;
   })()`)
   async function select(label, value) {
+    if (label === 'Fonte') {
+      await click('[role="combobox"][aria-label="Fonte"]')
+      await evaluate(`Array.from(document.querySelectorAll('[role="option"]')).find(option=>option.textContent===${JSON.stringify(value)}).click()`)
+      await pause(30)
+      return
+    }
     await evaluate(`(()=>{const input=document.querySelector('select[aria-label=${JSON.stringify(label)}]');input.focus();input.value=${JSON.stringify(String(value))};input.dispatchEvent(new Event('change',{bubbles:true}));input.blur()})()`)
     await pause(30)
   }
@@ -300,7 +306,7 @@ try {
     await check(width+': all style controls, transform, color, alignment',`el().fontFamily==='Playfair Display'&&el().fontWeight===400&&el().fontStyle==='italic'&&el().underline&&el().textTransform==='uppercase'&&el().color==='#2244aa'&&el().align==='right'&&el().content==='Nova edição completa'`)
     await check(width+': pressed states, labels, no overflow',`['Negrito','Itálico','Sublinhado'].every(label=>document.querySelector('[aria-label="'+label+'"]').hasAttribute('aria-pressed'))&&[...document.querySelectorAll('.pz-tool-controls input,.pz-tool-controls select,.pz-tool-controls textarea')].every(n=>n.getAttribute('aria-label')||n.closest('label'))&&document.documentElement.scrollWidth<=innerWidth`)
     await evaluate(`window.gpu={texture:state().scene.getObjectByName('printable-surface').material.map,geometry:state().scene.getObjectByName('printable-surface').geometry,version:state().scene.getObjectByName('printable-surface').material.map.version};designStore.updateText(el().id,{letterSpacing:4});true`)
-    await pause(120)
+    await until('state().scene.getObjectByName("printable-surface").material.map.version>gpu.version')
     await check(width+': reuses texture/geometry and updates pixels','gpu.texture===state().scene.getObjectByName("printable-surface").material.map&&gpu.geometry===state().scene.getObjectByName("printable-surface").geometry&&gpu.texture.version>gpu.version')
     await select('Fonte','Pacifico')
     await check(width+': unsupported styles disabled and state normalized',`document.querySelector('[aria-label="Negrito"]').disabled&&document.querySelector('[aria-label="Itálico"]').disabled&&document.querySelector('[aria-label="Peso da fonte"]').options.length===1&&el().fontWeight===400&&el().fontStyle==='normal'`)
@@ -335,7 +341,7 @@ try {
     await screenshot('advanced-viewer-'+width)
     await evaluate(`document.querySelector('[aria-label="Fonte"]').scrollIntoView({block:'start',behavior:'instant'})`)
     await screenshot('typography-panel-'+width)
-    // Keyboard focus, native select and B/I/U activation retain visible focus.
+    // Keyboard focus, font picker and B/I/U activation retain visible focus.
     await evaluate(`document.querySelector('[aria-label="Sublinhado"]').focus()`)
     await cdp('Input.dispatchKeyEvent',{type:'keyDown',key:' ',code:'Space',windowsVirtualKeyCode:32})
     await cdp('Input.dispatchKeyEvent',{type:'keyUp',key:' ',code:'Space',windowsVirtualKeyCode:32})

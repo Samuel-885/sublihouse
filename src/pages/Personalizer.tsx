@@ -127,7 +127,7 @@ function PersonalizerWorkspace({ product, cartItemId }: { product: Product; cart
             <PersonalizerPanel product={product} quantity={quantity} onQuantityChange={setQuantity} activeTool={activeTool} isEditor={isEditor} selectedElement={selectedElement} store={store} onReplacePhoto={() => choosePhoto(selectedElement?.id ?? null)} busy={busy} available={available} onStart={startCreating} onChangeMethod={() => {
               setIsEditor(false)
               store.select(null)
-              requestAnimationFrame(() => workspaceRef.current?.querySelector<HTMLButtonElement>(".pz-method button")?.focus())
+              requestAnimationFrame(() => workspaceRef.current?.querySelector<HTMLButtonElement>(".pz-method button")?.focus({ preventScroll: true }))
             }} />
           </PersonalizerBottomSheet>
         </div>
