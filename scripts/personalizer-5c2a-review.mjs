@@ -222,7 +222,8 @@ try {
   await evaluate(`(()=>{const input=document.querySelector('textarea');Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value').set.call(input,${JSON.stringify('Olá Sublime\nSegunda linha')});input.dispatchEvent(new Event('input',{bubbles:true}));})()`)
   await check('multiline content edit', `design().elements.at(-1).content===${JSON.stringify('Olá Sublime\nSegunda linha')} && design().elements.at(-1).height>80`)
   for (const font of ['Montserrat', 'Playfair Display', 'Figtree']) {
-    await evaluate(`(()=>{const select=document.querySelector('.pz-control select');select.value='${font}';select.dispatchEvent(new Event('change',{bubbles:true}));})()`)
+    await click('[role="combobox"][aria-label="Fonte"]')
+    await evaluate(`(()=>{const option=[...document.querySelectorAll('[role="option"]')].find(item=>item.textContent===${JSON.stringify(font)});option.click()})()`)
     await check('font ' + font, `design().elements.at(-1).fontFamily==='${font}'`)
   }
   await evaluate(`(()=>{const input=document.querySelector('input[type=color]');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,'#cc2244');input.dispatchEvent(new Event('input',{bubbles:true}));})()`)
@@ -260,8 +261,11 @@ try {
     await pointer('up',p,false)
   }
   await evaluate(`window.allSources=design().elements.filter(e=>e.type==='photo').map(e=>e.source);window.oldStore=designStore;document.querySelector('.pz-back').click()`)
-  await pause(500)
-  await check('unmount releases all photo URLs and store references', 'allSources.every(s=>revoked.includes(s)) && oldStore.getDesign().elements.length===0')
+  // Observe the completed route transition instead of assuming a 500ms delay
+  // proves the workspace unmounted. Keep the cleanup assertion unchanged.
+  await until('location.pathname==="/products/1" && !document.querySelector(".personalizer")')
+  const cleanup = await evaluate('({path:location.pathname,allRevoked:allSources.every(s=>revoked.includes(s)),remainingElements:oldStore.getDesign().elements.length})')
+  record('unmount releases all photo URLs and store references',cleanup.allRevoked&&cleanup.remainingElements===0,cleanup)
 
   await mug(1440,false)
   await check('auto rotation before interaction', 'state().controls.autoRotate')

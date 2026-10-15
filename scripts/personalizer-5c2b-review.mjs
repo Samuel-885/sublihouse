@@ -334,8 +334,17 @@ try {
       if(${width<1024}){const s=state(),r=s.gl.domElement.getBoundingClientRect(),p=mobile.projectMobileHandles(design(),s.camera,s.scene,r).find(h=>h.kind==='bottom-right');return {x:p.x+r.left+12,y:p.y+r.top}}
       const p=geom.toDesign(el(),h);return project(p.x,p.y);
     })()`)
+    const resizeHit=await evaluate(`(async()=>{
+      const {pickPrintablePoint}=await import('/src/components/personalizer/3d/printableSurface.ts');
+      const s=state(),r=s.gl.domElement.getBoundingClientRect(),p=${JSON.stringify(corner)},ray=new three.Raycaster();
+      s.scene.updateMatrixWorld();s.camera.updateMatrixWorld();
+      ray.setFromCamera(new three.Vector2((p.x-r.left)/r.width*2-1,1-(p.y-r.top)/r.height*2),s.camera);
+      const point=pickPrintablePoint(ray,s.scene),h=mobile.hitMobileHandle(mobile.projectMobileHandles(design(),s.camera,s.scene,r),p.x-r.left,p.y-r.top);
+      return {screen:p,point,handle:${width<1024}?h?.kind:point&&geom.hitTestHandle(el(),point,false,design().space),onCanvas:document.elementFromPoint(p.x,p.y)===s.gl.domElement,canvas:{width:r.width,height:r.height},renderer:s.size,cameraAspect:s.camera.aspect,before:{...el()}};
+    })()`)
     await drag(corner,{x:corner.x+15,y:corner.y+15},width<1024)
-    await check(width+': actual advanced text corner resize and orbit lock','el().fontSize>textBefore.fontSize&&el().underline&&el().fontWeight===700&&el().fontStyle==="italic"&&state().camera.position.distanceTo(textCamera)<.00001')
+    const resizeResult=await evaluate('({pass:el().fontSize>textBefore.fontSize&&el().underline&&el().fontWeight===700&&el().fontStyle==="italic"&&state().camera.position.distanceTo(textCamera)<.00001,after:{...el()},cameraDelta:state().camera.position.distanceTo(textCamera)})')
+    record(width+': actual advanced text corner resize and orbit lock',resizeResult.pass,{...resizeHit,...resizeResult})
     await evaluate('designStore.undo()')
     await check(width+': actual advanced text resize one undo','JSON.stringify(el())===JSON.stringify(textBefore)')
     await screenshot('advanced-viewer-'+width)

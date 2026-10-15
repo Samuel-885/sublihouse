@@ -16,6 +16,7 @@ let chromeLog = ''
 chrome.stderr.on('data', data => { chromeLog += data.toString() })
 const pause = ms => new Promise(resolve => setTimeout(resolve, ms))
 const checks = [], errors = []
+const samples = [], cause = [], hitAudit = []
 let ws
 try {
   let info
@@ -98,6 +99,36 @@ try {
       window.designStore = owner.memoizedState.memoizedState;
       window.design = () => designStore.getDesign();
       window.el = () => design().elements.find(e=>e.id===design().selectedElementId);
+      const geometry = await import('/src/components/personalizer/editor/geometry.ts');
+      const mobileSelection = await import('/src/components/personalizer/3d/mobileSelection.ts');
+      const { pickPrintablePoint } = await import('/src/components/personalizer/3d/printableSurface.ts');
+      const { MOBILE_HANDLES } = await import('/src/components/personalizer/3d/personalizer3dConfig.ts');
+      // Test-only inspection of the same raycast and handle priority as pointerdown.
+      window.inspectHit = screen => {
+        const canvas = document.querySelector('.pz-scene canvas');
+        const rect = canvas.getBoundingClientRect(), { camera, scene } = state();
+        scene.updateMatrixWorld(); camera.updateMatrixWorld();
+        const ray = new three.Raycaster();
+        ray.setFromCamera(new three.Vector2((screen.x-rect.left)/rect.width*2-1, 1-(screen.y-rect.top)/rect.height*2), camera);
+        const intersections = ray.intersectObjects(scene.children, true).filter(({object}) => {
+          if (!object.isMesh || object.name === 'selection-overlay') return false;
+          for (let node=object; node; node=node.parent) if (!node.visible) return false;
+          return true;
+        });
+        const point = pickPrintablePoint(ray, scene);
+        const handles = mobileSelection.projectMobileHandles(design(), camera, scene, rect);
+        const x=screen.x-rect.left, y=screen.y-rect.top;
+        const mobileHandle = mobileSelection.hitMobileHandle(handles,x,y);
+        const handle = innerWidth<1024 ? mobileHandle?.kind : point && el() ? geometry.hitTestHandle(el(),point,false,design().space) : null;
+        const body = point && geometry.hitTest(design().elements,point,design().space);
+        const dom = document.elementFromPoint(screen.x,screen.y);
+        const onCanvas = dom===canvas && screen.x>rect.left && screen.x<rect.right && screen.y>rect.top && screen.y<rect.bottom;
+        return { screen, dom:dom?.className, onCanvas, nearestMesh:intersections[0]?.object.name ?? null,
+          point:point ?? null, body:body ? {id:body.id,type:body.type} : null, handle:handle ?? null,
+          touchDiameter:MOBILE_HANDLES.touchDiameter,
+          handles:handles.map(h=>({kind:h.kind, distance:Math.hypot(x-h.x,y-h.y), insideTarget:Math.hypot(x-h.x,y-h.y)<=MOBILE_HANDLES.touchDiameter/2})),
+          empty:onCanvas && !!point && !body && !handle };
+      };
       window.project = (x, y) => {
         const angle = -Math.PI + x / 1024 * Math.PI * 2;
         const point = new three.Vector3(.942 * Math.sin(angle), (.5-y/512)*1.94, .942*Math.cos(angle));
@@ -143,7 +174,6 @@ try {
 
 
 
-  const samples = [], cause = []
   const snapshot = () => evaluate(`({y:scrollY,height:document.documentElement.scrollHeight,workspace:document.querySelector('.pz-workspace').getBoundingClientRect().height,active:document.activeElement?.tagName,selected:design().selectedElementId})`)
   async function stable(name, action, desktop = false) {
     const before=await snapshot();await action();await pause(120);const after=await snapshot()
@@ -156,6 +186,33 @@ try {
     await pause(50)
   }
   async function tap(point,touch=false) {await pointer('down',point,touch);await pointer('up',point,touch);await pause(70)}
+  async function tapSurface(name,touch) {
+    const before=await emptySurface(name);
+    await tap(before.hit.screen,touch);
+    const after=await evaluate('({selected:design().selectedElementId,controls:state().controls.enabled})');
+    hitAudit.push({name,before,after});
+    record(name+': empty touch/click deselects and restores orbit',after.selected===null&&after.controls,{before,after});
+  }
+  async function emptySurface(name) {
+    const before=await evaluate(`(() => {
+      const original=inspectHit(project(512,400));
+      // Prefer the original coordinate, but never assume a UV coordinate is
+      // empty: camera, artwork bounds and 44px handle targets can all change.
+      const safe = p => [[0,0],[-4,0],[4,0],[0,-4],[0,4]].every(([dx,dy]) => inspectHit({x:p.x+dx,y:p.y+dy}).empty);
+      if (original.empty && safe(original.screen)) return {original,hit:original,selected:design().selectedElementId};
+      const r=document.querySelector('.pz-scene canvas').getBoundingClientRect();
+      for (let y=Math.max(8,r.top+8);y<Math.min(innerHeight-8,r.bottom-8);y+=12) {
+        for (let x=Math.max(8,r.left+8);x<Math.min(innerWidth-8,r.right-8);x+=12) {
+          const hit=inspectHit({x,y});
+          if (hit.empty && safe(hit.screen)) return {original,hit,selected:design().selectedElementId};
+        }
+      }
+      return {original,hit:null,selected:design().selectedElementId};
+    })()`);
+    record(name+': raycast proves empty surface outside body and handles',before.hit?.empty===true,before);
+    if (!before.hit) throw new Error('No verified empty printable surface for '+name);
+    return before;
+  }
   async function realClick(selector,touch=false) {
     const point=await evaluate(`(()=>{const r=document.querySelector(${JSON.stringify(selector)}).getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2}})()`)
     if(point.y<0||point.y>await evaluate('innerHeight')) throw new Error('Target outside viewport: '+selector)
@@ -166,6 +223,24 @@ try {
     await evaluate(`state().controls.target.set(0,0,0);state().camera.position.set(0,0,innerWidth<1024?3.2:5.2);state().controls.update();state().invalidate();document.querySelector('.pz-workspace').scrollIntoView({block:'start',behavior:'instant'});document.activeElement?.blur();true`)
     await until(`(()=>{const c=document.querySelector('.pz-scene canvas').getBoundingClientRect(),s=document.querySelector('.pz-viewer-surface').getBoundingClientRect();return Math.abs(c.height-s.height)<1&&Math.abs(c.width-s.width)<1})()`)
     await pause(150)
+  }
+
+  if (process.env.REVIEW_HIT_AUDIT === '1') {
+    for (const width of [390,430,768,1024,1280,1440]) {
+      await mug(width); await start(); await prepareViewer();
+      await realClick('[aria-label="Adicionar texto"]',width<1024);
+      for (const kind of ['text','photo']) {
+        if (kind==='photo') await upload();
+        const before=await evaluate('({hit:inspectHit(project(512,400)),selected:design().selectedElementId})');
+        await tap(before.hit.screen,width<1024);
+        const after=await evaluate('({selected:design().selectedElementId,controls:state().controls.enabled})');
+        hitAudit.push({width,kind,before,after});
+      }
+    }
+    await writeFile(path.join(out,'hit-audit.json'),JSON.stringify(hitAudit,null,2));
+    console.log(JSON.stringify(hitAudit,null,2));
+    await send('Browser.close'); ws.close(); chrome.kill();
+    process.exit(0);
   }
 
   // Negative control: reintroduce only the former desktop layout/anchoring.
@@ -187,7 +262,7 @@ try {
     await evaluate('window.seed=el().id')
     for(let cycle=0;cycle<10;cycle++) {
       const prefix=width+' cycle '+cycle
-      await stable(prefix+': empty printable surface deselect',async()=>{await tap(await evaluate('project(512,400)'),touch)},desktop)
+      await stable(prefix+': empty printable surface deselect',()=>tapSurface(prefix+': text',touch),desktop)
       await check(prefix+': deselected with OrbitControls enabled','design().selectedElementId===null&&state().controls.enabled')
       await stable(prefix+': select text',async()=>{await tap(await evaluate('(()=>{const e=design().elements.find(e=>e.id===seed);return project(e.x,e.y)})()'),touch)},desktop)
       await check(prefix+': text selected','design().selectedElementId===seed')
@@ -199,14 +274,14 @@ try {
       await check(prefix+': redo removes text','design().elements.length===1')
       await stable(prefix+': add photo',()=>upload(),desktop)
       await check(prefix+': photo selected','el()?.type==="photo"')
-      await stable(prefix+': deselect photo',async()=>{await tap(await evaluate('project(512,400)'),touch)},desktop)
+      await stable(prefix+': deselect photo',()=>tapSurface(prefix+': photo',touch),desktop)
       await stable(prefix+': select photo',async()=>{await tap(await evaluate('(()=>{const e=design().elements.find(e=>e.type==="photo");return project(e.x,e.y)})()'),touch)},desktop)
       await check(prefix+': photo selected again','el()?.type==="photo"')
       await stable(prefix+': delete photo',()=>key('Delete','Delete',46),desktop)
     }
     // Actual empty-surface drag must still orbit after deselecting a text.
     await evaluate('designStore.select(seed);window.cameraBefore=state().camera.position.clone();true')
-    await stable(width+': empty surface drag/orbit',async()=>{const p=await evaluate('project(512,400)');await drag(p,{x:p.x+24,y:p.y},touch)},desktop)
+    await stable(width+': empty surface drag/orbit',async()=>{const before=await emptySurface(width+': orbit');hitAudit.push({name:width+': orbit',before});const p=before.hit.screen;await drag(p,{x:p.x+24,y:p.y},touch)},desktop)
     await check(width+': orbit works and text deselected','!design().selectedElementId&&state().controls.enabled&&state().camera.position.distanceTo(cameraBefore)>.01')
     await prepareViewer()
     // Start native chooser; CDP interception cannot drive the OS Cancel button.
@@ -285,11 +360,11 @@ try {
   await pause(100)
   await check('failed preview selection retains a usable fallback','el().fontFamily==="Caveat"&&el().width>0&&!document.querySelector("[role=listbox]")')
   await cdp('Network.setBlockedURLs',{urls:[]})
-  const report={checks,errors,samples,cause,passed:checks.every(c=>c.pass)&&!errors.length}
+  const report={checks,errors,samples,cause,hitAudit,passed:checks.every(c=>c.pass)&&!errors.length}
   await writeFile(path.join(out,'review.json'),JSON.stringify(report,null,2))
   console.log(JSON.stringify({out,passed:report.passed,checks:checks.length,failed:checks.filter(c=>!c.pass),errors},null,2))
   await send('Browser.close');ws.close();chrome.kill();process.exitCode=report.passed?0:1
 } catch(error) {
-  await writeFile(path.join(out,'review.json'),JSON.stringify({checks,errors,error:String(error)},null,2))
+  await writeFile(path.join(out,'review.json'),JSON.stringify({checks,errors,samples,cause,hitAudit,error:String(error)},null,2))
   console.error(error);ws?.close();chrome.kill();process.exitCode=1
 }
