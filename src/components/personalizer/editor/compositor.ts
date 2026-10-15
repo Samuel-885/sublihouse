@@ -20,8 +20,8 @@ function contextFor(canvas: HTMLCanvasElement) {
 
 export function renderDesignToCanvas(canvas: HTMLCanvasElement, design: PersonalizationDesign, getPhoto: (source: string) => HTMLImageElement | undefined) {
   const context = contextFor(canvas)
-  context.fillStyle = "#fffdf9"
-  context.fillRect(0, 0, DESIGN_WIDTH, DESIGN_HEIGHT)
+  // Product appearance belongs to the ceramic material. Empty artwork stays
+  // fully transparent; only customer photos and text contribute pixels.
   for (const element of [...design.elements].sort((a, b) => a.zIndex - b.zIndex)) {
     for (const centerX of wrappedPaintCenters(element, design.space)) {
       context.save()

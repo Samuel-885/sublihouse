@@ -5,11 +5,16 @@ import PersonalizerToolControls from "./PersonalizerToolControls"
 import { personalizerToolLabels, type PersonalizerTool } from "./types"
 import type { DesignStore } from "./editor/createDesignStore"
 import type { PersonalizationElement } from "./editor/types"
+import MugVariantSelector from "./MugVariantSelector"
+import type { MugVariant } from "./mugVariants"
+import { getPersonalizer3DConfig } from "./3d/personalizer3dConfig"
 
 const currency = new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" })
 const icons = { default: Sparkles, photo: Image, text: Type, element: Shapes }
 
-export default function PersonalizerPanel({ product, quantity, onQuantityChange, activeTool, isEditor, onStart, onChangeMethod, selectedElement, store, onReplacePhoto, busy, available }: {
+export default function PersonalizerPanel({ variant, onVariantChange, product, quantity, onQuantityChange, activeTool, isEditor, onStart, onChangeMethod, selectedElement, store, onReplacePhoto, busy, available }: {
+  variant: MugVariant
+  onVariantChange: (variant: MugVariant) => void
   product: Product
   quantity: number
   onQuantityChange: (quantity: number) => void
@@ -26,6 +31,7 @@ export default function PersonalizerPanel({ product, quantity, onQuantityChange,
   const Icon = icons[activeTool]
   return <div className="pz-panel">
     <div className="pz-panel-title"><Icon size={16} /><h2>{personalizerToolLabels[activeTool]}</h2></div>
+    {getPersonalizer3DConfig(product)?.kind === "mug" && <MugVariantSelector variant={variant} onChange={onVariantChange} available={available} />}
     {isEditor && <div className="pz-editor-controls">
       <p id="pz-tools-notice" className="pz-tools-notice">{available ? "Toca numa fotografia ou texto na peça para selecionar. Arrasta para mover." : "A edição 3D não está disponível nesta pré-visualização."}</p>
       {!selectedElement ? <p className="pz-guidance">Adiciona uma fotografia ou texto na barra abaixo da peça para começares a criar.</p> : <PersonalizerToolControls key={selectedElement.id} element={selectedElement} store={store} onReplacePhoto={onReplacePhoto} busy={busy} available={available} />}

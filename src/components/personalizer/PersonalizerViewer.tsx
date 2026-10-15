@@ -4,17 +4,17 @@ import type { Product } from "../../types/product"
 import ProductImage from "../product/ProductImage"
 import type { DesignStore } from "./editor/createDesignStore"
 import type { DesignPoint } from "./editor/types"
-
 import { getPersonalizer3DConfig } from "./3d/personalizer3dConfig"
 import { useWebGLSupport } from "./3d/useWebGLSupport"
 import ViewerErrorBoundary from "./3d/ViewerErrorBoundary"
 import type { PersonalizerSceneHandle } from "./3d/PersonalizerScene"
+import type { MugVariant } from "./mugVariants"
 
 const PersonalizerScene = lazy(() => import("./3d/PersonalizerScene"))
 
 export type PersonalizerViewerHandle = { getInsertionPoint: () => DesignPoint | undefined }
 
-export default function PersonalizerViewer({ product, store, editing, onAvailabilityChange, ref }: { product: Product; store: DesignStore; editing: boolean; onAvailabilityChange: (available: boolean) => void; ref?: Ref<PersonalizerViewerHandle> }) {
+export default function PersonalizerViewer({ variant, product, store, editing, onAvailabilityChange, ref }: { variant: MugVariant; product: Product; store: DesignStore; editing: boolean; onAvailabilityChange: (available: boolean) => void; ref?: Ref<PersonalizerViewerHandle> }) {
   const config = getPersonalizer3DConfig(product)
   const supported = useWebGLSupport(Boolean(config))
   const [failed, setFailed] = useState(false)
@@ -34,7 +34,7 @@ export default function PersonalizerViewer({ product, store, editing, onAvailabi
       <span className="pz-viewer-label">{show3D && ready ? "Pré-visualização 3D" : "Pré-visualização"}</span>
       {show3D && config ? <ViewerErrorBoundary onError={onError}>
         <Suspense fallback={fallback}>
-          <PersonalizerScene ref={scene} config={config} store={store} editing={editing} onReady={onReady} onError={onError} />
+          <PersonalizerScene variant={variant} ref={scene} config={config} store={store} editing={editing} onReady={onReady} onError={onError} />
         </Suspense>
       </ViewerErrorBoundary> : fallback}
       {unavailable && <p className="pz-viewer-notice" role="status">A pré-visualização 3D não está disponível neste dispositivo.</p>}

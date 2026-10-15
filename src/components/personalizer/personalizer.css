@@ -53,6 +53,14 @@
 .pz-panel-title { display: flex; align-items: center; gap: 8px; padding-bottom: 16px; border-bottom: 1px solid var(--pz-line); }
 .pz-panel-title > svg { color: var(--pz-pink); }
 .pz-panel-title h2 { font-size: 17px; font-weight: 800; letter-spacing: -.025em; }
+.pz-product-appearance { padding-block: 18px; border-bottom: 1px solid var(--pz-line); }
+.pz-product-appearance h3 { margin-top: 5px; font-size: 15px; font-weight: 700; }
+.pz-variants { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+.pz-variant { display: flex; align-items: center; gap: 9px; min-width: 0; min-height: 44px; padding: 8px 10px; border: 1px solid var(--pz-line); font-size: 12px; text-align: left; }
+.pz-variant:not(:disabled):hover { background: #eeece6; }
+.pz-variant[aria-pressed='true'] { border-color: var(--pz-pink); box-shadow: inset 0 0 0 1px var(--pz-pink); }
+.pz-variant:disabled { color: var(--pz-muted); }
+.pz-variant-swatch { flex-shrink: 0; width: 24px; height: 24px; border: 1px solid #0003; border-radius: 50%; }
 .personalizer .pz-tools-notice { margin-block: 15px; color: var(--pz-muted); font-size: 11px; line-height: 1.6; }
 .personalizer .pz-guidance { color: var(--pz-muted); font-size: 13px; line-height: 1.7; padding-bottom: 20px; }
 .pz-tool-controls { padding: 0 0 22px; margin: 0; border: 0; min-width: 0; }

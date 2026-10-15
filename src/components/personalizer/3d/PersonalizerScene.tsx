@@ -9,9 +9,10 @@ import { getInsertionPoint } from "./insertionPoint"
 import type { DesignPoint } from "../editor/types"
 import { useMobileEditor } from "./useMobileEditor"
 import MobileSelectionHandles from "./MobileSelectionHandles"
+import type { MugVariant } from "../mugVariants"
 
 export type PersonalizerSceneHandle = { resetView: () => void; getInsertionPoint: () => DesignPoint | undefined }
-type SceneProps = { config: Personalizer3DConfig; store: DesignStore; editing: boolean; ref: Ref<PersonalizerSceneHandle>; onReady: () => void; onError: () => void }
+type SceneProps = { variant: MugVariant; config: Personalizer3DConfig; store: DesignStore; editing: boolean; ref: Ref<PersonalizerSceneHandle>; onReady: () => void; onError: () => void }
 
 const motionQuery = "(prefers-reduced-motion: reduce)"
 function subscribeMotion(callback: () => void) {
@@ -21,7 +22,7 @@ function subscribeMotion(callback: () => void) {
 }
 const getReducedMotion = () => window.matchMedia(motionQuery).matches
 
-function SceneContent({ config, store, editing, ref, onReady, onError }: SceneProps) {
+function SceneContent({ variant, config, store, editing, ref, onReady, onError }: SceneProps) {
   const controls = useRef<ComponentRef<typeof OrbitControls>>(null)
   const camera = useThree(state => state.camera)
   const scene = useThree(state => state.scene)
@@ -69,7 +70,7 @@ function SceneContent({ config, store, editing, ref, onReady, onError }: ScenePr
     <hemisphereLight args={["#ffffff", "#c9c2b5", 2.1]} />
     <directionalLight position={[3, 5, 4]} intensity={2.6} />
     <directionalLight position={[-4, 2, -3]} intensity={1.4} color="#fff1e7" />
-    <ProductModel config={config} store={store} />
+    <ProductModel variant={variant} config={config} store={store} />
     {mobile && <MobileSelectionHandles store={store} />}
     <OrbitControls
       key={controlsVersion}

@@ -10,10 +10,12 @@ import PersonalizerBottomSheet from "../components/personalizer/PersonalizerBott
 import type { PersonalizerTool } from "../components/personalizer/types"
 import { createDesignStore } from "../components/personalizer/editor/createDesignStore"
 import { getPersonalizer3DConfig } from "../components/personalizer/3d/personalizer3dConfig"
+import { defaultMugVariant } from "../components/personalizer/mugVariants"
 import "../components/personalizer/personalizer.css"
 
 function PersonalizerWorkspace({ product, cartItemId }: { product: Product; cartItemId: string | null }) {
   const [store] = useState(() => createDesignStore({ wrapX: getPersonalizer3DConfig(product)?.printableArea.wrapX ?? false }))
+  const [mugVariant, setMugVariant] = useState(defaultMugVariant)
   const mounted = useRef(false)
   useEffect(() => {
     mounted.current = true
@@ -115,7 +117,7 @@ function PersonalizerWorkspace({ product, cartItemId }: { product: Product; cart
         {isEditingExistingItem && <p className="pz-edit-notice" role="status">Edição de personalização · A recuperação da tua criação estará disponível em breve.</p>}
         <div ref={workspaceRef} className={`pz-workspace${isEditor ? " pz-workspace-editing" : ""}`}>
           <div className="pz-stage">
-            <PersonalizerViewer ref={viewer} product={product} store={store} editing={isEditor} onAvailabilityChange={setAvailable} />
+            <PersonalizerViewer ref={viewer} variant={mugVariant} product={product} store={store} editing={isEditor} onAvailabilityChange={setAvailable} />
             <PersonalizerToolbar activeTool={activeTool} onSelect={addContent} available={available} busy={busy} store={store} />
             <input ref={photoInput} type="file" accept="image/jpeg,image/png,image/webp" hidden onChange={uploadPhoto} aria-label="Escolher fotografia" />
             {busy && <p className="pz-upload-status" role="status">A preparar fotografia…</p>}
@@ -124,7 +126,7 @@ function PersonalizerWorkspace({ product, cartItemId }: { product: Product; cart
           <PersonalizerBottomSheet activeTool={activeTool} expanded={isExpanded} onToggle={() => {
             setIsExpanded(!isExpanded)
           }}>
-            <PersonalizerPanel product={product} quantity={quantity} onQuantityChange={setQuantity} activeTool={activeTool} isEditor={isEditor} selectedElement={selectedElement} store={store} onReplacePhoto={() => choosePhoto(selectedElement?.id ?? null)} busy={busy} available={available} onStart={startCreating} onChangeMethod={() => {
+            <PersonalizerPanel variant={mugVariant} onVariantChange={setMugVariant} product={product} quantity={quantity} onQuantityChange={setQuantity} activeTool={activeTool} isEditor={isEditor} selectedElement={selectedElement} store={store} onReplacePhoto={() => choosePhoto(selectedElement?.id ?? null)} busy={busy} available={available} onStart={startCreating} onChangeMethod={() => {
               setIsEditor(false)
               store.select(null)
               requestAnimationFrame(() => workspaceRef.current?.querySelector<HTMLButtonElement>(".pz-method button")?.focus({ preventScroll: true }))
