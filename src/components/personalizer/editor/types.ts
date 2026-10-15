@@ -1,3 +1,5 @@
+import type { FontFamily } from "./fontCatalog"
+
 export const DESIGN_WIDTH = 1024
 export const DESIGN_HEIGHT = 512
 export type PrintableSpace = Readonly<{ wrapX: boolean }>
@@ -21,11 +23,18 @@ export type PhotoElement = ElementBase & {
 export type TextElement = ElementBase & {
   type: "text"
   content: string
-  font: "Figtree" | "Arial" | "Georgia"
+  fontFamily: FontFamily
   fontSize: number
+  fontWeight: number
+  fontStyle: "normal" | "italic"
+  underline: boolean
+  /** Logical pixels, independent of the displayed viewer size. */
+  letterSpacing: number
+  lineHeight: number
+  textTransform: "none" | "uppercase" | "lowercase"
   color: string
   align: "left" | "center" | "right"
 }
 export type PersonalizationElement = PhotoElement | TextElement
 export type PersonalizationDesign = { space: PrintableSpace; elements: PersonalizationElement[]; selectedElementId: string | null }
-export type TextUpdate = Partial<Pick<TextElement, "content" | "font" | "fontSize" | "color" | "align">>
+export type TextUpdate = Partial<Pick<TextElement, "content" | "fontFamily" | "fontSize" | "fontWeight" | "fontStyle" | "underline" | "letterSpacing" | "lineHeight" | "textTransform" | "color" | "align">>

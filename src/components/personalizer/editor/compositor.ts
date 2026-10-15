@@ -1,4 +1,4 @@
-import { canvasFont, layoutText, TEXT_PADDING } from "./textLayout"
+import { drawText } from "./textLayout"
 import { selectionHandles, wrappedPaintCenters } from "./geometry"
 import { DESIGN_HEIGHT, DESIGN_WIDTH, type PersonalizationDesign } from "./types"
 
@@ -41,14 +41,7 @@ export function renderDesignToCanvas(canvas: HTMLCanvasElement, design: Personal
           context.drawImage(image, (image.naturalWidth - sw) / 2, (image.naturalHeight - sh) / 2, sw, sh, -width / 2, -height / 2, width, height)
         }
       } else {
-        const layout = layoutText(context, element)
-        context.font = canvasFont(element, layout.scale)
-        context.fillStyle = element.color
-        context.textAlign = element.align
-        context.textBaseline = "middle"
-        const x = element.align === "left" ? -element.width / 2 + TEXT_PADDING
-          : element.align === "right" ? element.width / 2 - TEXT_PADDING : 0
-        layout.lines.forEach((line, index) => context.fillText(line, x, -element.height / 2 + TEXT_PADDING + (index + 0.5) * layout.lineHeight))
+        drawText(context, element)
       }
       context.restore()
     }

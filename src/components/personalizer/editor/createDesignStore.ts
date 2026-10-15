@@ -1,5 +1,6 @@
 import { constrainElement, MAX_FONT_SIZE, MIN_FONT_SIZE, MIN_PHOTO_SIZE, resizeFromPointer, rotatedExtents, toDesign, type ResizeHandle, type TransformHandle } from "./geometry"
 import { layoutText } from "./textLayout"
+import { defaultFontFamily, fontKey, loadFont, resolveFont, supportedWeight } from "./fontCatalog"
 import { DESIGN_HEIGHT, DESIGN_WIDTH, FLAT_SPACE, type PrintableSpace, type DesignPoint, type PersonalizationDesign, type PersonalizationElement, type TextElement, type TextUpdate } from "./types"
 
 export const MAX_PHOTO_BYTES = 20 * 1024 * 1024
@@ -18,6 +19,7 @@ export function createDesignStore(printableSpace: PrintableSpace = FLAT_SPACE) {
   let transaction: PersonalizationDesign | null = null
   let epoch = 0
   let measureCanvas: HTMLCanvasElement | null = null
+  const requestedFonts = new Set<string>()
   const photos = new Map<string, PhotoResource>()
   const pendingPhotos = new Set<string>()
   const paintListeners = new Set<() => void>()
@@ -75,7 +77,18 @@ export function createDesignStore(printableSpace: PrintableSpace = FLAT_SPACE) {
     measureCanvas ??= document.createElement("canvas")
     const context = measureCanvas.getContext("2d")
     if (!context) throw new Error("Canvas 2D is unavailable")
-    const sized = { ...element, fontSize: clamp(element.fontSize, MIN_FONT_SIZE, MAX_FONT_SIZE) }
+    const font = resolveFont(element.fontFamily)
+    const sized: TextElement = { ...element, fontFamily: font.family,
+      fontSize: clamp(element.fontSize, MIN_FONT_SIZE, MAX_FONT_SIZE),
+      fontWeight: supportedWeight(font.family, element.fontWeight),
+      fontStyle: font.italic ? element.fontStyle : "normal",
+      letterSpacing: clamp(element.letterSpacing, -5, 30), lineHeight: clamp(element.lineHeight, .8, 2) }
+    const key = fontKey(sized)
+    if (!requestedFonts.has(key)) {
+      requestedFonts.add(key)
+      const started = epoch
+      void loadFont(sized).then(() => { if (started === epoch) refreshTextMetrics() })
+    }
     const { width, height } = layoutText(context, sized)
     return constrain({ ...sized, width, height })
   }
@@ -148,6 +161,15 @@ export function createDesignStore(printableSpace: PrintableSpace = FLAT_SPACE) {
     publish()
   }
 
+  function refreshTextMetrics() {
+    // Font completion is not an edit. Refresh history and active transactions too,
+    // without restoring the content/selection captured by an earlier request.
+    const refresh = (state: PersonalizationDesign) => ({ ...state, elements: state.elements.map(element => element.type === "text" ? measure(element) : element) })
+    design = refresh(design); past = past.map(refresh); future = future.map(refresh)
+    if (transaction) transaction = refresh(transaction)
+    publish()
+  }
+
   return {
     getDesign: () => design,
     getSnapshot: () => snapshot,
@@ -182,19 +204,17 @@ export function createDesignStore(printableSpace: PrintableSpace = FLAT_SPACE) {
       pendingPhotos.delete(loaded.source)
     },
     addText(point?: DesignPoint) {
-      insert(measure({ ...base(point), type: "text", content: "O teu texto", font: "Figtree", fontSize: 36, color: "#262620", align: "center" }))
+      insert(measure({ ...base(point), type: "text", content: "O teu texto", fontFamily: defaultFontFamily,
+        fontSize: 36, fontWeight: 400, fontStyle: "normal", underline: false, letterSpacing: 0,
+        lineHeight: 1.3, textTransform: "none", color: "#262620", align: "center" }))
     },
     updateText(id: string, updateText: TextUpdate) {
-      if (updateText.fontSize !== undefined && !Number.isFinite(updateText.fontSize)) return
+      for (const key of ["fontSize", "fontWeight", "letterSpacing", "lineHeight"] as const) {
+        if (updateText[key] !== undefined && !Number.isFinite(updateText[key])) return
+      }
       update(id, element => element.type === "text" ? measure({ ...element, ...updateText }) : element)
     },
-    refreshTextMetrics() {
-      // Font loading is not a user action; refresh recoverable states as well.
-      const refresh = (state: PersonalizationDesign) => ({ ...state, elements: state.elements.map(element => element.type === "text" ? measure(element) : element) })
-      design = refresh(design); past = past.map(refresh); future = future.map(refresh)
-      if (transaction) transaction = refresh(transaction)
-      publish()
-    },
+    refreshTextMetrics,
     move(id: string, x: number, y: number, transient = true) {
       if (!Number.isFinite(x) || !Number.isFinite(y)) return
       update(id, element => constrain({ ...element, x, y }), transient)
@@ -261,6 +281,7 @@ export function createDesignStore(printableSpace: PrintableSpace = FLAT_SPACE) {
       epoch++
       for (const source of photos.keys()) release(source)
       pendingPhotos.clear()
+      requestedFonts.clear()
       measureCanvas = null
       design = snapshot = { space, elements: [], selectedElementId: null }
       past = []; future = []; transaction = null

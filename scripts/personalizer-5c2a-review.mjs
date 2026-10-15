@@ -221,9 +221,9 @@ try {
   await check('two photos and two texts', 'design().elements.length===4')
   await evaluate(`(()=>{const input=document.querySelector('textarea');Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value').set.call(input,${JSON.stringify('Olá Sublime\nSegunda linha')});input.dispatchEvent(new Event('input',{bubbles:true}));})()`)
   await check('multiline content edit', `design().elements.at(-1).content===${JSON.stringify('Olá Sublime\nSegunda linha')} && design().elements.at(-1).height>80`)
-  for (const font of ['Arial', 'Georgia', 'Figtree']) {
+  for (const font of ['Montserrat', 'Playfair Display', 'Figtree']) {
     await evaluate(`(()=>{const select=document.querySelector('.pz-control select');select.value='${font}';select.dispatchEvent(new Event('change',{bubbles:true}));})()`)
-    await check('font ' + font, `design().elements.at(-1).font==='${font}'`)
+    await check('font ' + font, `design().elements.at(-1).fontFamily==='${font}'`)
   }
   await evaluate(`(()=>{const input=document.querySelector('input[type=color]');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(input,'#cc2244');input.dispatchEvent(new Event('input',{bubbles:true}));})()`)
   await check('text color', 'design().elements.at(-1).color==="#cc2244"')

@@ -1,36 +1,82 @@
 import { DESIGN_HEIGHT, DESIGN_WIDTH, type TextElement } from "./types"
+import { canvasFont } from "./fontCatalog"
 
 export const TEXT_PADDING = 6
-export function canvasFont(element: TextElement, scale = 1) {
-  return `${element.fontSize * scale}px "${element.font}", ${element.font === "Georgia" ? "serif" : "sans-serif"}`
+const segmenter = new Intl.Segmenter("pt", { granularity: "grapheme" })
+const graphemes = (text: string) => Array.from(segmenter.segment(text), part => part.segment)
+
+export function displayText(element: TextElement) {
+  return element.textTransform === "uppercase" ? element.content.toLocaleUpperCase("pt")
+    : element.textTransform === "lowercase" ? element.content.toLocaleLowerCase("pt") : element.content
 }
 
-// Explicit newlines and wrapping use the same layout for paint and hit bounds.
+/** Shared glyph positions and ink bounds for paint and hit bounds. Zero tracking
+ * preserves native shaping/kerning and script ligatures. */
+export function measureTextLine(context: CanvasRenderingContext2D, text: string, letterSpacing: number) {
+  const glyphs: { text: string; x: number }[] = []
+  let advance = 0, left = 0, right = 0, ascent = 0, descent = 0
+  const runs = letterSpacing === 0 ? [text] : graphemes(text)
+  runs.forEach((run, index) => {
+    const metrics = context.measureText(run)
+    glyphs.push({ text: run, x: advance })
+    left = Math.min(left, advance - metrics.actualBoundingBoxLeft)
+    right = Math.max(right, advance + metrics.actualBoundingBoxRight)
+    ascent = Math.max(ascent, metrics.actualBoundingBoxAscent)
+    descent = Math.max(descent, metrics.actualBoundingBoxDescent)
+    advance += metrics.width + (index < runs.length - 1 ? letterSpacing : 0)
+  })
+  return { text, glyphs, left, width: Math.max(0, right, advance) - left, ascent, descent }
+}
+
 export function layoutText(context: CanvasRenderingContext2D, element: TextElement) {
   context.font = canvasFont(element)
-  const lines: string[] = []
-  for (const paragraph of element.content.split("\n")) {
+  context.textAlign = "left"
+  context.textBaseline = "alphabetic"
+  const measure = (line: string) => measureTextLine(context, line, element.letterSpacing)
+  const lines: ReturnType<typeof measure>[] = []
+  for (const paragraph of displayText(element).split("\n")) {
     let line = ""
-    for (const char of paragraph) {
-      if (line && context.measureText(line + char).width > DESIGN_WIDTH - TEXT_PADDING * 2) {
-        lines.push(line)
-        line = ""
+    for (const char of graphemes(paragraph)) {
+      if (line && measure(line + char).width > DESIGN_WIDTH - TEXT_PADDING * 2) {
+        lines.push(measure(line)); line = ""
       }
       line += char
     }
-    lines.push(line)
+    lines.push(measure(line))
   }
-  const lineHeight = element.fontSize * 1.3
-  const naturalWidth = Math.max(1, ...lines.map(line => context.measureText(line).width))
-  const naturalHeight = lines.length * lineHeight
+  const lineHeight = element.fontSize * element.lineHeight
+  const underlineY = element.fontSize * .12
+  const underlineThickness = Math.max(1, element.fontSize * .05)
+  const ascent = Math.max(element.fontSize * .8, ...lines.map(line => line.ascent))
+  const descent = Math.max(element.fontSize * .2, ...lines.map(line => line.descent), element.underline ? underlineY + underlineThickness / 2 : 0)
+  const naturalWidth = Math.max(1, ...lines.map(line => line.width))
+  const naturalHeight = ascent + descent + (lines.length - 1) * lineHeight
   const c = Math.abs(Math.cos(element.rotation)), s = Math.abs(Math.sin(element.rotation))
   const padding = TEXT_PADDING * 2 * (c + s)
-  // Uniform glyph sizing, including long multiline text rotated near the edge.
   const scale = Math.min(1, (DESIGN_WIDTH - padding) / (naturalWidth * c + naturalHeight * s),
     (DESIGN_HEIGHT - padding) / (naturalWidth * s + naturalHeight * c))
-  return {
-    lines, lineHeight: lineHeight * scale, scale,
-    width: naturalWidth * scale + TEXT_PADDING * 2,
-    height: lines.length * lineHeight * scale + TEXT_PADDING * 2,
-  }
+  return { lines, lineHeight, ascent, naturalWidth, underlineY, underlineThickness, scale,
+    width: naturalWidth * scale + TEXT_PADDING * 2, height: naturalHeight * scale + TEXT_PADDING * 2 }
+}
+
+export function drawText(context: CanvasRenderingContext2D, element: TextElement) {
+  const layout = layoutText(context, element)
+  context.save()
+  context.translate(-layout.width / 2 + TEXT_PADDING, -layout.height / 2 + TEXT_PADDING)
+  // Uniform fit only, never independent X/Y glyph stretching.
+  context.scale(layout.scale, layout.scale)
+  context.fillStyle = context.strokeStyle = element.color
+  context.lineWidth = layout.underlineThickness
+  layout.lines.forEach((line, index) => {
+    const x = element.align === "left" ? 0 : (layout.naturalWidth - line.width) * (element.align === "right" ? 1 : .5)
+    const baseline = layout.ascent + index * layout.lineHeight
+    line.glyphs.forEach(glyph => context.fillText(glyph.text, x - line.left + glyph.x, baseline))
+    if (element.underline && line.width > 0) {
+      context.beginPath()
+      context.moveTo(x, baseline + layout.underlineY)
+      context.lineTo(x + line.width, baseline + layout.underlineY)
+      context.stroke()
+    }
+  })
+  context.restore()
 }

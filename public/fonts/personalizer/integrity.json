@@ -1,0 +1,127 @@
+[
+    {
+        "File":  "archivo/Archivo-Italic-wdth,wght.ttf",
+        "Bytes":  741368,
+        "SHA256":  "305D13B4EB80E62F7D517F78D7C045250D977552A420F2DBED906F314E761305"
+    },
+    {
+        "File":  "archivo/Archivo-wdth,wght.ttf",
+        "Bytes":  658596,
+        "SHA256":  "0E094A7D3C7C4C25CF1310C4B30014F1DAE9332220B1C2C88F4FA996F0B05053"
+    },
+    {
+        "File":  "baloo2/Baloo2-wght.ttf",
+        "Bytes":  683200,
+        "SHA256":  "D47A6852548059B1DB49A1319D06D499D546C3FA2237CF9EEE9C43C8ABB025C2"
+    },
+    {
+        "File":  "caveat/Caveat-wght.ttf",
+        "Bytes":  403648,
+        "SHA256":  "0BDB6B660482D31531B3945849FBA5916B3EF8695DA7024A9E6B9EE3C4157988"
+    },
+    {
+        "File":  "cormorantgaramond/CormorantGaramond-Italic-wght.ttf",
+        "Bytes":  715644,
+        "SHA256":  "0F48EA6ABB2084537854F7174C470991A463B13036309E3B50A81511611C530D"
+    },
+    {
+        "File":  "cormorantgaramond/CormorantGaramond-wght.ttf",
+        "Bytes":  1195560,
+        "SHA256":  "B20B7D9626DD956B2C5E558692AD328B1F19E3275E2782DB4FA07670D83F35E0"
+    },
+    {
+        "File":  "dancingscript/DancingScript-wght.ttf",
+        "Bytes":  133636,
+        "SHA256":  "21808625578FE8D8CD10CB684BE546DCA077B27CD03A53A2F1EC11DC743C924C"
+    },
+    {
+        "File":  "dmserifdisplay/DMSerifDisplay-Italic.ttf",
+        "Bytes":  71208,
+        "SHA256":  "DF74C0AC387BAEAEB0FE4F2324E1668E6A3ED8C09CD9796FE162C71753E19E45"
+    },
+    {
+        "File":  "dmserifdisplay/DMSerifDisplay-Regular.ttf",
+        "Bytes":  76580,
+        "SHA256":  "8CC3643535EDF039AA5D95440A8542735E9197E4F4B8D9303E980FEFBF5AB616"
+    },
+    {
+        "File":  "figtree/Figtree-Italic-wght.ttf",
+        "Bytes":  62632,
+        "SHA256":  "94DEC1F18B9275D69E8B4A91B6514BDC18199048347E1C36E1285B11B0B87653"
+    },
+    {
+        "File":  "figtree/Figtree-wght.ttf",
+        "Bytes":  62712,
+        "SHA256":  "26AD3DB9B31FF7DDE67A91FF515D022D2F495CD506590699CF264F0BFE6FB714"
+    },
+    {
+        "File":  "fredoka/Fredoka-wdth,wght.ttf",
+        "Bytes":  159184,
+        "SHA256":  "2BA02E68B152868AEF9BA28E24B3648C7D457FE6F25C761F2C2C53FB61A73FC8"
+    },
+    {
+        "File":  "montserrat/Montserrat-Italic-wght.ttf",
+        "Bytes":  762376,
+        "SHA256":  "51607F316BC020E59F03CBF51543EECFFBEA501C0B31D73E5B82927C5CCA442C"
+    },
+    {
+        "File":  "montserrat/Montserrat-wght.ttf",
+        "Bytes":  744936,
+        "SHA256":  "0F7B311B2F3279E4EEF9B2F968BCDBAB6E28F4DAEB1F049F4F278A902BCD82F7"
+    },
+    {
+        "File":  "pacifico/Pacifico-Regular.ttf",
+        "Bytes":  329380,
+        "SHA256":  "5B6C0D5334A7BF77DEA52B975C5A0C408878C0F7115ED5B6FB151F634B7BF701"
+    },
+    {
+        "File":  "playfairdisplay/PlayfairDisplay-Italic-wght.ttf",
+        "Bytes":  278688,
+        "SHA256":  "A5E26DC5E2E77FB2803A0BF02FD4F81EE136EC8DEA863CCDB0C59A263B21378B"
+    },
+    {
+        "File":  "playfairdisplay/PlayfairDisplay-wght.ttf",
+        "Bytes":  300724,
+        "SHA256":  "C40F2293766A503BC70CCE9E512EF844A4CCB7CBCDE792FE2EA31D191917D8D6"
+    },
+    {
+        "File":  "poppins/Poppins-Bold.ttf",
+        "Bytes":  155996,
+        "SHA256":  "983676516167748B74DE6F4771FB384C664FD913ACB8B471122ECACF5DA5EA6C"
+    },
+    {
+        "File":  "poppins/Poppins-BoldItalic.ttf",
+        "Bytes":  179108,
+        "SHA256":  "3572AC8116A0AC7317D342262B29937BCBAF94D8F03F90DF6FE666FA7E2FB43A"
+    },
+    {
+        "File":  "poppins/Poppins-Italic.ttf",
+        "Bytes":  184544,
+        "SHA256":  "4FA76AE75B40F926420514044722CB97F32186CAFD3B38263CC34DAD7174D46D"
+    },
+    {
+        "File":  "poppins/Poppins-Medium.ttf",
+        "Bytes":  158576,
+        "SHA256":  "90373E7D838D32468438FC3E152DCA0BDB12EDCAB99EA639F158790B1BA1FD05"
+    },
+    {
+        "File":  "poppins/Poppins-MediumItalic.ttf",
+        "Bytes":  183012,
+        "SHA256":  "765ADDF6C7C11EC3C54325CACD68CABD05DF8E4B6455302D812A9B9BAFD1C614"
+    },
+    {
+        "File":  "poppins/Poppins-Regular.ttf",
+        "Bytes":  160316,
+        "SHA256":  "7E65201E9B79159E2300267CC885E16C8DCEF2424CDFA09A29BFB0980A94A7BA"
+    },
+    {
+        "File":  "poppins/Poppins-SemiBold.ttf",
+        "Bytes":  157312,
+        "SHA256":  "D3BF1BDAF0550E83DA9AC0B1D1D9FE6DB086835A83AA28578E609A394B9A0286"
+    },
+    {
+        "File":  "poppins/Poppins-SemiBoldItalic.ttf",
+        "Bytes":  181108,
+        "SHA256":  "16BB118AA232C9A13FA238027D24D7854DD1A1D9CBAF99B17FEC4388D56B432C"
+    }
+]
