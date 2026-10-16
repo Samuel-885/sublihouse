@@ -51,6 +51,7 @@
 .pd-button { display: flex; align-items: center; justify-content: center; gap: 14px; width: 100%; min-height: 58px; padding: 16px 18px; border: 1px solid transparent; font-size: 12px; font-weight: 700; line-height: 1.5; letter-spacing: .055em; text-transform: uppercase; }
 .pd-button svg { flex: none; transition: transform 200ms ease; }
 .pd-button-primary { background: var(--catalog-ink); color: white; }
+.pd-button-primary:disabled { background: #e8e6df; color: #73736d; cursor: not-allowed; }
 .pd-button-secondary { min-height: 46px; padding-block: 12px; border-color: #b8b7b0; background: transparent; color: var(--catalog-ink); font-size: 11px; font-weight: 500; }
 .pd-cart-feedback { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0 12px; margin-top: 14px; padding: 6px 12px; border: 1px solid var(--catalog-line); font-size: 13px; }
 .pd-cart-feedback > span { display: inline-flex; align-items: center; gap: 8px; }

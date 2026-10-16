@@ -5,7 +5,7 @@ import ProductImage from "./ProductImage"
 type ProductCardProps = Pick<Product, "id" | "name" | "price" | "color" | "badge" | "image" | "imageAlt">
 
 function ProductCard(product: ProductCardProps) {
-  const { id, name, price, color, badge } = product
+  const { id, name, price, badge } = product
   return (
     <article className="product-card group min-w-0">
       <Link
@@ -13,7 +13,7 @@ function ProductCard(product: ProductCardProps) {
         className="block"
       >
         {/* Área da imagem */}
-        <div className="relative aspect-square overflow-hidden rounded-xl border border-line/60 bg-paper">
+        <div className="relative aspect-[4/5] overflow-hidden rounded-xl border border-line/60 bg-[#f3efe7]">
           {/* Badge */}
           {badge && (
             <span className="absolute left-3 top-3 z-20 bg-paper px-2.5 py-1 text-xs font-semibold">
@@ -21,15 +21,9 @@ function ProductCard(product: ProductCardProps) {
             </span>
           )}
 
-          {/* Accent colorido */}
-          <div
-            className="absolute left-1/2 top-1/2 h-[42%] w-[42%] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-20 transition duration-300 group-hover:scale-110"
-            style={{ backgroundColor: color }}
-          />
-
           {/* Imagem principal com fallback local */}
-          <div className="absolute inset-2 flex items-center justify-center transition-transform duration-300 group-hover:-translate-y-1 group-hover:rotate-2">
-            <ProductImage product={product} />
+          <div className="absolute inset-0 flex items-center justify-center p-0 [&>img]:object-cover [&>span]:p-[5%] min-[480px]:[&>span]:p-[6%] transition-transform duration-300 group-hover:-translate-y-1 group-hover:rotate-2">
+            <ProductImage product={product} className="object-center" />
           </div>
         </div>
 

@@ -45,9 +45,11 @@
 .catalog-active-filters .catalog-clear { padding-inline: 8px; }
 .catalog-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 36px 24px; }
 .catalog-card { min-width: 0; }
-.catalog-card-photo { position: relative; overflow: hidden; aspect-ratio: 4 / 5; background: #e8e6df; }
-.catalog-card-image { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; padding: 6%; }
-.catalog-card-image > img, .catalog-card-image > span { display: block; width: 100%; height: 100%; object-fit: contain; transition: transform 300ms ease; }
+.catalog-card-photo { position: relative; overflow: hidden; aspect-ratio: 4 / 5; background: #f3efe7; }
+.catalog-card-image { display: flex; align-items: center; justify-content: center; width: 100%; height: 100%; padding: 0; }
+.catalog-card-image > img, .catalog-card-image > span { display: block; width: 100%; height: 100%; object-fit: contain; object-position: center; transition: transform 300ms ease; }
+.catalog-card-image > img { object-fit: cover; }
+.catalog-card-image > span { padding: 6%; }
 .catalog-badge { position: absolute; top: 10px; left: 10px; max-width: calc(100% - 66px); padding: 6px 8px; background: var(--catalog-accent); color: white; font-size: 9px; font-weight: 700; line-height: 1.4; letter-spacing: .075em; text-transform: uppercase; overflow-wrap: anywhere; pointer-events: none; }
 .catalog-badge-new { background: #0874cb; }
 .catalog-favorite { position: absolute; top: 6px; right: 6px; display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 0; background: var(--catalog-paper); color: #75756d; transition: color 180ms ease, background-color 180ms ease; }
@@ -110,7 +112,7 @@
   .catalog-toolbar { gap: 14px; margin-bottom: 24px; }
   .catalog-sort { width: 100%; }
   .catalog-grid { gap: 28px 12px; }
-  .catalog-card-image { padding: 5%; }
+  .catalog-card-image > span { padding: 5%; }
   .catalog-card-info { grid-template-columns: 1fr; grid-template-areas: 'name' 'price' 'caption'; gap: 6px; padding-top: 12px; }
   .catalog-card-info h2 { min-height: 2.8em; font-size: 13px; line-height: 1.4; }
   .catalog-card-price { font-size: 17px; }

@@ -46,6 +46,7 @@ function ProductDetails() {
   }
 
   const favorite = favorites.includes(product.id)
+  const customizationUnavailable = product.customizable && product.category === "T-shirts"
   const relatedProducts = products.filter(item => item.category === product.category && item.id !== product.id).slice(0, 2)
 
   return (
@@ -68,7 +69,7 @@ function ProductDetails() {
             <p className="pd-price">{product.price.toLocaleString("pt-PT", { style: "currency", currency: "EUR" })}</p>
             <p className="pd-description">
               Uma prenda pensada para tornar momentos especiais ainda mais pessoais.
-              {product.customizable && " Escolhe os detalhes e cria algo único para oferecer ou guardar."}
+              {product.customizable && !customizationUnavailable && " Escolhe os detalhes e cria algo único para oferecer ou guardar."}
             </p>
 
             {product.customizable && (
@@ -76,8 +77,14 @@ function ProductDetails() {
                 <SlidersHorizontal size={19} aria-hidden="true" />
                 <div>
                   <h2>Este produto é personalizável</h2>
-                  <p>Adiciona fotografias, textos e detalhes e vê o resultado diretamente na peça antes de adicionares ao carrinho.</p>
-                  <Link to="/#personalizar" className="pd-text-link">Ver como funciona <ArrowRight size={14} aria-hidden="true" /></Link>
+                  {customizationUnavailable ? (
+                    <p>O editor de personalização para T-shirts ainda não está disponível.</p>
+                  ) : (
+                    <>
+                      <p>Adiciona fotografias, textos e detalhes e vê o resultado diretamente na peça antes de adicionares ao carrinho.</p>
+                      <Link to="/#personalizar" className="pd-text-link">Ver como funciona <ArrowRight size={14} aria-hidden="true" /></Link>
+                    </>
+                  )}
                 </div>
               </div>
             )}
@@ -86,7 +93,7 @@ function ProductDetails() {
               <div className="pd-quantity-row">
                 <div className="pd-quantity-group">
                   <span id="quantity-label">Quantidade</span>
-                  <div className="pd-quantity" role="group" aria-labelledby="quantity-label" aria-describedby={product.customizable ? "quantity-help" : undefined}>
+                  <div className="pd-quantity" role="group" aria-labelledby="quantity-label" aria-describedby={product.customizable && !customizationUnavailable ? "quantity-help" : undefined}>
                     <button type="button" aria-label="Diminuir quantidade" disabled={quantity === 1} onClick={() => setQuantity(current => Math.max(1, current - 1))}>
                       <Minus size={16} aria-hidden="true" />
                     </button>
@@ -106,10 +113,14 @@ function ProductDetails() {
                   <Heart size={20} strokeWidth={1.5} fill={favorite ? "currentColor" : "none"} aria-hidden="true" />
                 </button>
               </div>
-              {product.customizable && <p id="quantity-help" className="pd-quantity-help">Ao personalizar, escolhe a quantidade no editor.</p>}
+              {product.customizable && !customizationUnavailable && <p id="quantity-help" className="pd-quantity-help">Ao personalizar, escolhe a quantidade no editor.</p>}
 
               <div className="pd-actions">
-                {product.customizable ? (
+                {customizationUnavailable ? (
+                  <button type="button" className="pd-button pd-button-primary" disabled>
+                    Personalização indisponível
+                  </button>
+                ) : product.customizable ? (
                   <Link to={`/personalize/${product.id}`} className="pd-button pd-button-primary">
                     <span>Personalizar este produto</span><ArrowRight size={19} aria-hidden="true" />
                   </Link>
