@@ -52,6 +52,8 @@ export const products: Product[] = [
     price: 7.5,
     category: "Canecas",
     color: "#0FA3B1",
+    image: "/images/products/caneca-portugal.webp",
+    imageAlt: "Caneca Portugal",
     customizable: false,
     onSale: true,
   },

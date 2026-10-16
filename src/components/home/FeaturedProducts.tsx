@@ -17,7 +17,7 @@ export default function FeaturedProducts() {
     <section id="produtos" className="sh-section sh-featured" aria-labelledby="featured-title"><div className="sh-container">
       <div className="sh-section-heading"><div><p className="sh-eyebrow">02 — Destaques</p><h2 id="featured-title">Os mais queridos.</h2></div><Link className="sh-text-link" to="/products">Ver todos <ArrowUpRight size={14} /></Link></div>
       <div className="sh-product-grid">{products.slice(0, 4).map(product => <article className="sh-product" key={product.id}>
-        <div className={`sh-product-photo sh-scene sh-product-${product.id}`}>
+        <div className="sh-product-photo">
           <Link to={`/products/${product.id}`} aria-label={`Ver ${product.name}`}><ProductImage product={product} /></Link>
           {product.badge && <span className={`sh-badge ${product.badge === "Novo" ? "sh-badge-blue" : ""}`}>{product.badge}</span>}
           <button type="button" className="sh-favorite" aria-label={`${favorites.includes(product.id) ? "Remover" : "Guardar"} ${product.name} ${favorites.includes(product.id) ? "dos" : "nos"} favoritos`} aria-pressed={favorites.includes(product.id)} onClick={() => toggleFavorite(product.id)}><Heart size={17} fill={favorites.includes(product.id) ? "currentColor" : "none"} /></button>

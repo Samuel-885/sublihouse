@@ -106,11 +106,9 @@
 .sh-category-placeholder span { margin-top: 15px; font-size: 11px; text-transform: uppercase; letter-spacing: .15em; }
 .sh-featured { border-top: 1px solid var(--sh-line); }
 .sh-product-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 28px; }
-.sh-product-photo { position: relative; aspect-ratio: .8; }
-.sh-product-photo > a { display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; padding: 7%; }
-.sh-product-photo > a > img { width: 100%; height: 100%; object-fit: contain; }
-.sh-product-3 { background: linear-gradient(140deg, #c1b495, #8c7a5d); }
-.sh-product-4 { background: linear-gradient(140deg, #666961, #252721); }
+.sh-product-photo { position: relative; aspect-ratio: .8; overflow: hidden; }
+.sh-product-photo > a { display: flex; width: 100%; height: 100%; align-items: center; justify-content: center; padding: 0; }
+.sh-product-photo > a > img { width: 100%; height: 100%; object-fit: cover; object-position: center; }
 .sh-badge { position: absolute; left: 10px; top: 10px; background: var(--sh-pink); color: white; font-size: 9px; font-weight: 700; text-transform: uppercase; letter-spacing: .12em; padding: 6px 8px; max-width: calc(100% - 56px); }
 .sh-badge-blue { background: #008aff; }
 .sh-favorite { position: absolute; right: 10px; top: 10px; display: grid; place-items: center; width: 34px; height: 34px; background: var(--sh-paper); color: #74746c; }
