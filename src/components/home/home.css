@@ -25,9 +25,15 @@
 .sh-home .sh-underlined { text-decoration: underline; text-underline-offset: 4px; }
 .sh-skip { position: absolute; top: 0; left: 16px; z-index: 100; padding: 12px; transform: translateY(-150%); background: white; }
 .sh-skip:focus { transform: none; }
-.sh-topbar { overflow: hidden; color: white; background: var(--sh-ink); }
-.sh-topbar > div { display: flex; align-items: center; justify-content: center; gap: 32px; width: max-content; min-width: 100%; height: 34px; padding-inline: 28px; }
-.sh-topbar span { flex-shrink: 0; font-size: 10px; font-weight: 600; letter-spacing: .18em; text-transform: uppercase; }
+.sh-topbar { color: white; background: #0b0b0b; }
+.sh-topbar > div { display: grid; place-items: center; min-height: 34px; padding: 8px 16px; }
+.sh-topbar span { grid-area: 1 / 1; font-size: 10px; font-weight: 600; line-height: 1.5; letter-spacing: .18em; text-transform: uppercase; text-align: center; animation: sh-topbar-message 12s ease-in-out infinite; }
+.sh-topbar span + span { animation-delay: -6s; }
+/* Fade whole phrases in one shared cell: no clipped words or moving seam. */
+@keyframes sh-topbar-message {
+  0%, 40%, 100% { opacity: 1; }
+  48%, 92% { opacity: 0; }
+}
 .sh-header { border-bottom: 1px solid var(--sh-line); }
 .sh-header-row { display: flex; min-height: 76px; align-items: center; justify-content: space-between; gap: clamp(20px, 3vw, 48px); }
 .sh-wordmark { flex-shrink: 0; font-family: Arial, sans-serif; font-size: 25px; font-weight: 900; letter-spacing: -.055em; }
@@ -117,6 +123,14 @@
 .sh-personalization-grid { display: grid; grid-template-columns: 1fr 1fr; align-items: center; gap: 64px; padding-block: 110px; }
 .sh-studio { min-width: 0; aspect-ratio: 1; }
 .sh-studio > img { width: 100%; height: 100%; object-fit: cover; }
+.sh-mug-setting { position: absolute; inset: 0; overflow: hidden; background: radial-gradient(ellipse at 60% 28%, #fffdf7, transparent 70%), linear-gradient(175deg, #e9ddc9 0%, #f7f1e6 68%, #e4cdb0 69%, #f5ebdf 100%); }
+.sh-mug-setting::before { content: ''; position: absolute; inset: 0 auto 0 0; width: 24%; background: url('/images/personalization/caneca-base.png') left center / auto 100% no-repeat; mask-image: linear-gradient(to right, #000 30%, transparent); }
+.sh-mug-setting::after { content: ''; position: absolute; width: 65%; height: 8%; left: 20%; bottom: 14%; border-radius: 50%; background: #75543830; filter: blur(12px); }
+.sh-mug-canvas { position: absolute; inset: 0; overflow: hidden; touch-action: none; cursor: grab; }
+.sh-mug-canvas:active { cursor: grabbing; }
+.sh-mug-canvas canvas { display: block; }
+.sh-studio > .sh-mug-fallback { position: absolute; inset: 0; pointer-events: none; }
+.sh-studio .sh-image-label, .sh-studio-sticker { pointer-events: none; }
 .sh-studio .sh-image-label { top: 18px; bottom: auto; }
 .sh-studio-sticker { position: absolute; bottom: -15px; right: 24px; padding: 16px 22px; background: var(--sh-ink); color: white; transform: rotate(4deg); }
 .sh-studio-sticker strong { display: block; font-size: 32px; line-height: 1.1; font-weight: 850; }
@@ -191,7 +205,7 @@
 .sh-footer nav a:hover, .sh-footer-help a:hover { color: var(--sh-pink); }
 .sh-footer-help p { margin-top: 12px; font-size: 12px; color: #929289; line-height: 1.6; }
 .sh-footer-bottom { border-top: 1px solid #252522; padding-block: 20px; }
-.sh-footer-bottom > div { display: flex; justify-content: space-between; gap: 24px; color: #96968e; font-size: 10px; }
+.sh-footer-bottom > div { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px 24px; color: #96968e; font-size: 10px; }
 @media (min-width: 1600px) { .sh-hero { gap: 64px; } }
 @media (max-width: 1100px) and (min-width: 1024px) {
   .sh-container { width: calc(100% - 72px); }
@@ -267,7 +281,7 @@
   .sh-home .sh-eyebrow { font-size: 9px; margin-bottom: 14px; }
   .sh-section-heading { gap: 14px; margin-bottom: 28px; }
   .sh-section-heading .sh-text-link { font-size: 9px; max-width: 62px; gap: 5px; }
-  .sh-topbar > div { height: 28px; padding-inline: 16px; gap: 28px; justify-content: start; }
+  .sh-topbar > div { min-height: 28px; padding: 7px 12px; }
   .sh-topbar span { font-size: 8px; }
   .sh-header-row { min-height: 66px; gap: 2px; }
   .sh-header-row > .sh-brand-logo { width: 87px; }
@@ -383,6 +397,8 @@
   .sh-product-photo:hover > a > img, .sh-product-photo:hover > a > span, .sh-editorial-banner:hover > img, .sh-hero-main:hover > img { transform: scale(1.025); }
 }
 @media (prefers-reduced-motion: reduce) {
+  .sh-topbar > div { gap: 4px; }
+  .sh-topbar span { grid-area: auto; animation: none; opacity: 1; }
   .sh-marquee-track { animation: none; transform: none; width: 100%; }
   .sh-marquee-group { min-width: 0; width: 100%; flex-wrap: wrap; justify-content: center; }
   .sh-marquee-group[aria-hidden='true'] { display: none; }

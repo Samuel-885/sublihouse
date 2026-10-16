@@ -97,6 +97,7 @@ function Footer() {
           <p>
             SubliHouse · Presentes personalizados
           </p>
+          <p>Desenvolvido por Campos Digital</p>
         </div>
       </div>
     </footer>

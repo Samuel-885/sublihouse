@@ -4,11 +4,8 @@ import { Link } from "react-router"
 import { useCart } from "../../context/useCart"
 import Drawer from "../layout/Drawer"
 import HeaderSearch from "../layout/HeaderSearch"
-import { homeNavigation } from "./homeData"
-
-const navigation = homeNavigation.map(item =>
-  item.label === "Personalizados" ? { ...item, to: "/personalizados" } : item
-)
+import TopBar from "../layout/TopBar"
+import { homeNavigation as navigation } from "./homeData"
 
 export default function HomeHeader() {
   const [menuOpen, setMenuOpen] = useState(false)
@@ -20,9 +17,7 @@ export default function HomeHeader() {
   return (
     <div className="sh-home sh-header-wrap">
       <a className="sh-skip" href="#home-conteudo">Saltar para o conteúdo</a>
-      <div className="sh-topbar" aria-label="Feito para ti">
-        <div><span>✦ Presentes para todo Portugal</span><span>✦ Personalização com a tua cara</span><span>✦ Prendas únicas</span><span>✦ Presentes que marcam momentos</span><span aria-hidden="true">✦ Personalização com a tua cara</span></div>
-      </div>
+      <TopBar />
       <header className="sh-header">
         <div className="sh-container sh-header-row">
           <button className="sh-icon sh-menu-toggle" type="button" aria-label="Abrir menu" aria-haspopup="dialog" aria-expanded={menuOpen} onClick={() => { setMenuOpen(true); setSearchOpen(false) }}><Menu size={20} /></button>
@@ -36,11 +31,10 @@ export default function HomeHeader() {
         </div>
         {searchOpen && <div id="home-busca" className="sh-container sh-search"><HeaderSearch autoFocus onNavigate={closeNavigation} /></div>}
       </header>
-      <Drawer open={menuOpen} onClose={closeMenu} title="Sublime House" side="left">
+      <Drawer open={menuOpen} onClose={closeMenu} title="Sublime House" heading={<img src="/images/brand/sublihouse-logo.png" alt="Sublime House" width={120} height={80} />} side="left">
         <nav className="sh-mobile-nav" aria-label="Navegação principal mobile">
-          {navigation.map(item => <Link key={item.label} to={item.to} onClick={closeNavigation}>{item.label}<span aria-hidden="true">↗</span></Link>)}
-          <Link to="/products?sale=true" onClick={closeNavigation}>Promoções<span aria-hidden="true">↗</span></Link>
-          <Link to="/cart" onClick={closeNavigation}>Carrinho ({totalItems})<ShoppingBag size={18} /></Link>
+          {navigation.map(item => <Link key={item.label} to={item.to} onClick={closeNavigation}>{item.label}</Link>)}
+          <Link to="/products?sale=true" onClick={closeNavigation}>Promoções</Link>
         </nav>
       </Drawer>
     </div>

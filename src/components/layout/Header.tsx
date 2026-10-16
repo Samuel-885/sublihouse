@@ -1,9 +1,11 @@
 import { useCallback, useState } from "react"
-import { ArrowUpRight, Menu, Search, ShoppingCart, X } from "lucide-react"
+import { Menu, Search, ShoppingCart, X } from "lucide-react"
 import { Link, useLocation } from "react-router"
 import { useCart } from "../../context/useCart"
 import Drawer from "./Drawer"
 import HeaderSearch from "./HeaderSearch"
+import TopBar from "./TopBar"
+import { homeNavigation } from "../home/homeData"
 
 const navigationItems = [
   { label: "Início", to: "/" },
@@ -29,12 +31,7 @@ function Header() {
 
   return (
     <>
-      <div className="bg-ink text-paper">
-        <div className="mx-auto flex min-h-9 max-w-360 items-center justify-center px-4 sm:justify-between sm:px-6 lg:px-18">
-          <p className="text-xs font-semibold">Personaliza. Surpreende. Marca momentos.</p>
-          <p className="hidden text-xs font-semibold text-yellow sm:block">Presentes pensados para Portugal</p>
-        </div>
-      </div>
+      <TopBar />
       <header className="sticky top-0 z-50 bg-paper shadow-[0_4px_20px_rgba(10,10,10,0.05)]">
 
         <div className="border-b border-line bg-paper">
@@ -63,24 +60,15 @@ function Header() {
           </div>
           {isSearchOpen && <div className="feedback-enter mx-auto max-w-360 px-4 pb-4 sm:px-6 lg:hidden"><HeaderSearch autoFocus onNavigate={closeNavigation} /></div>}
         </div>
-        <Drawer open={isMenuOpen} onClose={closeMenu} title="Sublime House" side="left">
+        <Drawer open={isMenuOpen} onClose={closeMenu} title="Sublime House" heading={<img src="/images/brand/sublihouse-logo.png" alt="Sublime House" width={120} height={80} />} side="left">
           <div className="flex flex-1 flex-col px-6 pb-6">
-            <p className="border-b border-line py-5 text-xs font-bold uppercase tracking-widest text-violet">Uma prenda, mil possibilidades</p>
             <nav aria-label="Navegação principal mobile" className="py-3">
-              {navigationItems.map((item, index) => (
-                <Link key={item.label} to={item.to} onClick={closeNavigation} aria-current={currentUrl === item.to ? "page" : undefined} className={`drawer-link flex min-h-13 items-center justify-between gap-3 rounded-lg px-3 py-3.5 text-sm font-semibold ${index === 1 ? "my-2 bg-pink/5 text-pink" : ""}`}>
-                  {item.label}<ArrowUpRight size={16} aria-hidden="true" className="shrink-0 opacity-50" />
+              {[...homeNavigation, { label: "Promoções", to: "/products?sale=true" }].map(item => (
+                <Link key={item.label} to={item.to} onClick={closeNavigation} aria-current={currentUrl === item.to ? "page" : undefined} className="drawer-link flex min-h-13 items-center border-b border-line px-3 py-3.5 text-sm font-semibold">
+                  {item.label}
                 </Link>
               ))}
             </nav>
-            <div className="mt-auto border-t border-line pt-5">
-              <Link to="/cart" onClick={closeNavigation} className="flex items-center justify-between rounded-lg bg-mist p-4 text-sm font-semibold">
-                <span className="flex items-center gap-3"><ShoppingCart size={19} /> O teu carrinho</span>
-                <span className="rounded-full bg-ink px-2.5 py-1 text-xs text-paper">{totalItems}</span>
-              </Link>
-              <p className="mt-5 text-xs leading-5 text-slate">Presentes com cor, memória e personalidade.</p>
-              <div aria-hidden="true" className="mt-4 flex h-1 overflow-hidden rounded-full"><span className="flex-1 bg-blue" /><span className="flex-1 bg-pink" /><span className="flex-1 bg-orange" /><span className="flex-1 bg-violet" /></div>
-            </div>
           </div>
         </Drawer>
         <nav aria-label="Navegação principal" className="hidden border-b border-line bg-paper lg:block">

@@ -4,7 +4,7 @@ import { homeCategories, homeHeroAssets } from "./homeData"
 
 const stripCategories = [
   ...homeCategories,
-  { name: "Personalizados", to: "/products?customizable=true" },
+  { name: "Personalizados", to: "/personalizados" },
   { name: "Presentes", to: "/products" },
 ]
 
@@ -16,7 +16,7 @@ export default function Hero({ assets = homeHeroAssets }: { assets?: typeof home
           <p className="sh-eyebrow sh-line-label">Creative print shop</p>
           <h1 id="home-title">Personalizados<br /><span className="sh-muted">com a </span><span className="sh-pink">tua</span><br />cara.</h1>
           <p className="sh-description">Fotografias, nomes e momentos transformados em prendas únicas. Criadas especialmente para quem importa.</p>
-          <div className="sh-actions"><Link className="sh-button" to="/products?customizable=true">Criar a tua prenda <Plus size={15} /></Link><Link className="sh-button sh-button-outline" to="/products">Ver produtos <ArrowRight size={15} /></Link></div>
+          <div className="sh-actions"><Link className="sh-button" to="/personalizados">Criar a tua prenda <Plus size={15} /></Link><Link className="sh-button sh-button-outline" to="/products">Ver produtos <ArrowRight size={15} /></Link></div>
           <div className="sh-hero-facts"><div><strong>À tua medida</strong><span>Personalização</span></div><div><strong>Com cuidado</strong><span>Cada detalhe</span></div><div><strong>Para ti</strong><span>Prendas únicas</span></div></div>
         </div>
         <div className="sh-hero-gallery">

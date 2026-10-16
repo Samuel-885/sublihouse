@@ -9,7 +9,7 @@ export const homeCategories = [
 
 export const homeNavigation = [
   { label: "Loja", to: "/products" },
-  { label: "Personalizados", to: "/#personalizar" },
+  { label: "Personalizados", to: "/personalizados" },
   { label: "Coleções", to: "/#colecoes" },
   { label: "Sobre", to: "/#sobre" },
   { label: "Contacto", to: "/#contacto" },

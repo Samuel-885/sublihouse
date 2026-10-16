@@ -9,7 +9,7 @@ type CategoryCardProps = {
 function CategoryCard({ name, color, image }: CategoryCardProps) {
   const destination =
     name === "Criar a tua prenda"
-      ? "/products?customizable=true"
+      ? "/personalizados"
       : `/products?${new URLSearchParams({ category: name })}`
 
   return (

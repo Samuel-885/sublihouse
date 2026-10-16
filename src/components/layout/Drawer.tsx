@@ -5,11 +5,12 @@ type DrawerProps = {
   open: boolean
   onClose: () => void
   title: string
+  heading?: ReactNode
   side?: "left" | "right"
   children: ReactNode
 }
 
-function Drawer({ open, onClose, title, side = "right", children }: DrawerProps) {
+function Drawer({ open, onClose, title, heading, side = "right", children }: DrawerProps) {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const titleId = useId()
 
@@ -18,6 +19,7 @@ function Drawer({ open, onClose, title, side = "right", children }: DrawerProps)
     if (!open || !dialog) return
 
     const scrollY = window.scrollY
+    const pathname = window.location.pathname
     const body = document.body
     const previous = {
       position: body.style.position,
@@ -46,7 +48,9 @@ function Drawer({ open, onClose, title, side = "right", children }: DrawerProps)
       desktop.removeEventListener("change", handleResize)
       dialog.close()
       Object.assign(body.style, previous)
-      window.scrollTo({ top: scrollY, behavior: "instant" })
+      if (window.location.pathname === pathname) {
+        window.scrollTo({ top: scrollY, behavior: "instant" })
+      }
     }
   }, [open, onClose])
 
@@ -68,7 +72,7 @@ function Drawer({ open, onClose, title, side = "right", children }: DrawerProps)
     >
       <div className="flex min-h-full flex-col">
         <div className="sticky top-0 z-10 flex items-center justify-between gap-4 border-b border-line bg-paper px-6 py-5">
-          <h2 id={titleId} className="font-display text-2xl font-semibold">{title}</h2>
+          <h2 id={titleId} className="font-display text-2xl font-semibold">{heading ?? title}</h2>
           <button type="button" autoFocus onClick={onClose} aria-label={`Fechar ${title === "Sublime House" ? "menu" : "filtros"}`} className="icon-button shrink-0 border border-line">
             <X size={22} />
           </button>

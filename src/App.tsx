@@ -1,4 +1,4 @@
-import { useEffect } from "react"
+import { lazy, Suspense } from "react"
 import { Route, Routes, useLocation } from "react-router"
 
 import Header from "./components/layout/Header"
@@ -8,56 +8,23 @@ import Home from "./pages/Home"
 import Products from "./pages/Products"
 import ProductDetails from "./pages/ProductDetails"
 import Cart from "./pages/Cart"
-import Personalizer from "./pages/Personalizer"
 import Personalizados from "./pages/Personalizados"
 import NotFound from "./pages/NotFound"
 import FloatingWhatsApp from "./components/layout/FloatingWhatsApp"
 import HomeHeader from "./components/home/HomeHeader"
 import HomeFooter from "./components/home/HomeFooter"
+import ScrollToTop from "./components/layout/ScrollToTop"
 import "./components/home/home.css"
 
+const Personalizer = lazy(() => import("./pages/Personalizer"))
+
 function App() {
-  const { pathname, hash, key } = useLocation()
+  const { pathname } = useLocation()
   const usesEditorialLayout = pathname === "/" || /^\/personalizados\/?$/.test(pathname) || /^\/cart\/?$/.test(pathname) || pathname === "/products" || /^\/products\/[^/]+\/?$/.test(pathname) || /^\/personalize\/[^/]+\/?$/.test(pathname)
-
-  useEffect(() => {
-    if (hash) {
-      return
-    }
-
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches
-
-    window.scrollTo({
-      top: 0,
-      behavior: prefersReducedMotion ? "auto" : "smooth",
-    })
-  }, [pathname, hash, key])
-
-  useEffect(() => {
-    if (!hash) return
-    let targetId: string
-    try {
-      targetId = decodeURIComponent(hash.slice(1))
-    } catch {
-      return
-    }
-    const frame = requestAnimationFrame(() => {
-      const prefersReducedMotion = window.matchMedia(
-        "(prefers-reduced-motion: reduce)"
-      ).matches
-
-      document.getElementById(targetId)?.scrollIntoView({
-        behavior: prefersReducedMotion ? "auto" : "smooth",
-        block: "start",
-      })
-    })
-    return () => cancelAnimationFrame(frame)
-  }, [pathname, hash, key])
 
   return (
     <>
+      <ScrollToTop />
       {usesEditorialLayout ? <HomeHeader /> : <Header />}
 
       <main key={pathname} className="page-enter">
@@ -72,7 +39,7 @@ function App() {
           <Route path="/cart" element={<Cart />} />
           <Route
             path="/personalize/:id"
-            element={<Personalizer />}
+            element={<Suspense fallback={<div className="min-h-screen p-8" role="status">A carregar o personalizador…</div>}><Personalizer /></Suspense>}
           />
           <Route path="*" element={<NotFound />} />
         </Routes>

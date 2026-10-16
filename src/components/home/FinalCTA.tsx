@@ -1,3 +1,5 @@
+import { Link } from "react-router"
+
 function FinalCTA() {
   return (
     <section className="bg-[#FCFBF8] py-12 sm:py-14 lg:py-18">
@@ -22,12 +24,12 @@ function FinalCTA() {
             </p>
 
             <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-              <a
-                href="#personalizar"
+              <Link
+                to="/personalizados"
                 className="rounded-xl bg-ink px-5 py-3 text-sm font-bold text-paper transition-transform duration-200 hover:-translate-y-0.5"
               >
                 Criar a tua prenda
-              </a>
+              </Link>
 
               <a
                 href="#produtos"
