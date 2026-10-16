@@ -12,6 +12,16 @@ function isRecord(value: unknown): value is Record<string, unknown> {
 }
 
 function isCustomization(value: unknown): value is ProductCustomization {
+  if (isRecord(value) && "design" in value) {
+    return isRecord(value.variant) &&
+      typeof value.variant.id === "string" && typeof value.variant.label === "string" &&
+      isRecord(value.design) && Array.isArray(value.design.texts) &&
+      value.design.texts.every((text: unknown) => typeof text === "string") &&
+      typeof value.design.photoCount === "number" &&
+      Number.isSafeInteger(value.design.photoCount) && value.design.photoCount >= 0 &&
+      (value.preview === undefined || (typeof value.preview === "string" &&
+        value.preview.length <= 200_000 && /^data:image\/(webp|jpeg);base64,[A-Za-z0-9+/=]+$/.test(value.preview)))
+  }
   return isRecord(value) &&
     typeof value.name === "string" &&
     typeof value.color === "string" &&
@@ -66,7 +76,7 @@ export function readCart(): CartItem[] {
           }
           return
         }
-        cart.push({ ...item, cartItemId: `product-${item.id}` })
+        cart.push({ ...item, productId: item.id, cartItemId: `product-${item.id}` })
         return
       }
 
@@ -77,7 +87,7 @@ export function readCart(): CartItem[] {
       let suffix = 1
       while (usedIds.has(cartItemId)) cartItemId = `${baseId}-${suffix++}`
       usedIds.add(cartItemId)
-      cart.push({ ...item, cartItemId })
+      cart.push({ ...item, productId: item.id, cartItemId })
     })
 
     return cart
@@ -90,6 +100,16 @@ export function saveCart(cartItems: CartItem[]) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(cartItems))
   } catch {
-    // O carrinho continua a funcionar em memória quando o armazenamento falha.
+    // QuotaExceededError: retry without previews, retaining every cart line.
+    // The in-memory cart keeps its previews until the page is reloaded.
+    try {
+      const compact = cartItems.map(item => item.customization && "design" in item.customization
+        ? { ...item, customization: { variant: item.customization.variant, design: item.customization.design } }
+        : item)
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(compact))
+    } catch {
+      // Avoid restoring an older cart when even the compact version cannot fit.
+      try { localStorage.removeItem(STORAGE_KEY) } catch { /* Storage unavailable; keep working in memory. */ }
+    }
   }
 }

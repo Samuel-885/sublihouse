@@ -31,6 +31,7 @@ function CartProvider({ children }: CartProviderProps) {
       if (customization) {
         const customizedItem: CartItem = {
           ...product,
+          productId: product.id,
           cartItemId: customizationId!,
           quantity,
           customization,
@@ -63,6 +64,7 @@ function CartProvider({ children }: CartProviderProps) {
 
       const newItem: CartItem = {
         ...product,
+        productId: product.id,
         cartItemId: `product-${product.id}`,
         quantity,
       }

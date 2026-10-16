@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useSyncExternalStore, type ChangeEvent } from "react"
 import { ArrowLeft, ArrowRight } from "lucide-react"
-import { Link, useParams, useSearchParams } from "react-router"
+import { Link, useNavigate, useParams, useSearchParams } from "react-router"
 import { products } from "../data/products"
 import type { Product } from "../types/product"
 import PersonalizerViewer, { type PersonalizerViewerHandle } from "../components/personalizer/PersonalizerViewer"
@@ -11,9 +11,15 @@ import type { PersonalizerTool } from "../components/personalizer/types"
 import { createDesignStore } from "../components/personalizer/editor/createDesignStore"
 import { getPersonalizer3DConfig } from "../components/personalizer/3d/personalizer3dConfig"
 import { defaultMugVariant } from "../components/personalizer/mugVariants"
+import { createCartPreview, summarizeDesign } from "../components/personalizer/editor/cartPreview"
+import { useCart } from "../context/useCart"
 import "../components/personalizer/personalizer.css"
 
 function PersonalizerWorkspace({ product, cartItemId }: { product: Product; cartItemId: string | null }) {
+  const { addToCart } = useCart()
+  const navigate = useNavigate()
+  const addingRef = useRef(false)
+  const [adding, setAdding] = useState(false)
   const [store] = useState(() => createDesignStore({ wrapX: getPersonalizer3DConfig(product)?.printableArea.wrapX ?? false }))
   const [mugVariant, setMugVariant] = useState(defaultMugVariant)
   const mounted = useRef(false)
@@ -39,7 +45,7 @@ function PersonalizerWorkspace({ product, cartItemId }: { product: Product; cart
   useEffect(() => {
     function keydown(event: KeyboardEvent) {
       const target = event.target
-      if (!isEditor || !available || busy || event.defaultPrevented || event.isComposing ||
+      if (!isEditor || !available || busy || addingRef.current || event.defaultPrevented || event.isComposing ||
         (target instanceof HTMLElement && (target.closest("input,textarea,select") || target.isContentEditable))) return
       const command = event.ctrlKey || event.metaKey
       const key = event.key.toLowerCase()
@@ -102,6 +108,40 @@ function PersonalizerWorkspace({ product, cartItemId }: { product: Product; cart
     }
   }
 
+  async function addPersonalizationToCart() {
+    if (addingRef.current || busy || isEditingExistingItem) return
+    addingRef.current = true
+    setAdding(true)
+    const capturedDesign = store.getDesign()
+    const capturedVariant = { ...mugVariant }
+    const capturedQuantity = quantity
+    const summary = summarizeDesign(capturedDesign)
+    try {
+      // Let React display the processing state before flattening the artwork.
+      await new Promise<void>(resolve => requestAnimationFrame(() => resolve()))
+      if (!mounted.current) return
+      let preview: string | undefined
+      try {
+        if (capturedDesign.elements.length) {
+          preview = createCartPreview(capturedDesign, capturedVariant, store.getPhoto)
+        }
+      } catch {
+        // An absent preview makes the cart use the product's default image.
+      }
+      addToCart(product, capturedQuantity, {
+        variant: getPersonalizer3DConfig(product)?.kind === "mug"
+          ? { id: capturedVariant.id, label: capturedVariant.label }
+          : { id: "standard", label: "Padrão" },
+        design: summary,
+        preview,
+      })
+      navigate("/cart")
+    } finally {
+      if (mounted.current) setAdding(false)
+      addingRef.current = false
+    }
+  }
+
   return (
     <section className="personalizer" id="home-conteudo" data-mode={isEditingExistingItem ? "edit" : "new"}>
       <div className="pz-intro"><div className="pz-container">
@@ -115,7 +155,7 @@ function PersonalizerWorkspace({ product, cartItemId }: { product: Product; cart
           <Link to={`/products/${product.id}`} className="pz-back"><ArrowLeft size={14} /> Ver produto</Link>
         </div>
         {isEditingExistingItem && <p className="pz-edit-notice" role="status">Edição de personalização · A recuperação da tua criação estará disponível em breve.</p>}
-        <div ref={workspaceRef} className={`pz-workspace${isEditor ? " pz-workspace-editing" : ""}`}>
+        <div ref={workspaceRef} inert={adding} aria-busy={adding} className={`pz-workspace${isEditor ? " pz-workspace-editing" : ""}`}>
           <div className="pz-stage">
             <PersonalizerViewer ref={viewer} variant={mugVariant} product={product} store={store} editing={isEditor} onAvailabilityChange={setAvailable} />
             <PersonalizerToolbar activeTool={activeTool} onSelect={addContent} available={available} busy={busy} store={store} />
@@ -126,7 +166,7 @@ function PersonalizerWorkspace({ product, cartItemId }: { product: Product; cart
           <PersonalizerBottomSheet activeTool={activeTool} expanded={isExpanded} onToggle={() => {
             setIsExpanded(!isExpanded)
           }}>
-            <PersonalizerPanel variant={mugVariant} onVariantChange={setMugVariant} product={product} quantity={quantity} onQuantityChange={setQuantity} activeTool={activeTool} isEditor={isEditor} selectedElement={selectedElement} store={store} onReplacePhoto={() => choosePhoto(selectedElement?.id ?? null)} busy={busy} available={available} onStart={startCreating} onChangeMethod={() => {
+            <PersonalizerPanel variant={mugVariant} onVariantChange={setMugVariant} product={product} quantity={quantity} onQuantityChange={setQuantity} activeTool={activeTool} isEditor={isEditor} selectedElement={selectedElement} store={store} onReplacePhoto={() => choosePhoto(selectedElement?.id ?? null)} busy={busy} available={available} adding={adding} cartDisabled={isEditingExistingItem} onAddToCart={addPersonalizationToCart} onStart={startCreating} onChangeMethod={() => {
               setIsEditor(false)
               store.select(null)
               requestAnimationFrame(() => workspaceRef.current?.querySelector<HTMLButtonElement>(".pz-method button")?.focus({ preventScroll: true }))
@@ -150,6 +190,6 @@ export default function Personalizer() {
       <Link className="pz-button pz-button-primary" to={product ? `/products/${product.id}` : "/products"}>{product ? "Voltar ao produto" : "Ver produtos"}<ArrowRight size={16} /></Link>
     </div></section>
   }
-  // A different product or cart item starts a fresh local session; no cart mutation.
+  // Existing designs cannot be restored yet; their purchase action stays disabled.
   return <PersonalizerWorkspace key={`${product.id}:${cartItemId ?? "new"}`} product={product} cartItemId={cartItemId} />
 }

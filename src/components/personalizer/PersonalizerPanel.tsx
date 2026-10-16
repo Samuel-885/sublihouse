@@ -12,7 +12,7 @@ import { getPersonalizer3DConfig } from "./3d/personalizer3dConfig"
 const currency = new Intl.NumberFormat("pt-PT", { style: "currency", currency: "EUR" })
 const icons = { default: Sparkles, photo: Image, text: Type, element: Shapes }
 
-export default function PersonalizerPanel({ variant, onVariantChange, product, quantity, onQuantityChange, activeTool, isEditor, onStart, onChangeMethod, selectedElement, store, onReplacePhoto, busy, available }: {
+export default function PersonalizerPanel({ variant, onVariantChange, product, quantity, onQuantityChange, activeTool, isEditor, onStart, onChangeMethod, selectedElement, store, onReplacePhoto, busy, available, adding, cartDisabled, onAddToCart }: {
   variant: MugVariant
   onVariantChange: (variant: MugVariant) => void
   product: Product
@@ -27,6 +27,9 @@ export default function PersonalizerPanel({ variant, onVariantChange, product, q
   onReplacePhoto: () => void
   busy: boolean
   available: boolean
+  adding: boolean
+  cartDisabled: boolean
+  onAddToCart: () => void
 }) {
   const Icon = icons[activeTool]
   return <div className="pz-panel">
@@ -49,9 +52,9 @@ export default function PersonalizerPanel({ variant, onVariantChange, product, q
     </section>
     {!isEditor && <PersonalizationMethod productName={product.name} onStart={onStart} />}
     <div className="pz-purchase-actions">
-      <button className="pz-button pz-button-primary" type="button" disabled aria-describedby="pz-cart-help">Adicionar ao carrinho</button>
+      <button className="pz-button pz-button-primary" type="button" disabled={busy || adding || cartDisabled} onClick={onAddToCart}>{adding ? "A adicionar..." : "Adicionar ao carrinho"}</button>
       <button className="pz-button" type="button" disabled>Guardar design</button>
-      <p id="pz-cart-help">Guardar e adicionar ao carrinho estarão disponíveis numa próxima fase.</p>
+      <p id="pz-cart-help">Guardar design estará disponível numa próxima fase.</p>
     </div>
     {isEditor && <button className="pz-change-method" type="button" onClick={onChangeMethod}>Preferes enviar a tua ideia? <span>Ver opções <span aria-hidden="true">→</span></span></button>}
   </div>

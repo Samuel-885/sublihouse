@@ -2,7 +2,6 @@ import { useState } from "react"
 import { Link } from "react-router"
 import { ArrowRight, Minus, Plus, ShoppingBag } from "lucide-react"
 import { useCart } from "../context/useCart"
-import { getPersonalizationColorName } from "../data/personalizationColors"
 import ProductImage from "../components/product/ProductImage"
 import "./cart.css"
 
@@ -39,7 +38,9 @@ function Cart() {
             {cartItems.map((item) => (
               <article key={item.cartItemId} className="cart-item" aria-label={item.name}>
                 <Link to={`/products/${item.id}`} className="cart-item-image" tabIndex={-1} aria-hidden="true">
-                  <ProductImage product={item} />
+                  <ProductImage product={item.customization && "design" in item.customization && item.customization.preview
+                    ? { ...item, image: item.customization.preview, imageAlt: `Personalização de ${item.name}` }
+                    : item} />
                 </Link>
                 <div className="cart-item-details">
                   <div className="cart-item-heading">
@@ -58,24 +59,17 @@ function Cart() {
                   </div>
                   {item.customization && (
                     <div className="cart-customization">
-                      <p className="cart-customization-status">Personalização criada</p>
+                      <p className="cart-customization-status">Personalizado</p>
                       <dl>
-                        {item.customization.name && (
-                          <div><dt>Nome:</dt><dd>{item.customization.name}</dd></div>
-                        )}
-                        {item.customization.color && (
-                          <div><dt>Cor:</dt><dd>{getPersonalizationColorName(item.customization.color)}</dd></div>
-                        )}
-                        {item.customization.font && (
-                          <div><dt>Fonte:</dt><dd>{item.customization.font}</dd></div>
-                        )}
-                        {item.customization.imageName && (
-                          <div><dt>Foto:</dt><dd>{item.customization.imageName} (apenas o nome do ficheiro guardado)</dd></div>
+                        {"design" in item.customization ? <>
+                          <div><dt>Variante:</dt><dd>{item.customization.variant.label}</dd></div>
+                          {item.customization.design.texts.some(text => text.trim()) && (
+                            <div><dt>Texto:</dt><dd>{item.customization.design.texts.join(" · ").slice(0, 120)}{item.customization.design.texts.join(" · ").length > 120 ? "…" : ""}</dd></div>
+                          )}
+                        </> : item.customization.name && (
+                          <div><dt>Texto:</dt><dd>{item.customization.name.slice(0, 120)}</dd></div>
                         )}
                       </dl>
-                      <Link to={`/personalize/${item.id}`} className="cart-edit">
-                        Editar personalização <ArrowRight size={14} aria-hidden="true" />
-                      </Link>
                     </div>
                   )}
                   <div className="cart-item-bottom">
